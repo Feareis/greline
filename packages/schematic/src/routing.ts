@@ -1,4 +1,4 @@
-import type { SchematicPath, SchematicPoint } from "@greline/types";
+import type { SchematicEdge, SchematicPath, SchematicPoint } from "@greline/types";
 
 /** A line reduced to the ordered ids of the stations it serves. */
 export interface LineStations {
@@ -115,13 +115,32 @@ export function buildLinePaths(
   const linesPerEdge = groupLinesByEdge(lines);
   return lines.map((line) => {
     const segments: Segment[] = [];
+    const edges: SchematicEdge[] = [];
     for (let i = 1; i < line.stationIds.length; i++) {
       const fromId = line.stationIds[i - 1]!;
       const toId = line.stationIds[i]!;
       const sharing = linesPerEdge.get(edgeKey(fromId, toId))!;
       const offset = (sharing.indexOf(line.id) - (sharing.length - 1) / 2) * spacing;
-      segments.push(...edgeSegments(positions.get(fromId)!, positions.get(toId)!, offset));
+      const edge = edgeSegments(positions.get(fromId)!, positions.get(toId)!, offset);
+      segments.push(...edge);
+      edges.push({ fromStopId: fromId, toStopId: toId, points: [edge[0]!.start, ...edge.map((s) => s.end)] });
     }
-    return { lineId: line.id, points: removeCollinearPoints(joinSegments(segments)) };
+    return { lineId: line.id, points: removeCollinearPoints(joinSegments(segments)), edges };
   });
+}
+
+/** The point at `progress` (0..1, clamped) of the polyline's length. */
+export function pointAlongPolyline(points: readonly SchematicPoint[], progress: number): SchematicPoint {
+  const lengths = points.slice(1).map((p, i) => Math.hypot(p.x - points[i]!.x, p.y - points[i]!.y));
+  let remaining = Math.min(1, Math.max(0, progress)) * lengths.reduce((sum, length) => sum + length, 0);
+  for (let i = 0; i < lengths.length; i++) {
+    const length = lengths[i]!;
+    if (remaining <= length && length > 0) {
+      const a = points[i]!;
+      const b = points[i + 1]!;
+      return { x: a.x + ((b.x - a.x) * remaining) / length, y: a.y + ((b.y - a.y) * remaining) / length };
+    }
+    remaining -= length;
+  }
+  return points[points.length - 1]!;
 }

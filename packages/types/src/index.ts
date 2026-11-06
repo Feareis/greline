@@ -81,10 +81,19 @@ export interface SchematicStation {
   lineIds: string[];
 }
 
+/** The drawn geometry between two consecutive stations of a line, offset like the line itself. */
+export interface SchematicEdge {
+  fromStopId: string;
+  toStopId: string;
+  points: SchematicPoint[];
+}
+
 /** The drawn path of one line, made of 0/45/90 degree segments. */
 export interface SchematicPath {
   lineId: string;
   points: SchematicPoint[];
+  /** One entry per pair of consecutive stations, in line order (used to place moving trams). */
+  edges: SchematicEdge[];
 }
 
 /** Everything needed to draw the schematic map, independent of any renderer. */
