@@ -10,7 +10,6 @@ const LINKS = {
   transit: "https://data.mobilites-m.fr",
   osm: "https://www.openstreetmap.org/copyright",
   openMeteo: "https://open-meteo.com",
-  repository: "https://github.com/Feareis/greline",
   developer: "https://github.com/Feareis",
 } as const;
 
@@ -102,11 +101,6 @@ export function AboutDialog({ versionText }: { versionText: string }) {
                 aria-label={`${fr.about.developer}, ${fr.about.profile}`}
               >
                 {fr.about.developer}
-              </a>
-            </p>
-            <p>
-              <a href={LINKS.repository} target="_blank" rel="noreferrer" style={linkStyle}>
-                {fr.about.sourceCode}
               </a>
             </p>
           </Section>

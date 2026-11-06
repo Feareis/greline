@@ -29,7 +29,6 @@ export const fr = {
     developmentTitle: "Développement",
     developedBy: "Développé par",
     developer: "Feareis",
-    sourceCode: "Code source sur GitHub",
     profile: "profil GitHub",
     versionTitle: "Version",
   },
