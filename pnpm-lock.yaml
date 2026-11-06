@@ -259,6 +259,9 @@ importers:
       '@greline/types':
         specifier: workspace:*
         version: link:../types
+      '@greline/validation':
+        specifier: workspace:*
+        version: link:../validation
     devDependencies:
       '@greline/tsconfig':
         specifier: workspace:*

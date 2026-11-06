@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@greline/types": "workspace:*"
+    "@greline/types": "workspace:*",
+    "@greline/validation": "workspace:*"
   },
   "devDependencies": {
     "@greline/tsconfig": "workspace:*",
