@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatClockTime, minutesUntil, serviceTimeToDate } from "./time";
+import { formatClockTime, minutesUntil, parisDate, serviceDayOrigin, serviceTimeToDate } from "./time";
 
 const unixSeconds = (iso: string): number => Date.parse(iso) / 1000;
 
@@ -54,5 +54,26 @@ describe("minutesUntil", () => {
 
   it("never returns a negative value", () => {
     expect(minutesUntil("2026-01-01T11:58:00Z", now)).toBe(0);
+  });
+});
+
+describe("serviceDayOrigin", () => {
+  it("matches the serviceDay sent by the M API on a regular day", () => {
+    expect(serviceDayOrigin("2026-11-06")).toBe(1793919600);
+  });
+
+  it("is 23:00 the evening before on the day clocks go forward", () => {
+    expect(serviceDayOrigin("2027-03-28")).toBe(unixSeconds("2027-03-27T22:00:00Z"));
+  });
+
+  it("is 01:00 local on the day clocks go back", () => {
+    expect(serviceDayOrigin("2026-10-25")).toBe(unixSeconds("2026-10-24T23:00:00Z"));
+  });
+});
+
+describe("parisDate", () => {
+  it("gives the calendar date in Grenoble, not in UTC", () => {
+    expect(parisDate(new Date("2026-11-06T23:30:00Z"))).toBe("2026-11-07");
+    expect(parisDate(new Date("2026-11-06T22:30:00Z"))).toBe("2026-11-06");
   });
 });

@@ -29,3 +29,32 @@ const PARIS_CLOCK = new Intl.DateTimeFormat("fr-FR", {
 export function formatClockTime(date: Date): string {
   return PARIS_CLOCK.format(date);
 }
+
+const PARIS_OFFSET = new Intl.DateTimeFormat("en-US", { timeZone: "Europe/Paris", timeZoneName: "longOffset" });
+const PARIS_DATE = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Paris", year: "numeric", month: "2-digit", day: "2-digit" });
+
+/** Offset of Paris time from UTC at a given instant, in minutes (60 in winter, 120 in summer). */
+function parisOffsetMinutes(instant: Date): number {
+  const name = PARIS_OFFSET.formatToParts(instant).find((part) => part.type === "timeZoneName")?.value ?? "";
+  const match = /^GMT([+-])(\d{2}):(\d{2})$/.exec(name);
+  if (!match) throw new Error(`Unexpected time zone offset format: "${name}"`);
+  const minutes = Number(match[2]) * 60 + Number(match[3]);
+  return match[1] === "-" ? -minutes : minutes;
+}
+
+/**
+ * Unix seconds of the GTFS service day origin of a calendar date ("YYYY-MM-DD") in Grenoble:
+ * noon local time minus 12 h. GTFS times (possibly beyond 24:00) count from that instant.
+ */
+export function serviceDayOrigin(serviceDate: string): number {
+  const [year, month, day] = serviceDate.split("-").map(Number) as [number, number, number];
+  // Clocks change at night, so the offset at 12:00 UTC is the offset at local noon.
+  const noonUtc = Date.UTC(year, month - 1, day, 12);
+  const localNoon = noonUtc - parisOffsetMinutes(new Date(noonUtc)) * 60_000;
+  return (localNoon - 12 * 3_600_000) / 1000;
+}
+
+/** Calendar date ("YYYY-MM-DD") in Grenoble at a given instant. */
+export function parisDate(instant: Date): string {
+  return PARIS_DATE.format(instant);
+}
