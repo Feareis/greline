@@ -16,6 +16,11 @@ export const fr = {
     osmCredit: "© contributeurs OpenStreetMap",
     dataCredit: "Données : M (ODbL)",
   },
+  trams: {
+    legend: "Rames en circulation, positions estimées en temps réel",
+    late: "Contour orange : retard de plus de 2 min",
+    unavailable: "Rames indisponibles pour le moment.",
+  },
   locate: {
     button: "Me localiser",
     locating: "Localisation…",

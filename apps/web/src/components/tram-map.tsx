@@ -8,6 +8,7 @@ import { select } from "d3-selection";
 import { zoom } from "d3-zoom";
 import { useEffect, useMemo, useRef } from "react";
 import { LINE_SPACING, LINE_WIDTH } from "./map-style";
+import { TramVehicles } from "./tram-vehicles";
 
 const MAX_ZOOM = 8;
 const STATION_RADIUS = 3;
@@ -142,6 +143,7 @@ export function TramMap({ map, network, selectedId, onSelect }: TramMapProps) {
             strokeLinecap="round"
           />
         ))}
+        <TramVehicles map={map} lines={network.lines} />
         {map.stations.map((station) => {
           const stop = stopsById.get(station.stopId);
           if (!stop) return null;

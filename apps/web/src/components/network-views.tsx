@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 import { StationPanel } from "./station-panel";
 import { TramMap } from "./tram-map";
+import { TramLegend } from "./tram-vehicles";
 
 // MapLibre is heavy: it is only downloaded when the map view is shown, and never on the server.
 const GeoMap = dynamic(() => import("./geo-map").then((m) => m.GeoMap), {
@@ -87,7 +88,10 @@ export function NetworkViews({ network, schematic }: NetworkViewsProps) {
       {view === "map" ? (
         <GeoMap network={network} selectedId={selectedId} onSelect={setSelectedId} />
       ) : (
-        <TramMap map={schematic} network={network} selectedId={selectedId} onSelect={setSelectedId} />
+        <>
+          <TramMap map={schematic} network={network} selectedId={selectedId} onSelect={setSelectedId} />
+          <TramLegend />
+        </>
       )}
       {selectedStop && <StationPanel stop={selectedStop} lines={selectedLines} onClose={closePanel} />}
     </div>

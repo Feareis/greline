@@ -6,6 +6,8 @@ export const colors = {
   textMuted: "#9AA4B2",
   accent: "#4CC3FF",
   station: "#FFFFFF",
+  /** Outline of a tram running late. */
+  late: "#FF9F1C",
 } as const;
 
 export const spacing = {
