@@ -2,7 +2,8 @@
 
 import { fr } from "@greline/i18n";
 import { nearestStops, type NearbyStop } from "@greline/services";
-import { colors, radii } from "@greline/theme";
+import { radii } from "@greline/theme";
+import { colors } from "@/lib/theme-tokens";
 import type { Stop } from "@greline/types";
 import { useState } from "react";
 import { Marker, useMap } from "react-map-gl/maplibre";

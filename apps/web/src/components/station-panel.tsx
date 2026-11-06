@@ -1,7 +1,8 @@
 "use client";
 
 import { fr } from "@greline/i18n";
-import { colors, radii, toCssColor } from "@greline/theme";
+import { radii, toCssColor } from "@greline/theme";
+import { colors } from "@/lib/theme-tokens";
 import type { Line, Stop } from "@greline/types";
 import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";

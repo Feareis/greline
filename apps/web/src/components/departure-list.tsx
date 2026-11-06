@@ -3,7 +3,8 @@
 import { useDepartures, useNow } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { departureCountdown, formatClockTime, GrelineApiError, groupDepartures } from "@greline/services";
-import { colors, radii, toCssColor } from "@greline/theme";
+import { radii, toCssColor } from "@greline/theme";
+import { colors } from "@/lib/theme-tokens";
 import type { Departure, Line } from "@greline/types";
 import type { ReactNode } from "react";
 

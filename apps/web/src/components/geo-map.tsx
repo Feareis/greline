@@ -2,11 +2,13 @@
 
 import "maplibre-gl/dist/maplibre-gl.css";
 import { fr } from "@greline/i18n";
-import { colors, toCssColor } from "@greline/theme";
+import { palettes, type ThemeName, toCssColor } from "@greline/theme";
 import type { Stop, TramNetwork } from "@greline/types";
-import { setWorkerUrl } from "maplibre-gl";
+import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { useMemo, useState } from "react";
-import MapView, { AttributionControl, Layer, type MapEvent, type MapRef, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
+import MapView, { AttributionControl, Layer, type MapRef, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
+import { useTheme } from "@/lib/theme";
+import { colors } from "@/lib/theme-tokens";
 import { LocateButton } from "./locate-button";
 import { addTramIcon, TramVehicles } from "./tram-vehicles";
 
@@ -16,25 +18,32 @@ import { addTramIcon, TramVehicles } from "./tram-vehicles";
 setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).href);
 
 // OpenFreeMap: OpenStreetMap vector tiles, free, no API key (see docs/decisions/0002-map-tiles.md).
-const MAP_STYLE_URL = "https://tiles.openfreemap.org/styles/dark";
+const MAP_STYLES: Record<ThemeName, string> = {
+  dark: "https://tiles.openfreemap.org/styles/dark",
+  light: "https://tiles.openfreemap.org/styles/positron",
+};
 const SELECTED_STATION_ZOOM = 15;
 
-/** Aligns the base map with our design tokens once the style is loaded. */
-function applyThemeColors({ target: map }: MapEvent) {
-  if (map.getLayer("background")) map.setPaintProperty("background", "background-color", colors.background);
-  if (map.getLayer("water")) map.setPaintProperty("water", "fill-color", colors.surface);
+/** Aligns the dark base map with our design tokens (the light one is used as is). */
+function applyBaseColors(map: MapLibreMap) {
+  if (document.documentElement.dataset.theme === "light") return;
+  if (map.getLayer("background")) map.setPaintProperty("background", "background-color", palettes.dark.background);
+  if (map.getLayer("water")) map.setPaintProperty("water", "fill-color", palettes.dark.surface);
 }
 
 const TRANSPARENT_PIXEL = { width: 1, height: 1, data: new Uint8Array(4) };
 
 /**
- * Draws tram icons on demand. Any other missing image is a gap of the base style (its dark
- * variant fills woods with a "wood-pattern" its own sprite lacks, and MapLibre warns for every
- * tile): a transparent stand-in keeps the same look (no pattern) quietly.
+ * Set up once the map exists. Draws tram icons on demand; any other missing image is a gap of the
+ * base style (its dark variant fills woods with a "wood-pattern" its own sprite lacks, and
+ * MapLibre warns for every tile): a transparent stand-in keeps the same look quietly. Base colors
+ * are re-applied after every style load, including theme switches.
  */
-function resolveMissingImages(ref: MapRef | null) {
+function setUpMap(ref: MapRef | null) {
   const map = ref?.getMap();
-  map?.setMissingStyleImageResolver(async (id) => {
+  if (!map) return;
+  map.on("style.load", () => applyBaseColors(map));
+  map.setMissingStyleImageResolver(async (id) => {
     if (await addTramIcon(map, id)) return;
     if (!map.hasImage(id)) map.addImage(id, TRANSPARENT_PIXEL);
   });
@@ -60,11 +69,11 @@ interface StationButtonProps {
 
 function ringShadow(selected: boolean, nearby: boolean): string | undefined {
   if (selected) return `0 0 0 3px ${colors.accent}`;
-  if (nearby) return `0 0 0 4px ${colors.accent}80`;
+  if (nearby) return `0 0 0 4px color-mix(in srgb, ${colors.accent} 50%, transparent)`;
   return undefined;
 }
 
-/** Same look as the schematic map: white dot, larger ringed pill for transfers. 24 px hit area. */
+/** White dot, larger ringed pill for transfers. 24 px hit area. */
 function StationButton({ stop, transfer, selected, nearby, onSelect }: StationButtonProps) {
   const size = transfer || nearby ? 14 : 8;
   return (
@@ -87,7 +96,7 @@ function StationButton({ stop, transfer, selected, nearby, onSelect }: StationBu
             width: size,
             height: size,
             background: colors.station,
-            border: transfer ? `2px solid ${colors.background}` : undefined,
+            border: `${transfer ? 2 : 1}px solid ${colors.stationOutline}`,
             boxShadow: ringShadow(selected, nearby),
           }}
         />
@@ -122,8 +131,9 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
     return new Set([...counts].filter(([, count]) => count > 1).map(([id]) => id));
   }, [network.lines]);
 
-  // Computed once: the map then owns its camera (uncontrolled). A station selected in the plan
-  // view is centered on; otherwise the whole network is framed.
+  const theme = useTheme();
+  // Computed once: the map then owns its camera (uncontrolled). An already selected station is
+  // centered on; otherwise the whole network is framed.
   const [initialViewState] = useState(() => {
     const selected = network.stops.find((s) => s.id === selectedId);
     if (selected) return { longitude: selected.lon, latitude: selected.lat, zoom: SELECTED_STATION_ZOOM };
@@ -133,11 +143,12 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
   return (
     <div className="h-full w-full" role="region" aria-label={fr.geoMap.ariaLabel}>
       <MapView
-        ref={resolveMissingImages}
+        ref={setUpMap}
         initialViewState={initialViewState}
-        mapStyle={MAP_STYLE_URL}
+        mapStyle={MAP_STYLES[theme]}
+        // A full style reload on theme switch fires "style.load", where base colors are re-applied.
+        styleDiffing={false}
         attributionControl={false}
-        onLoad={applyThemeColors}
         style={{ width: "100%", height: "100%" }}
       >
         <Source id="tram-lines" type="geojson" data={linesData}>

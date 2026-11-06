@@ -1,7 +1,7 @@
 "use client";
 
 import { fr } from "@greline/i18n";
-import { colors } from "@greline/theme";
+import { colors } from "@/lib/theme-tokens";
 import type { TramNetwork } from "@greline/types";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";

@@ -1,5 +1,5 @@
 import { fr } from "@greline/i18n";
-import { colors } from "@greline/theme";
+import { colors } from "@/lib/theme-tokens";
 import type { TramNetwork } from "@greline/types";
 import { connection } from "next/server";
 import { Suspense } from "react";

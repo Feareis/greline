@@ -3,7 +3,8 @@
 import { useTramSchedule, useTripDelays } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { cumulativeDistances, LATE_THRESHOLD_SECONDS, pointAtDistance, vehiclePositions } from "@greline/services";
-import { colors, radii } from "@greline/theme";
+import { colors as iconColors, radii } from "@greline/theme";
+import { colors } from "@/lib/theme-tokens";
 import type { Line, TramSchedule } from "@greline/types";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { useEffect, useMemo } from "react";
@@ -22,12 +23,13 @@ const TRAM_ICON_ID = /^tram-([0-9A-Fa-f]{6})(-late)?$/;
 
 /** A tram seen from above, nose pointing east (bearing 90). Drawn at 2x for sharp screens. */
 function tramSvg(lineColor: string, late: boolean): string {
-  const stroke = late ? colors.late : colors.station;
+  // Icons are bitmaps: they take real color values, the same in both themes.
+  const stroke = late ? iconColors.late : iconColors.station;
   const strokeWidth = late ? 2.5 : 1.5;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="100" height="40" viewBox="0 0 50 20">
 <path d="M5 4h33c4.4 0 9 2.7 9 6s-4.6 6-9 6H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" fill="#${lineColor}" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round"/>
-<path d="M40 6.3c2.8.6 4.8 2 4.8 3.7s-2 3.1-4.8 3.7z" fill="${colors.background}" fill-opacity=".75"/>
-<path d="M16 4.8v10.4M28 4.8v10.4" stroke="${colors.background}" stroke-opacity=".45"/>
+<path d="M40 6.3c2.8.6 4.8 2 4.8 3.7s-2 3.1-4.8 3.7z" fill="${iconColors.background}" fill-opacity=".75"/>
+<path d="M16 4.8v10.4M28 4.8v10.4" stroke="${iconColors.background}" stroke-opacity=".45"/>
 </svg>`;
 }
 
