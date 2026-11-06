@@ -29,13 +29,25 @@ interface Parser<T> {
   parse(data: unknown): T;
 }
 
-/** GETs a M API endpoint and validates the JSON body; throws MApiError on any surprise. */
-export async function fetchFromMApi<T>(url: string, schema: Parser<T>, fetchFn: FetchLike): Promise<T> {
+/**
+ * GETs a M API endpoint and validates the JSON body; throws MApiError on any surprise.
+ * `whenEmpty` is returned for a 204 answer (no body), which some endpoints use for "nothing".
+ */
+export async function fetchFromMApi<T>(
+  url: string,
+  schema: Parser<T>,
+  fetchFn: FetchLike,
+  whenEmpty?: T,
+): Promise<T> {
   const response = await fetchFn(url, {
     headers: { origin: M_API_ORIGIN },
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!response.ok) throw new MApiError(`M API answered ${response.status} for ${url}`);
+  if (response.status === 204) {
+    if (whenEmpty === undefined) throw new MApiError(`M API answered 204 (no content) for ${url}`);
+    return whenEmpty;
+  }
   const body: unknown = await response.json();
   try {
     return schema.parse(body);

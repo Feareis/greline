@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@greline/schematic": "workspace:*",
+    "@greline/services": "workspace:*",
     "@greline/types": "workspace:*",
     "@greline/validation": "workspace:*"
   },

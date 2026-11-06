@@ -190,6 +190,9 @@ importers:
       '@greline/schematic':
         specifier: workspace:*
         version: link:../schematic
+      '@greline/services':
+        specifier: workspace:*
+        version: link:../services
       '@greline/types':
         specifier: workspace:*
         version: link:../types

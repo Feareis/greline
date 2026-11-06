@@ -1,0 +1,207 @@
+[
+ {
+  "pattern": {
+   "id": "SEM:B:1:234041489",
+   "desc": "Plaine des Sports",
+   "dir": 2,
+   "shortDesc": "GIERES PL. DES ",
+   "lastStop": "SEM:3059",
+   "lastStopName": "Gières, Plaine des Sports"
+  },
+  "times": [
+   {
+    "stopId": "SEM:2216",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 36360,
+    "scheduledDeparture": 36360,
+    "realtimeArrival": 36408,
+    "realtimeDeparture": 36408,
+    "arrivalDelay": 48,
+    "departureDelay": 48,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32165104",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   },
+   {
+    "stopId": "SEM:2216",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 36780,
+    "scheduledDeparture": 36780,
+    "realtimeArrival": 36806,
+    "realtimeDeparture": 36806,
+    "arrivalDelay": 26,
+    "departureDelay": 26,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32165101",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   }
+  ]
+ },
+ {
+  "pattern": {
+   "id": "SEM:A:0:1907073374",
+   "desc": "La Poya",
+   "dir": 1,
+   "shortDesc": "FONTAINE LA POY",
+   "lastStop": "SEM:2215",
+   "lastStopName": "Fontaine, La Poya"
+  },
+  "times": [
+   {
+    "stopId": "SEM:2214",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 36120,
+    "scheduledDeparture": 36120,
+    "realtimeArrival": 36418,
+    "realtimeDeparture": 36418,
+    "arrivalDelay": 298,
+    "departureDelay": 298,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32135846",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   },
+   {
+    "stopId": "SEM:2214",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 35880,
+    "scheduledDeparture": 35880,
+    "realtimeArrival": 36476,
+    "realtimeDeparture": 36476,
+    "arrivalDelay": 596,
+    "departureDelay": 596,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32135595",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   }
+  ]
+ },
+ {
+  "pattern": {
+   "id": "SEM:C1:0:-785657397",
+   "desc": "Cité Jean Macé",
+   "dir": 1,
+   "shortDesc": "CITE JEAN MACE",
+   "lastStop": "SEM:0948",
+   "lastStopName": "Grenoble, Cité Jean Macé"
+  },
+  "times": [
+   {
+    "stopId": "SEM:0892",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 36660,
+    "scheduledDeparture": 36660,
+    "realtimeArrival": 36718,
+    "realtimeDeparture": 36718,
+    "arrivalDelay": 58,
+    "departureDelay": 58,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32140133",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   },
+   {
+    "stopId": "SEM:0892",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 37140,
+    "scheduledDeparture": 37140,
+    "realtimeArrival": 37114,
+    "realtimeDeparture": 37114,
+    "arrivalDelay": -26,
+    "departureDelay": -26,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32140125",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   }
+  ]
+ },
+ {
+  "pattern": {
+   "id": "SE2:86:0:2125254748",
+   "desc": "Gare Routière",
+   "dir": 1,
+   "shortDesc": "GARE ROUTIÈRE",
+   "lastStop": "SE2:4895",
+   "lastStopName": "Grenoble, Gare Routière"
+  },
+  "times": [
+   {
+    "stopId": "SE2:2352",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 36188,
+    "scheduledDeparture": 36188,
+    "realtimeArrival": 36438,
+    "realtimeDeparture": 36438,
+    "arrivalDelay": 250,
+    "departureDelay": 250,
+    "timepoint": true,
+    "realtime": true,
+    "realtimeState": "UPDATED",
+    "pickupType": "0",
+    "serviceDay": 1793919600,
+    "tripId": "SE2:32240448",
+    "cancelled": false,
+    "occupancy": "Faible",
+    "occupancyId": 1
+   }
+  ]
+ },
+ {
+  "pattern": {
+   "id": "SEM:A:0:1053857565",
+   "desc": "La Poya",
+   "shortDesc": "LA POYA",
+   "dir": 1,
+   "lastStop": "SEM:2215",
+   "lastStopName": "Fontaine, La Poya"
+  },
+  "times": [
+   {
+    "stopId": "SEM:2214",
+    "stopName": "Grenoble, Gares",
+    "scheduledArrival": 36660,
+    "scheduledDeparture": 36660,
+    "realtimeArrival": 36660,
+    "realtimeDeparture": 36660,
+    "arrivalDelay": 0,
+    "departureDelay": 0,
+    "timepoint": true,
+    "realtime": false,
+    "realtimeState": "SCHEDULED",
+    "serviceDay": 1793919600,
+    "tripId": "SEM:32135528",
+    "pickupType": "0",
+    "occupancy": "Faible",
+    "occupancyId": 1
+   }
+  ]
+ }
+]
