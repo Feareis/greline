@@ -3,3 +3,4 @@ export * from "./to-network";
 export * from "./fetch-departures";
 export * from "./to-departures";
 export * from "./zip";
+export * from "./schedule";

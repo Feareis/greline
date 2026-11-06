@@ -38,6 +38,35 @@ export interface TramNetwork {
   stops: Stop[];
 }
 
+/** The ordered stops served by a group of trips (one line, one direction, one variant). */
+export interface TramPattern {
+  lineId: string;
+  headsign: string;
+  /** Station ids (cluster codes), in travel order. */
+  stopIds: string[];
+}
+
+/**
+ * One scheduled tram trip. Departure at stop i of its pattern = start + offsets[i], in Unix
+ * seconds. `id` matches the realtime trip ids ("SEM:32135884"); a trip running on two
+ * consecutive service days appears twice (different `start`).
+ */
+export interface TramTrip {
+  id: string;
+  /** Index in TramSchedule.patterns. */
+  pattern: number;
+  start: number;
+  offsets: number[];
+}
+
+/** Every tram trip running during a service day, including those of the previous day past midnight. */
+export interface TramSchedule {
+  /** "YYYY-MM-DD". */
+  serviceDate: string;
+  patterns: TramPattern[];
+  trips: TramTrip[];
+}
+
 /** A point in schematic map units (SVG user space, y pointing down). */
 export interface SchematicPoint {
   x: number;
