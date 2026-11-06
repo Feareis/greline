@@ -6,7 +6,7 @@ import { colors, toCssColor } from "@greline/theme";
 import type { Stop, TramNetwork } from "@greline/types";
 import { setWorkerUrl } from "maplibre-gl";
 import { useMemo, useState } from "react";
-import MapView, { AttributionControl, Layer, type MapEvent, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
+import MapView, { AttributionControl, Layer, type MapEvent, type MapRef, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
 import { LocateButton } from "./locate-button";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
@@ -22,6 +22,19 @@ const SELECTED_STATION_ZOOM = 15;
 function applyThemeColors({ target: map }: MapEvent) {
   if (map.getLayer("background")) map.setPaintProperty("background", "background-color", colors.background);
   if (map.getLayer("water")) map.setPaintProperty("water", "fill-color", colors.surface);
+}
+
+const TRANSPARENT_PIXEL = { width: 1, height: 1, data: new Uint8Array(4) };
+
+/**
+ * The OpenFreeMap dark style fills woods with a "wood-pattern" its own sprite lacks, so MapLibre
+ * logs a warning for every tile. A transparent stand-in keeps the same look (no pattern) quietly.
+ */
+function silenceMissingStyleImages(ref: MapRef | null) {
+  const map = ref?.getMap();
+  map?.setMissingStyleImageResolver((id) => {
+    if (!map.hasImage(id)) map.addImage(id, TRANSPARENT_PIXEL);
+  });
 }
 
 function networkBounds(stops: readonly Stop[]): [[number, number], [number, number]] {
@@ -117,6 +130,7 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
   return (
     <div className="h-full w-full" role="region" aria-label={fr.geoMap.ariaLabel}>
       <MapView
+        ref={silenceMissingStyleImages}
         initialViewState={initialViewState}
         mapStyle={MAP_STYLE_URL}
         attributionControl={false}
