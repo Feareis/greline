@@ -8,7 +8,7 @@ export async function GET(): Promise<Response> {
   try {
     return Response.json(await getTransitNetwork());
   } catch (error) {
-    console.error("GET /api/network/trams: M API unavailable", error);
+    console.error("GET /api/network: M API unavailable", error);
     return Response.json({ error: "upstream_unavailable" }, { status: 502 });
   }
 }

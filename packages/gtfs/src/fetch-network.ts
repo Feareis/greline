@@ -1,6 +1,6 @@
 import type { TransitNetwork } from "@greline/types";
 import { mLineShapesSchema, mRoutesSchema, mTimesheetSchema } from "@greline/validation";
-import { shapeIdOf, toTransitNetwork } from "./to-network";
+import { isShownRoute, M_NETWORK_TYPES, shapeIdOf, toTransitNetwork } from "./to-network";
 
 const M_API_BASE = "https://data.mobilites-m.fr/api";
 
@@ -11,7 +11,7 @@ const REQUEST_TIMEOUT_MS = 10_000;
 
 /** M API endpoints (license: ODbL). Server-side use only: clients call our own API. */
 export const M_API = {
-  tramRoutes: `${M_API_BASE}/routers/default/index/routes?reseaux=TRAM`,
+  routes: `${M_API_BASE}/routers/default/index/routes?reseaux=${Object.values(M_NETWORK_TYPES).flat().join(",")}`,
   lineShapes: (shapeIds: readonly string[]) =>
     `${M_API_BASE}/lines/json?types=ligne&codes=${shapeIds.map(encodeURIComponent).join(",")}`,
   timesheet: (routeId: string) => `${M_API_BASE}/ficheHoraires/json?route=${encodeURIComponent(routeId)}`,
@@ -56,9 +56,9 @@ export async function fetchFromMApi<T>(
   }
 }
 
-/** Fetches the tram lines, their shapes and timesheets from the M API (7 requests). */
+/** Fetches our lines, their shapes and timesheets from the M API (~28 requests, once a day). */
 export async function fetchTransitNetwork(fetchFn: FetchLike = fetch): Promise<TransitNetwork> {
-  const routes = await fetchFromMApi(M_API.tramRoutes, mRoutesSchema, fetchFn);
+  const routes = (await fetchFromMApi(M_API.routes, mRoutesSchema, fetchFn)).filter(isShownRoute);
   const [shapes, timesheets] = await Promise.all([
     fetchFromMApi(M_API.lineShapes(routes.map((r) => shapeIdOf(r.id))), mLineShapesSchema, fetchFn),
     Promise.all(routes.map((r) => fetchFromMApi(M_API.timesheet(r.id), mTimesheetSchema, fetchFn))),

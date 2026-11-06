@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Departure, Line, TransitSchedule, Weather } from "@greline/types";
+import { type Departure, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -8,6 +8,7 @@ export const lineSchema = z.object({
   shortName: z.string().min(1),
   longName: z.string(),
   mode: z.enum(["tram", "bus"]),
+  network: z.enum(NETWORK_IDS),
   color: hexColor,
   textColor: hexColor,
 }) satisfies z.ZodType<Line>;

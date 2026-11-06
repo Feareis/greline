@@ -9,6 +9,7 @@ const route = {
   color: "3376B8",
   textColor: "FFFFFF",
   mode: "TRAM",
+  type: "TRAM",
 };
 
 const timesheetStop = {
@@ -29,6 +30,7 @@ describe("mRoutesSchema", () => {
       longName: "Le Pont-de-Claix / Fontaine La Poya",
       color: "3376B8",
       textColor: "FFFFFF",
+      type: "TRAM",
     });
   });
 

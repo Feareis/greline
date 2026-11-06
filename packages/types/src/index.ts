@@ -1,12 +1,17 @@
 /** Transport mode of a line. */
 export type LineMode = "tram" | "bus";
 
+/** The networks shown by Greline, in display order. Chrono includes the periurban Chrono lines. */
+export const NETWORK_IDS = ["tram", "chrono", "proximo"] as const;
+export type NetworkId = (typeof NETWORK_IDS)[number];
+
 /** A public transport line (e.g. tram A). */
 export interface Line {
   id: string;
   shortName: string;
   longName: string;
   mode: LineMode;
+  network: NetworkId;
   /** Hex color without "#", as provided by the M API. */
   color: string;
   textColor: string;

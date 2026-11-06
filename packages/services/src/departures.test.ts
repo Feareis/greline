@@ -38,6 +38,7 @@ describe("groupDepartures", () => {
     shortName,
     longName: shortName,
     mode: "tram" as const,
+    network: "tram" as const,
     color: "3376B8",
     textColor: "FFFFFF",
   });

@@ -14,6 +14,8 @@ export const mRouteSchema = z.object({
   longName: z.string(),
   color: hexColor,
   textColor: hexColor,
+  /** M network ("reseau"): TRAM, CHRONO, CHRONO_PERI, PROXIMO, FLEXO... */
+  type: z.string().min(1),
 });
 export const mRoutesSchema = z.array(mRouteSchema);
 export type MRoute = z.infer<typeof mRouteSchema>;

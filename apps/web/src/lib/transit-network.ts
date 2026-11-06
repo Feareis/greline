@@ -6,7 +6,7 @@ const ONE_DAY_S = 24 * 60 * 60;
 
 /**
  * The tram network, fetched from the M API at most once a day per server instance.
- * Shared by the /api/network/trams route and the home page so both serve the same data.
+ * Shared by the /api/network route and the home page so both serve the same data.
  */
 export async function getTransitNetwork(): Promise<TransitNetwork> {
   "use cache";
