@@ -169,6 +169,9 @@ importers:
 
   packages/gtfs:
     dependencies:
+      '@greline/schematic':
+        specifier: workspace:*
+        version: link:../schematic
       '@greline/types':
         specifier: workspace:*
         version: link:../types

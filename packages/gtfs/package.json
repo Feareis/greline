@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@greline/schematic": "workspace:*",
     "@greline/types": "workspace:*",
     "@greline/validation": "workspace:*"
   },
