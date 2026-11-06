@@ -17,7 +17,7 @@ export interface SchematicMapOptions {
 
 const DEFAULT_OPTIONS: Required<SchematicMapOptions> = {
   size: 1000,
-  compression: 0.7,
+  compression: 0.4,
   lineSpacing: 6,
   padding: 48,
 };
