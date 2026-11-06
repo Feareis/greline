@@ -1,4 +1,4 @@
-import { distanceToPolylineMeters } from "@greline/schematic";
+import { distanceToPolylineMeters } from "@greline/services";
 import type { LonLat, NetworkLine, Stop, TramNetwork } from "@greline/types";
 import type { MLineShapes, MRoute, MTimesheet } from "@greline/validation";
 

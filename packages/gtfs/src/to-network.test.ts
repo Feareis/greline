@@ -1,4 +1,4 @@
-import { distanceToPolylineMeters } from "@greline/schematic";
+import { distanceToPolylineMeters } from "@greline/services";
 import { mLineShapesSchema, mRoutesSchema, mTimesheetSchema } from "@greline/validation";
 import { describe, expect, it } from "vitest";
 import sample from "./__fixtures__/m-tram-sample.json";

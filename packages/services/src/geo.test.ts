@@ -1,6 +1,14 @@
 import type { Stop } from "@greline/types";
 import { describe, expect, it } from "vitest";
-import { distanceMeters, nearestStops } from "./geo";
+import {
+  bearingDegrees,
+  createLocalProjection,
+  cumulativeDistances,
+  distanceMeters,
+  distanceToPolylineMeters,
+  nearestStops,
+  pointAtDistance,
+} from "./geo";
 
 const stop = (id: string, lat: number, lon: number): Stop => ({ id, name: id, city: "Grenoble", lat, lon });
 
@@ -46,5 +54,91 @@ describe("nearestStops", () => {
   it("does not reorder the input array", () => {
     nearestStops(here, stops, 3);
     expect(stops[0]!.id).toBe("far");
+  });
+});
+describe("createLocalProjection", () => {
+  const project = createLocalProjection([5.72, 45.18]);
+
+  it("maps the origin to (0, 0)", () => {
+    expect(project([5.72, 45.18])).toEqual({ x: 0, y: 0 });
+  });
+
+  it("returns meters with y pointing down (north is up)", () => {
+    const north = project([5.72, 45.19]);
+    expect(north.x).toBeCloseTo(0, 6);
+    expect(north.y).toBeCloseTo(-1111.95, 1);
+  });
+
+  it("shrinks longitude degrees by cos(latitude)", () => {
+    expect(project([5.73, 45.18]).x).toBeCloseTo(784.0, 0);
+  });
+});
+
+describe("distanceToPolylineMeters", () => {
+  const eastWest: [number, number][] = [
+    [5.7, 45.18],
+    [5.74, 45.18],
+  ];
+
+  it("is zero for a point on the line", () => {
+    expect(distanceToPolylineMeters([5.72, 45.18], eastWest)).toBeCloseTo(0, 6);
+  });
+
+  it("measures the perpendicular distance to a segment", () => {
+    expect(distanceToPolylineMeters([5.72, 45.181], eastWest)).toBeCloseTo(111.2, 0);
+  });
+
+  it("measures to the nearest endpoint past the end of the line", () => {
+    expect(distanceToPolylineMeters([5.75, 45.18], eastWest)).toBeCloseTo(784.0, 0);
+  });
+
+  it("takes the nearest of several segments", () => {
+    const bent: [number, number][] = [...eastWest, [5.74, 45.2]];
+    expect(distanceToPolylineMeters([5.7405, 45.19], bent)).toBeCloseTo(39.2, 0);
+  });
+});
+
+describe("cumulativeDistances", () => {
+  it("adds up segment lengths from the first point", () => {
+    const [start, middle, end] = cumulativeDistances([
+      [5.72, 45.18],
+      [5.72, 45.19],
+      [5.72, 45.2],
+    ]);
+    expect(start).toBe(0);
+    expect(middle).toBeCloseTo(1112, 0);
+    expect(end).toBeCloseTo(2224, 0);
+  });
+});
+
+describe("bearingDegrees", () => {
+  it("measures clockwise from north", () => {
+    expect(bearingDegrees([5.72, 45.18], [5.72, 45.19])).toBeCloseTo(0, 6);
+    expect(bearingDegrees([5.72, 45.18], [5.73, 45.18])).toBeCloseTo(90, 6);
+    expect(bearingDegrees([5.72, 45.19], [5.72, 45.18])).toBeCloseTo(180, 6);
+    expect(bearingDegrees([5.73, 45.18], [5.72, 45.18])).toBeCloseTo(270, 6);
+  });
+});
+
+describe("pointAtDistance", () => {
+  // North for ~1112 m, then east for ~784 m.
+  const track: [number, number][] = [
+    [5.72, 45.18],
+    [5.72, 45.19],
+    [5.73, 45.19],
+  ];
+  const cumulative = cumulativeDistances(track);
+
+  it("interpolates inside the segment holding the distance, with its direction", () => {
+    const point = pointAtDistance(track, cumulative, cumulative[1]! / 2);
+    expect(point.lon).toBeCloseTo(5.72, 9);
+    expect(point.lat).toBeCloseTo(45.185, 6);
+    expect(point.bearing).toBeCloseTo(0, 6);
+    expect(pointAtDistance(track, cumulative, cumulative[1]! + 10).bearing).toBeCloseTo(90, 6);
+  });
+
+  it("clamps to the ends of the track", () => {
+    expect(pointAtDistance(track, cumulative, -5)).toMatchObject({ lon: 5.72, lat: 45.18 });
+    expect(pointAtDistance(track, cumulative, 99_999)).toMatchObject({ lon: 5.73, lat: 45.19 });
   });
 });
