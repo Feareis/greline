@@ -27,6 +27,11 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [networks, setNetworks] = useNetworkFilter();
+  // "Locate me" only offers stops drawn on the map.
+  const shownStops = useMemo(() => {
+    const ids = new Set(network.lines.filter((line) => networks.includes(line.network)).flatMap((line) => line.stopIds));
+    return network.stops.filter((stop) => ids.has(stop.id));
+  }, [network, networks]);
   const closePanel = useCallback(() => setSelectedId(null), []);
   const selectedStop = useMemo(() => network.stops.find((s) => s.id === selectedId), [network.stops, selectedId]);
   const selectedLines = useMemo(
@@ -37,7 +42,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
   return (
     <div className="relative h-full w-full">
       <GeoMap network={network} networks={networks} selectedId={selectedId} onSelect={setSelectedId} userLocation={userLocation} />
-      <TopBar stops={network.stops} onSelect={setSelectedId} onLocated={setUserLocation} />
+      <TopBar stops={shownStops} onSelect={setSelectedId} onLocated={setUserLocation} />
       <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} />
       <DayPanel networks={networks} />
       {selectedStop && <StationPanel stop={selectedStop} lines={selectedLines} onClose={closePanel} />}

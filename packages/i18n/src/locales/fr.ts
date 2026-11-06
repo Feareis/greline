@@ -17,7 +17,7 @@ export const fr = {
   about: {
     title: "À propos de Greline",
     close: "Fermer",
-    intro: "Greline montre les trams de Grenoble en temps réel : lignes, stations, prochains passages et rames en mouvement.",
+    intro: "Greline montre les trams et les bus de Grenoble en temps réel : lignes, arrêts, prochains passages et véhicules en mouvement.",
     unofficial:
       "Projet indépendant et non officiel, sans lien avec M – Mobilités de l'agglomération grenobloise ni avec la SEMITAG.",
     usageTitle: "Utilisation",
@@ -33,7 +33,7 @@ export const fr = {
     versionTitle: "Version",
   },
   geoMap: {
-    ariaLabel: "Carte des lignes de tram de Grenoble",
+    ariaLabel: "Carte des lignes de tram et de bus de Grenoble",
     loading: "Chargement de la carte…",
     osmCredit: "© contributeurs OpenStreetMap",
     dataCredit: "Données : M (ODbL)",
@@ -107,7 +107,7 @@ export const fr = {
     button: "Me localiser",
     locating: "Localisation…",
     youAreHere: "Vous êtes ici",
-    nearestTitle: "Arrêts de tram les plus proches",
+    nearestTitle: "Arrêts les plus proches",
     denied: "Localisation refusée. Autorisez-la dans les réglages du navigateur pour voir les arrêts proches.",
     unavailable: "Position introuvable pour le moment. Réessayez dans un instant.",
     timeout: "La localisation a pris trop de temps. Réessayez.",
