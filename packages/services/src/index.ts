@@ -2,3 +2,4 @@ export { formatClockTime, minutesUntil, parisDate, serviceDayOrigin, serviceTime
 export * from "./departures";
 export * from "./api-client";
 export * from "./geo";
+export * from "./vehicles";
