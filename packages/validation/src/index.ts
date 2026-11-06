@@ -19,3 +19,5 @@ export const departureSchema = z.object({
   departureTime: z.iso.datetime({ offset: true }),
   realtime: z.boolean(),
 });
+
+export * from "./m-api";
