@@ -49,3 +49,28 @@ describe("createApiClient().getDepartures", () => {
     await expect(client.getDepartures("SEM:GENGAR")).rejects.toMatchObject({ code: "invalid_response" });
   });
 });
+
+describe("createApiClient() tram endpoints", () => {
+  const schedule = {
+    serviceDate: "2026-11-06",
+    patterns: [{ lineId: "SEM:A", headsign: "Gares", stopIds: ["SEM:GENLP", "SEM:GENGAR"] }],
+    trips: [{ id: "SEM:1", pattern: 0, start: 1793956000, offsets: [0, 600] }],
+  };
+
+  it("fetches the tram schedule of the day", async () => {
+    const fetchSpy = answering(Response.json(schedule));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTramSchedule()).resolves.toEqual(schedule);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/trams/schedule");
+  });
+
+  it("fetches the realtime trip delays", async () => {
+    const fetchSpy = answering(Response.json({ delays: { "SEM:1": 90 } }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTripDelays()).resolves.toEqual({ "SEM:1": 90 });
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/trams/delays");
+  });
+
+  it("reports API errors of the tram endpoints the same way", async () => {
+    const client = createApiClient({ baseUrl: "", fetch: answering(Response.json({ error: "upstream_unavailable" }, { status: 502 })) });
+    await expect(client.getTripDelays()).rejects.toMatchObject({ status: 502, code: "upstream_unavailable" });
+  });
+});

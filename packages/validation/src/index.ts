@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Departure, Line } from "@greline/types";
+import type { Departure, Line, TramSchedule } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -29,5 +29,28 @@ export const stopIdSchema = z.string().regex(/^[A-Z0-9]{3}:[0-9a-zA-Z-]{1,128}$/
 /** Body of `GET /api/stops/{id}/departures`. */
 export const departuresResponseSchema = z.object({ departures: z.array(departureSchema) });
 export type DeparturesResponse = z.infer<typeof departuresResponseSchema>;
+
+/** Body of `GET /api/network/trams/schedule`. */
+export const tramScheduleSchema = z
+  .object({
+    serviceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    patterns: z.array(
+      z.object({ lineId: z.string().min(1), headsign: z.string(), stopIds: z.array(z.string().min(1)).min(2) }),
+    ),
+    trips: z.array(
+      z.object({
+        id: z.string().min(1),
+        pattern: z.number().int().nonnegative(),
+        start: z.number().int(),
+        offsets: z.array(z.number().int().nonnegative()).min(2),
+      }),
+    ),
+  })
+  .refine((schedule) => schedule.trips.every((trip) => trip.pattern < schedule.patterns.length), {
+    message: "a trip refers to a missing pattern",
+  }) satisfies z.ZodType<TramSchedule>;
+
+/** Body of `GET /api/network/trams/delays`: seconds, keyed by trip id. */
+export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });
 
 export * from "./m-api";

@@ -1,5 +1,5 @@
-import type { Departure } from "@greline/types";
-import { departuresResponseSchema } from "@greline/validation";
+import type { Departure, TramSchedule } from "@greline/types";
+import { departuresResponseSchema, tramScheduleSchema, tripDelaysResponseSchema } from "@greline/validation";
 
 /** Our API answered with an error status, or with a body we cannot trust. */
 export class GrelineApiError extends Error {
@@ -24,6 +24,13 @@ export interface ApiClientOptions {
 
 export interface GrelineApiClient {
   getDepartures(stopId: string, signal?: AbortSignal): Promise<Departure[]>;
+  getTramSchedule(signal?: AbortSignal): Promise<TramSchedule>;
+  /** Realtime delays in seconds, keyed by trip id. */
+  getTripDelays(signal?: AbortSignal): Promise<Record<string, number>>;
+}
+
+interface Parser<T> {
+  safeParse(data: unknown): { success: true; data: T } | { success: false };
 }
 
 // A body that is not JSON (e.g. an HTML page from a proxy) is an expected failure mode, not a
@@ -39,13 +46,21 @@ async function errorCode(response: Response): Promise<string> {
 /** Client of the Greline API (never the M API): shared by the web and mobile apps. */
 export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOptions): GrelineApiClient {
   const root = baseUrl.replace(/\/+$/, "");
+  async function getJson<T>(path: string, schema: Parser<T>, signal?: AbortSignal): Promise<T> {
+    const response = await fetchFn(`${root}${path}`, { signal });
+    if (!response.ok) throw new GrelineApiError(response.status, await errorCode(response));
+    const parsed = schema.safeParse(await jsonOrUndefined(response));
+    if (!parsed.success) throw new GrelineApiError(response.status, "invalid_response");
+    return parsed.data;
+  }
   return {
     async getDepartures(stopId, signal) {
-      const response = await fetchFn(`${root}/api/stops/${encodeURIComponent(stopId)}/departures`, { signal });
-      if (!response.ok) throw new GrelineApiError(response.status, await errorCode(response));
-      const parsed = departuresResponseSchema.safeParse(await jsonOrUndefined(response));
-      if (!parsed.success) throw new GrelineApiError(response.status, "invalid_response");
-      return parsed.data.departures;
+      const body = await getJson(`/api/stops/${encodeURIComponent(stopId)}/departures`, departuresResponseSchema, signal);
+      return body.departures;
+    },
+    getTramSchedule: (signal) => getJson("/api/network/trams/schedule", tramScheduleSchema, signal),
+    async getTripDelays(signal) {
+      return (await getJson("/api/network/trams/delays", tripDelaysResponseSchema, signal)).delays;
     },
   };
 }

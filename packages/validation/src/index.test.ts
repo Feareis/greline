@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { departuresResponseSchema, stopIdSchema } from "./index";
+import { departuresResponseSchema, stopIdSchema, tramScheduleSchema, tripDelaysResponseSchema } from "./index";
 
 describe("stopIdSchema", () => {
   it("accepts M API cluster codes", () => {
@@ -22,5 +22,31 @@ describe("departuresResponseSchema", () => {
       ],
     };
     expect(departuresResponseSchema.parse(payload).departures).toHaveLength(1);
+  });
+});
+
+describe("tramScheduleSchema", () => {
+  const schedule = {
+    serviceDate: "2026-11-06",
+    patterns: [{ lineId: "SEM:A", headsign: "Gares", stopIds: ["SEM:GENLP", "SEM:GENGAR"] }],
+    trips: [{ id: "SEM:1", pattern: 0, start: 1793956000, offsets: [0, 600] }],
+  };
+
+  it("accepts our API schedule payload", () => {
+    expect(tramScheduleSchema.parse(schedule).trips).toHaveLength(1);
+  });
+
+  it("rejects a trip pointing to a missing pattern", () => {
+    expect(tramScheduleSchema.safeParse({ ...schedule, trips: [{ ...schedule.trips[0], pattern: 3 }] }).success).toBe(false);
+  });
+});
+
+describe("tripDelaysResponseSchema", () => {
+  it("accepts delays in seconds keyed by trip id", () => {
+    expect(tripDelaysResponseSchema.parse({ delays: { "SEM:1": 90, "SEM:2": -20 } }).delays["SEM:2"]).toBe(-20);
+  });
+
+  it("rejects non-numeric delays", () => {
+    expect(tripDelaysResponseSchema.safeParse({ delays: { "SEM:1": "late" } }).success).toBe(false);
   });
 });

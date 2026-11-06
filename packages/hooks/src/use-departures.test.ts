@@ -3,7 +3,11 @@ import { skipToken } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 import { departuresQueryOptions } from "./use-departures";
 
-const client: GrelineApiClient = { getDepartures: vi.fn(async () => []) };
+const client: GrelineApiClient = {
+  getDepartures: vi.fn(async () => []),
+  getTramSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", patterns: [], trips: [] })),
+  getTripDelays: vi.fn(async () => ({})),
+};
 
 describe("departuresQueryOptions", () => {
   it("refreshes every 15 s by default, and only while the page is visible", () => {
