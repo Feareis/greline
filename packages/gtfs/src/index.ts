@@ -4,3 +4,4 @@ export * from "./fetch-departures";
 export * from "./to-departures";
 export * from "./zip";
 export * from "./schedule";
+export * from "./fetch-schedule";
