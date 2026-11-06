@@ -17,7 +17,7 @@ function fakeFetch(override?: (url: string) => Response | undefined) {
 describe("fetchTramNetwork", () => {
   it("fetches, validates and converts the tram network", async () => {
     const network = await fetchTramNetwork(fakeFetch());
-    expect(network.lines.map((l) => l.id)).toEqual(["SEM:A", "SEM:C"]);
+    expect(network.lines.map((l) => l.id)).toEqual(["SEM:A", "SEM:C", "SEM:E"]);
   });
 
   it("identifies itself with the origin header required by the M API", async () => {
@@ -32,7 +32,7 @@ describe("fetchTramNetwork", () => {
     const fetchSpy = fakeFetch();
     await fetchTramNetwork(fetchSpy);
     const shapesUrl = fetchSpy.mock.calls.map(([url]) => String(url)).find((u) => u.includes("/lines/json"));
-    expect(new URL(shapesUrl!).searchParams.get("codes")).toBe("SEM_A,SEM_C");
+    expect(new URL(shapesUrl!).searchParams.get("codes")).toBe("SEM_A,SEM_C,SEM_E");
   });
 
   it("rejects with MApiError on an HTTP error", async () => {

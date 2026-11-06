@@ -58,17 +58,54 @@ function toLine(route: MRoute, stops: readonly TimesheetStop[], shape: LonLat[][
   };
 }
 
-/** Converts validated M API responses into our tram network (lines in A, B, C... order). */
+/** Every tram platform (stop point) of each station, across all lines and both directions. */
+function platformsByStation(timesheets: ReadonlyMap<string, MTimesheet>): Map<string, Map<string, LonLat>> {
+  const byStation = new Map<string, Map<string, LonLat>>();
+  for (const timesheet of timesheets.values()) {
+    for (const direction of Object.values(timesheet)) {
+      for (const stop of direction.arrets) {
+        const platforms = byStation.get(stop.parentStation.code) ?? new Map<string, LonLat>();
+        platforms.set(stop.stopId, [stop.lon, stop.lat]);
+        byStation.set(stop.parentStation.code, platforms);
+      }
+    }
+  }
+  return byStation;
+}
+
+/** The platform lying closest to the given tracks: a real stop point, on the rails. */
+function platformOnTracks(platforms: Iterable<LonLat>, tracks: readonly LonLat[][]): LonLat {
+  let best: { platform: LonLat; meters: number } | null = null;
+  for (const platform of platforms) {
+    const meters = Math.min(...tracks.map((track) => distanceToPolylineMeters(platform, track)));
+    if (!best || meters < best.meters) best = { platform, meters };
+  }
+  if (!best) throw new Error("M API: station without any tram platform");
+  return best.platform;
+}
+
+/**
+ * Converts validated M API responses into our tram network (lines in A, B, C... order).
+ *
+ * Station positions: the M cluster point averages every stop sharing the name, bus stops
+ * included (up to ~80 m off the tracks), and averaging the tram platforms instead fails where
+ * lines cross on different streets. The platform closest to the station's tracks is always on
+ * the rails, crossings included.
+ */
 export function toTramNetwork(input: MTramNetworkInput): TramNetwork {
-  const stops = new Map<string, Stop>();
+  const platforms = platformsByStation(input.timesheets);
+  const stations = new Map<string, { name: string; city: string }>();
   const routes = [...input.routes].sort((a, b) => a.shortName.localeCompare(b.shortName));
   const lines = routes.map((route) => {
     const shape = shapeOf(route, input);
     const lineStops = stopsOnShape(route, shape, input);
-    for (const { parentStation: station } of lineStops) {
-      stops.set(station.code, { id: station.code, name: station.name, city: station.city, lat: station.lat, lon: station.lon });
-    }
+    for (const { parentStation } of lineStops) stations.set(parentStation.code, parentStation);
     return toLine(route, lineStops, shape);
   });
-  return { lines, stops: [...stops.values()] };
+  const stops: Stop[] = [...stations].map(([code, { name, city }]) => {
+    const tracks = lines.filter((line) => line.stopIds.includes(code)).flatMap((line) => line.shape);
+    const [lon, lat] = platformOnTracks(platforms.get(code)?.values() ?? [], tracks);
+    return { id: code, name, city, lat, lon };
+  });
+  return { lines, stops };
 }
