@@ -3,7 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { fr } from "@greline/i18n";
 import { palettes, type ThemeName, toCssColor } from "@greline/theme";
-import type { Stop, TramNetwork } from "@greline/types";
+import type { Stop, TransitNetwork } from "@greline/types";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView, { AttributionControl, Layer, type MapRef, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
@@ -127,7 +127,7 @@ function UserMarker({ lat, lon }: { lat: number; lon: number }) {
 }
 
 interface GeoMapProps {
-  network: TramNetwork;
+  network: TransitNetwork;
   selectedId: string | null;
   onSelect: (stopId: string) => void;
   userLocation: UserLocation | null;

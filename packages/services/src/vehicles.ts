@@ -1,4 +1,4 @@
-import type { TramSchedule } from "@greline/types";
+import type { TransitSchedule } from "@greline/types";
 
 /** Where a tram is right now: how far along the track of its pattern. */
 export interface VehiclePosition {
@@ -6,7 +6,7 @@ export interface VehiclePosition {
   key: string;
   tripId: string;
   lineId: string;
-  /** Index in TramSchedule.patterns; its `shape` is the track the tram runs on. */
+  /** Index in TransitSchedule.patterns; its `shape` is the track the tram runs on. */
   pattern: number;
   /** Meters along the pattern's shape. */
   distance: number;
@@ -20,7 +20,7 @@ export interface VehiclePosition {
  * one M API request per station.
  */
 export function vehiclePositions(
-  schedule: TramSchedule,
+  schedule: TransitSchedule,
   delays: Readonly<Record<string, number>>,
   now: number,
 ): VehiclePosition[] {

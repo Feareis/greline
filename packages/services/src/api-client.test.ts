@@ -65,7 +65,7 @@ describe("createApiClient() tram endpoints", () => {
 
   it("fetches the tram schedule of the day", async () => {
     const fetchSpy = answering(Response.json(schedule));
-    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTramSchedule()).resolves.toEqual(schedule);
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getSchedule()).resolves.toEqual(schedule);
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/trams/schedule");
   });
 

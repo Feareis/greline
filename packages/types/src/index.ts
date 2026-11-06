@@ -33,18 +33,18 @@ export interface NetworkLine extends Line {
 }
 
 /** The tram network as exposed by our API: lines and every stop they serve. */
-export interface TramNetwork {
+export interface TransitNetwork {
   lines: NetworkLine[];
   stops: Stop[];
 }
 
 /** The ordered stops served by a group of trips (one line, one direction, one variant). */
-export interface TramPattern {
+export interface TransitPattern {
   lineId: string;
   headsign: string;
   /** Station ids (cluster codes), in travel order. */
   stopIds: string[];
-  /** Index in TramSchedule.shapes: the track these trips run on. */
+  /** Index in TransitSchedule.shapes: the track these trips run on. */
   shape: number;
   /** Meters along the shape of each stop of `stopIds`, never decreasing. */
   stopDistances: number[];
@@ -55,22 +55,22 @@ export interface TramPattern {
  * seconds. `id` matches the realtime trip ids ("SEM:32135884"); a trip running on two
  * consecutive service days appears twice (different `start`).
  */
-export interface TramTrip {
+export interface TransitTrip {
   id: string;
-  /** Index in TramSchedule.patterns. */
+  /** Index in TransitSchedule.patterns. */
   pattern: number;
   start: number;
   offsets: number[];
 }
 
 /** Every tram trip running during a service day, including those of the previous day past midnight. */
-export interface TramSchedule {
+export interface TransitSchedule {
   /** "YYYY-MM-DD". */
   serviceDate: string;
   /** Track geometries, in travel direction, shared by the patterns. */
   shapes: LonLat[][];
-  patterns: TramPattern[];
-  trips: TramTrip[];
+  patterns: TransitPattern[];
+  trips: TransitTrip[];
 }
 
 /** Current weather in Grenoble, as exposed by our API. */

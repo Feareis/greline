@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Departure, Line, TramSchedule, Weather } from "@greline/types";
+import type { Departure, Line, TransitSchedule, Weather } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -31,7 +31,7 @@ export const departuresResponseSchema = z.object({ departures: z.array(departure
 export type DeparturesResponse = z.infer<typeof departuresResponseSchema>;
 
 /** Body of `GET /api/network/trams/schedule`. */
-export const tramScheduleSchema = z
+export const transitScheduleSchema = z
   .object({
     serviceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     shapes: z.array(z.array(z.tuple([z.number(), z.number()])).min(2)),
@@ -60,7 +60,7 @@ export const tramScheduleSchema = z
     (schedule) =>
       schedule.patterns.every((p) => p.shape < schedule.shapes.length && p.stopDistances.length === p.stopIds.length),
     { message: "a pattern refers to a missing shape or has one distance per stop missing" },
-  ) satisfies z.ZodType<TramSchedule>;
+  ) satisfies z.ZodType<TransitSchedule>;
 
 /** Body of `GET /api/network/trams/delays`: seconds, keyed by trip id. */
 export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });

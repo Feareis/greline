@@ -1,21 +1,21 @@
 import type { GrelineApiClient } from "@greline/services";
 import { describe, expect, it, vi } from "vitest";
-import { mergeDelays, tramScheduleQueryOptions, tripDelaysQueryOptions } from "./use-trams";
+import { mergeDelays, scheduleQueryOptions, tripDelaysQueryOptions } from "./use-trams";
 
 const client: GrelineApiClient = {
   getDepartures: vi.fn(async () => []),
-  getTramSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", shapes: [], patterns: [], trips: [] })),
+  getSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", shapes: [], patterns: [], trips: [] })),
   getTripDelays: vi.fn(async () => ({ "SEM:1": 90 })),
   getWeather: vi.fn(async () => ({ temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" })),
 };
 const signal = new AbortController().signal;
 type QueryFn = (context: { signal: AbortSignal }) => unknown;
 
-describe("tramScheduleQueryOptions", () => {
+describe("scheduleQueryOptions", () => {
   it("loads the schedule from our API and refreshes it hourly (the service day changes at night)", async () => {
-    const options = tramScheduleQueryOptions(client);
+    const options = scheduleQueryOptions(client);
     await (options.queryFn as QueryFn)({ signal });
-    expect(client.getTramSchedule).toHaveBeenCalledWith(signal);
+    expect(client.getSchedule).toHaveBeenCalledWith(signal);
     expect(options.refetchInterval).toBe(3_600_000);
   });
 });

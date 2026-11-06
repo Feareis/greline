@@ -1,4 +1,4 @@
-import type { TramSchedule } from "@greline/types";
+import type { TransitSchedule } from "@greline/types";
 import { describe, expect, it } from "vitest";
 import { vehiclePositions } from "./vehicles";
 
@@ -6,7 +6,7 @@ const START = 1_793_956_000;
 
 // One trip of line A over four stations: 0 s at a, 100 s at b, 100 s at c too (no run time), 300 s at d.
 // Stations are 0, 400, 500 and 900 m along the track.
-const schedule: TramSchedule = {
+const schedule: TransitSchedule = {
   serviceDate: "2026-11-06",
   shapes: [
     [

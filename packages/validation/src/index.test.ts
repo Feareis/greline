@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { departuresResponseSchema, stopIdSchema, tramScheduleSchema, tripDelaysResponseSchema } from "./index";
+import { departuresResponseSchema, stopIdSchema, transitScheduleSchema, tripDelaysResponseSchema } from "./index";
 
 describe("stopIdSchema", () => {
   it("accepts M API cluster codes", () => {
@@ -25,7 +25,7 @@ describe("departuresResponseSchema", () => {
   });
 });
 
-describe("tramScheduleSchema", () => {
+describe("transitScheduleSchema", () => {
   const schedule = {
     serviceDate: "2026-11-06",
     shapes: [
@@ -39,17 +39,17 @@ describe("tramScheduleSchema", () => {
   };
 
   it("accepts our API schedule payload", () => {
-    expect(tramScheduleSchema.parse(schedule).trips).toHaveLength(1);
+    expect(transitScheduleSchema.parse(schedule).trips).toHaveLength(1);
   });
 
   it("rejects a trip pointing to a missing pattern", () => {
-    expect(tramScheduleSchema.safeParse({ ...schedule, trips: [{ ...schedule.trips[0], pattern: 3 }] }).success).toBe(false);
+    expect(transitScheduleSchema.safeParse({ ...schedule, trips: [{ ...schedule.trips[0], pattern: 3 }] }).success).toBe(false);
   });
 
   it("rejects a pattern pointing to a missing shape or without one distance per stop", () => {
     const pattern = schedule.patterns[0]!;
-    expect(tramScheduleSchema.safeParse({ ...schedule, patterns: [{ ...pattern, shape: 1 }] }).success).toBe(false);
-    expect(tramScheduleSchema.safeParse({ ...schedule, patterns: [{ ...pattern, stopDistances: [0, 10, 20] }] }).success).toBe(false);
+    expect(transitScheduleSchema.safeParse({ ...schedule, patterns: [{ ...pattern, shape: 1 }] }).success).toBe(false);
+    expect(transitScheduleSchema.safeParse({ ...schedule, patterns: [{ ...pattern, stopDistances: [0, 10, 20] }] }).success).toBe(false);
   });
 });
 

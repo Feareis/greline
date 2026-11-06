@@ -1,5 +1,5 @@
 import { distanceToPolylineMeters } from "@greline/services";
-import type { LonLat, NetworkLine, Stop, TramNetwork } from "@greline/types";
+import type { LonLat, NetworkLine, Stop, TransitNetwork } from "@greline/types";
 import type { MLineShapes, MRoute, MTimesheet } from "@greline/validation";
 
 /**
@@ -9,7 +9,7 @@ import type { MLineShapes, MRoute, MTimesheet } from "@greline/validation";
  */
 const MAX_STOP_DISTANCE_TO_SHAPE_M = 150;
 
-export interface MTramNetworkInput {
+export interface MTransitNetworkInput {
   routes: readonly MRoute[];
   shapes: MLineShapes;
   /** Timesheet of each route, keyed by route id ("SEM:A"). */
@@ -28,13 +28,13 @@ function longestDirection(timesheet: MTimesheet): TimesheetStop[] {
   );
 }
 
-function shapeOf(route: MRoute, input: MTramNetworkInput): LonLat[][] {
+function shapeOf(route: MRoute, input: MTransitNetworkInput): LonLat[][] {
   const shape = input.shapes.features.find((f) => f.properties.id === shapeIdOf(route.id));
   if (!shape) throw new Error(`M API: no shape for route ${route.id}`);
   return shape.geometry.coordinates;
 }
 
-function stopsOnShape(route: MRoute, parts: readonly LonLat[][], input: MTramNetworkInput): TimesheetStop[] {
+function stopsOnShape(route: MRoute, parts: readonly LonLat[][], input: MTransitNetworkInput): TimesheetStop[] {
   const timesheet = input.timesheets.get(route.id);
   if (!timesheet) throw new Error(`M API: no timesheet for route ${route.id}`);
   return longestDirection(timesheet).filter((stop) => {
@@ -92,7 +92,7 @@ function platformOnTracks(platforms: Iterable<LonLat>, tracks: readonly LonLat[]
  * lines cross on different streets. The platform closest to the station's tracks is always on
  * the rails, crossings included.
  */
-export function toTramNetwork(input: MTramNetworkInput): TramNetwork {
+export function toTransitNetwork(input: MTransitNetworkInput): TransitNetwork {
   const platforms = platformsByStation(input.timesheets);
   const stations = new Map<string, { name: string; city: string }>();
   const routes = [...input.routes].sort((a, b) => a.shortName.localeCompare(b.shortName));

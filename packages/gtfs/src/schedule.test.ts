@@ -1,6 +1,6 @@
 import { cumulativeDistances, serviceDayOrigin } from "@greline/services";
 import { describe, expect, it } from "vitest";
-import { buildTramSchedule } from "./schedule";
+import { buildSchedule } from "./schedule";
 
 const csv = (...lines: string[]) => `${lines.join("\r\n")}\r\n`;
 
@@ -90,8 +90,8 @@ const files = new Map([
 const friday = serviceDayOrigin("2026-11-06");
 const thursday = serviceDayOrigin("2026-11-05");
 
-describe("buildTramSchedule", () => {
-  const schedule = buildTramSchedule(files, "2026-11-06");
+describe("buildSchedule", () => {
+  const schedule = buildSchedule(files, "2026-11-06");
   const startsOf = (id: string) => schedule.trips.filter((t) => t.id === id).map((t) => t.start);
 
   it("keeps tram trips whose service runs that day, plus exceptions, and drops buses", () => {
@@ -149,7 +149,7 @@ describe("buildTramSchedule", () => {
 
   it("honours removals from calendar_dates", () => {
     // 2026-11-11: WEEK is removed; only the night trip of the 10th remains.
-    const holiday = buildTramSchedule(files, "2026-11-11");
+    const holiday = buildSchedule(files, "2026-11-11");
     expect(holiday.trips.map((t) => t.id)).toEqual(["SEM:104"]);
   });
 });

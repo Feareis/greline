@@ -1,9 +1,9 @@
 "use client";
 
-import { useTramSchedule, useTripDelays } from "@greline/hooks";
+import { useSchedule, useTripDelays } from "@greline/hooks";
 import { cumulativeDistances, LATE_THRESHOLD_SECONDS, pointAtDistance, vehiclePositions } from "@greline/services";
 import { colors as iconColors } from "@greline/theme";
-import type { Line, TramSchedule } from "@greline/types";
+import type { Line, TransitSchedule } from "@greline/types";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { useEffect, useMemo } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
@@ -46,12 +46,12 @@ export async function addTramIcon(map: MapLibreMap, id: string): Promise<boolean
 }
 
 interface Track {
-  shape: TramSchedule["shapes"][number];
+  shape: TransitSchedule["shapes"][number];
   cumulative: number[];
 }
 
 function vehicleFeatures(
-  schedule: TramSchedule,
+  schedule: TransitSchedule,
   tracks: readonly Track[],
   delays: Readonly<Record<string, number>>,
   colorByLine: ReadonlyMap<string, string>,
@@ -76,7 +76,7 @@ function vehicleFeatures(
  */
 export function TramVehicles({ lines }: { lines: readonly Line[] }) {
   const { current: mapRef } = useMap();
-  const { data: schedule } = useTramSchedule();
+  const { data: schedule } = useSchedule();
   const { data: delays } = useTripDelays();
   const colorByLine = useMemo(() => new Map(lines.map((l) => [l.id, l.color.replace("#", "")])), [lines]);
   const tracks = useMemo(

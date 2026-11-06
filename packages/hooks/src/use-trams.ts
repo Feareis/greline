@@ -10,10 +10,10 @@ const SCHEDULE_REFRESH_MS = 3_600_000;
 
 type Delays = Record<string, number>;
 
-export function tramScheduleQueryOptions(client: GrelineApiClient) {
+export function scheduleQueryOptions(client: GrelineApiClient) {
   return queryOptions({
     queryKey: ["tram-schedule"] as const,
-    queryFn: ({ signal }) => client.getTramSchedule(signal),
+    queryFn: ({ signal }) => client.getSchedule(signal),
     staleTime: SCHEDULE_REFRESH_MS,
     refetchInterval: SCHEDULE_REFRESH_MS,
     refetchIntervalInBackground: false,
@@ -42,8 +42,8 @@ export function tripDelaysQueryOptions(client: GrelineApiClient, refetchInterval
 }
 
 /** Today's tram schedule (every trip, with its departure times). */
-export function useTramSchedule() {
-  return useQuery(tramScheduleQueryOptions(useApiConfig().client));
+export function useSchedule() {
+  return useQuery(scheduleQueryOptions(useApiConfig().client));
 }
 
 /** Realtime delays of running trams, refreshed every 30 s while the page is visible. */
@@ -54,7 +54,7 @@ export function useTripDelays() {
 
 /** Running trams counted per line, the late ones and the resulting traffic level, every few seconds. */
 export function useFleetSummary(refreshMs = 5_000) {
-  const schedule = useTramSchedule();
+  const schedule = useSchedule();
   const delays = useTripDelays();
   const now = useNow(refreshMs);
   const summary = useMemo(

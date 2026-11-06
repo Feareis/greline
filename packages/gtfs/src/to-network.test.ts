@@ -2,7 +2,7 @@ import { distanceToPolylineMeters } from "@greline/services";
 import { mLineShapesSchema, mRoutesSchema, mTimesheetSchema } from "@greline/validation";
 import { describe, expect, it } from "vitest";
 import sample from "./__fixtures__/m-tram-sample.json";
-import { toTramNetwork } from "./to-network";
+import { toTransitNetwork } from "./to-network";
 
 // Real M API responses (lines A and C), trimmed to the used fields. C's timesheet was fetched
 // at night, when one direction runs an occasional extension to Plaine des Sports.
@@ -12,8 +12,8 @@ const input = {
   timesheets: new Map(Object.entries(sample.timesheets).map(([id, t]) => [id, mTimesheetSchema.parse(t)])),
 };
 
-describe("toTramNetwork", () => {
-  const network = toTramNetwork(input);
+describe("toTransitNetwork", () => {
+  const network = toTransitNetwork(input);
   const lineC = network.lines.find((l) => l.id === "SEM:C")!;
 
   it("converts routes to tram lines with their official colors", () => {
@@ -68,6 +68,6 @@ describe("toTramNetwork", () => {
 
   it("fails loudly when a line has no shape", () => {
     const withoutShapes = { ...input, shapes: { ...input.shapes, features: [] } };
-    expect(() => toTramNetwork(withoutShapes)).toThrow(/SEM:A/);
+    expect(() => toTransitNetwork(withoutShapes)).toThrow(/SEM:A/);
   });
 });

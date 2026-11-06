@@ -1,14 +1,14 @@
 import { fr } from "@greline/i18n";
 import { colors } from "@/lib/theme-tokens";
-import type { TramNetwork } from "@greline/types";
+import type { TransitNetwork } from "@greline/types";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { NetworkView } from "@/components/network-view";
-import { getTramNetwork } from "@/lib/tram-network";
+import { getTransitNetwork } from "@/lib/transit-network";
 
-async function loadNetwork(): Promise<TramNetwork | null> {
+async function loadNetwork(): Promise<TransitNetwork | null> {
   try {
-    return await getTramNetwork();
+    return await getTransitNetwork();
   } catch (error) {
     console.error("Home page: M API unavailable", error);
     return null;

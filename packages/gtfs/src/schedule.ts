@@ -1,5 +1,5 @@
 import { cumulativeDistances, serviceDayOrigin } from "@greline/services";
-import type { LonLat, TramPattern, TramSchedule, TramTrip } from "@greline/types";
+import type { LonLat, TransitPattern, TransitSchedule, TransitTrip } from "@greline/types";
 import { csvRecords, csvTable, splitCsvLine } from "./csv";
 import { readShapes, simplifyPolyline, stopDistancesAlong } from "./shapes";
 
@@ -149,7 +149,7 @@ function patternRegistry(rawShapes: ReadonlyMap<string, LonLat[]>, platforms: Pl
   const shapes: LonLat[][] = [];
   const cumulatives: number[][] = [];
   const shapeIndex = new Map<string, number>();
-  const patterns: TramPattern[] = [];
+  const patterns: TransitPattern[] = [];
   const patternIndex = new Map<string, number>();
 
   const addShape = (points: readonly LonLat[]): number => {
@@ -191,12 +191,12 @@ function patternRegistry(rawShapes: ReadonlyMap<string, LonLat[]>, platforms: Pl
 }
 
 /** The tram schedule of a service day ("YYYY-MM-DD"), from the text files of a GTFS feed. */
-export function buildTramSchedule(files: GtfsFiles, serviceDate: string): TramSchedule {
+export function buildSchedule(files: GtfsFiles, serviceDate: string): TransitSchedule {
   const instances = tripInstances(files, serviceDate);
   const stopTimes = stopTimesOf(files, new Set(instances.keys()));
   const shapeIds = new Set([...instances.values()].flatMap((runs) => runs.map((run) => run.shapeId)));
   const registry = patternRegistry(readShapes(file(files, "shapes.txt"), shapeIds), platformIndex(files));
-  const trips: TramTrip[] = [];
+  const trips: TransitTrip[] = [];
   for (const [tripId, runs] of instances) {
     const times = stopTimes.get(tripId) ?? [];
     if (times.length < 2) continue;
