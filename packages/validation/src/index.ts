@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Departure, Line, TramSchedule } from "@greline/types";
+import type { Departure, Line, TramSchedule, Weather } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -65,4 +65,16 @@ export const tramScheduleSchema = z
 /** Body of `GET /api/network/trams/delays`: seconds, keyed by trip id. */
 export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });
 
+/** Body of `GET /api/weather`. */
+export const weatherSchema = z.object({
+  temperature: z.number(),
+  apparentTemperature: z.number(),
+  weatherCode: z.number().int(),
+  isDay: z.boolean(),
+  windSpeed: z.number().nonnegative(),
+  sunrise: z.string().regex(/^\d{2}:\d{2}$/),
+  sunset: z.string().regex(/^\d{2}:\d{2}$/),
+}) satisfies z.ZodType<Weather>;
+
 export * from "./m-api";
+export * from "./open-meteo";

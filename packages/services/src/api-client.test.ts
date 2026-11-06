@@ -79,4 +79,13 @@ describe("createApiClient() tram endpoints", () => {
     const client = createApiClient({ baseUrl: "", fetch: answering(Response.json({ error: "upstream_unavailable" }, { status: 502 })) });
     await expect(client.getTripDelays()).rejects.toMatchObject({ status: 502, code: "upstream_unavailable" });
   });
+
+  it("fetches the weather and rejects a malformed one", async () => {
+    const weather = { temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" };
+    const fetchSpy = answering(Response.json(weather));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getWeather()).resolves.toEqual(weather);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/weather");
+    const broken = createApiClient({ baseUrl: "", fetch: answering(Response.json({ ...weather, sunrise: "7h22" })) });
+    await expect(broken.getWeather()).rejects.toMatchObject({ code: "invalid_response" });
+  });
 });

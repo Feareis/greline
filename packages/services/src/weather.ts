@@ -1,3 +1,6 @@
+import type { Weather } from "@greline/types";
+import type { OpenMeteoForecast } from "@greline/validation";
+
 /** Sky conditions we can name, grouped from WMO weather codes (as used by Open-Meteo). */
 export type WeatherCondition =
   | "clear"
@@ -30,4 +33,19 @@ const CONDITION_BY_CODE: ReadonlyArray<readonly [readonly number[], WeatherCondi
 /** The condition of a WMO weather code; codes outside the WMO table are "unknown". */
 export function weatherCondition(code: number): WeatherCondition {
   return CONDITION_BY_CODE.find(([codes]) => codes.includes(code))?.[1] ?? "unknown";
+}
+
+/** Our weather payload from an Open-Meteo forecast (times already local to Grenoble). */
+export function toWeather(forecast: OpenMeteoForecast): Weather {
+  const { current, daily } = forecast;
+  return {
+    temperature: current.temperature_2m,
+    apparentTemperature: current.apparent_temperature,
+    weatherCode: current.weather_code,
+    isDay: current.is_day === 1,
+    windSpeed: current.wind_speed_10m,
+    // "2026-11-06T07:22" -> "07:22"
+    sunrise: daily.sunrise[0]!.slice(11, 16),
+    sunset: daily.sunset[0]!.slice(11, 16),
+  };
 }

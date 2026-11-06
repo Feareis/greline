@@ -73,6 +73,21 @@ export interface TramSchedule {
   trips: TramTrip[];
 }
 
+/** Current weather in Grenoble, as exposed by our API. */
+export interface Weather {
+  /** Degrees Celsius. */
+  temperature: number;
+  apparentTemperature: number;
+  /** WMO weather code. */
+  weatherCode: number;
+  isDay: boolean;
+  /** km/h. */
+  windSpeed: number;
+  /** Local time in Grenoble, "HH:MM". */
+  sunrise: string;
+  sunset: string;
+}
+
 /** A single upcoming departure at a stop. */
 export interface Departure {
   lineId: string;

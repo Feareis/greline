@@ -7,6 +7,7 @@ const client: GrelineApiClient = {
   getDepartures: vi.fn(async () => []),
   getTramSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", shapes: [], patterns: [], trips: [] })),
   getTripDelays: vi.fn(async () => ({})),
+  getWeather: vi.fn(async () => ({ temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" })),
 };
 
 describe("departuresQueryOptions", () => {

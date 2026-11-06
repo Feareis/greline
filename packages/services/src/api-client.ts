@@ -1,5 +1,5 @@
-import type { Departure, TramSchedule } from "@greline/types";
-import { departuresResponseSchema, tramScheduleSchema, tripDelaysResponseSchema } from "@greline/validation";
+import type { Departure, TramSchedule, Weather } from "@greline/types";
+import { departuresResponseSchema, tramScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
 
 /** Our API answered with an error status, or with a body we cannot trust. */
 export class GrelineApiError extends Error {
@@ -27,6 +27,8 @@ export interface GrelineApiClient {
   getTramSchedule(signal?: AbortSignal): Promise<TramSchedule>;
   /** Realtime delays in seconds, keyed by trip id. */
   getTripDelays(signal?: AbortSignal): Promise<Record<string, number>>;
+  /** Current weather in Grenoble. */
+  getWeather(signal?: AbortSignal): Promise<Weather>;
 }
 
 interface Parser<T> {
@@ -62,5 +64,6 @@ export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOp
     async getTripDelays(signal) {
       return (await getJson("/api/network/trams/delays", tripDelaysResponseSchema, signal)).delays;
     },
+    getWeather: (signal) => getJson("/api/weather", weatherSchema, signal),
   };
 }
