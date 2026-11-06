@@ -35,6 +35,22 @@ describe("fetchTransitNetwork", () => {
     expect(new URL(shapesUrl!).searchParams.get("codes")).toBe("SEM_A,SEM_C,SEM_E");
   });
 
+  it("asks timesheets for noon in Grenoble: at night the M API lists no stop for the current time", async () => {
+    const fetchSpy = fakeFetch();
+    await fetchTransitNetwork(fetchSpy, new Date("2026-11-07T00:10:00+01:00"));
+    const timesheetUrl = fetchSpy.mock.calls.map(([url]) => String(url)).find((u) => u.includes("/ficheHoraires"));
+    // Noon in Paris on 2026-11-07 (winter time, UTC+1), in milliseconds.
+    expect(new URL(timesheetUrl!).searchParams.get("time")).toBe(String(Date.UTC(2026, 10, 7, 11)));
+  });
+
+  it("keeps a line without service that day (empty timesheet) with its shape and no stops", async () => {
+    const noServiceOnE = fakeFetch((url) => (url.includes("route=SEM%3AE") ? new Response(null, { status: 204 }) : undefined));
+    const network = await fetchTransitNetwork(noServiceOnE);
+    const lineE = network.lines.find((line) => line.id === "SEM:E")!;
+    expect(lineE.stopIds).toEqual([]);
+    expect(lineE.shape.length).toBeGreaterThan(0);
+  });
+
   it("rejects with MApiError on an HTTP error", async () => {
     const failing = fakeFetch((url) => (url.includes("/index/routes") ? new Response("down", { status: 503 }) : undefined));
     await expect(fetchTransitNetwork(failing)).rejects.toThrow(MApiError);

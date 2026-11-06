@@ -1,5 +1,6 @@
+import { parisDate, serviceDayOrigin } from "@greline/services";
 import type { TransitNetwork } from "@greline/types";
-import { mLineShapesSchema, mRoutesSchema, mTimesheetSchema } from "@greline/validation";
+import { mLineShapesSchema, mRoutesSchema, type MTimesheet, mTimesheetSchema } from "@greline/validation";
 import { isShownRoute, M_NETWORK_TYPES, shapeIdOf, toTransitNetwork } from "./to-network";
 
 const M_API_BASE = "https://data.mobilites-m.fr/api";
@@ -14,7 +15,9 @@ export const M_API = {
   routes: `${M_API_BASE}/routers/default/index/routes?reseaux=${Object.values(M_NETWORK_TYPES).flat().join(",")}`,
   lineShapes: (shapeIds: readonly string[]) =>
     `${M_API_BASE}/lines/json?types=ligne&codes=${shapeIds.map(encodeURIComponent).join(",")}`,
-  timesheet: (routeId: string) => `${M_API_BASE}/ficheHoraires/json?route=${encodeURIComponent(routeId)}`,
+  /** `time` (Unix ms) picks the trips listed; their stops give each line's stop order. */
+  timesheet: (routeId: string, time: number) =>
+    `${M_API_BASE}/ficheHoraires/json?route=${encodeURIComponent(routeId)}&time=${time}`,
 } as const;
 
 /** The M API answered with an HTTP error or with a payload we do not understand. */
@@ -56,12 +59,26 @@ export async function fetchFromMApi<T>(
   }
 }
 
+const HALF_DAY_S = 12 * 3600;
+
+/**
+ * Noon in Grenoble on the day of `now`, in Unix ms. Timesheets list the trips after their `time`
+ * (now by default): at night that is none (204) and the network would have no stop at all.
+ */
+function noonInGrenoble(now: Date): number {
+  return (serviceDayOrigin(parisDate(now)) + HALF_DAY_S) * 1000;
+}
+
+/** A line without service that day keeps its shape and simply lists no stop. */
+const NO_SERVICE: MTimesheet = {};
+
 /** Fetches our lines, their shapes and timesheets from the M API (~28 requests, once a day). */
-export async function fetchTransitNetwork(fetchFn: FetchLike = fetch): Promise<TransitNetwork> {
+export async function fetchTransitNetwork(fetchFn: FetchLike = fetch, now: Date = new Date()): Promise<TransitNetwork> {
+  const noon = noonInGrenoble(now);
   const routes = (await fetchFromMApi(M_API.routes, mRoutesSchema, fetchFn)).filter(isShownRoute);
   const [shapes, timesheets] = await Promise.all([
     fetchFromMApi(M_API.lineShapes(routes.map((r) => shapeIdOf(r.id))), mLineShapesSchema, fetchFn),
-    Promise.all(routes.map((r) => fetchFromMApi(M_API.timesheet(r.id), mTimesheetSchema, fetchFn))),
+    Promise.all(routes.map((r) => fetchFromMApi(M_API.timesheet(r.id, noon), mTimesheetSchema, fetchFn, NO_SERVICE))),
   ]);
   return toTransitNetwork({
     routes,
