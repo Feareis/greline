@@ -64,6 +64,7 @@ export const mStopTimesSchema = z.array(
     pattern: z.object({ id: z.string().min(1), desc: z.string() }),
     times: z.array(
       z.object({
+        tripId: z.string().min(1),
         scheduledDeparture: z.number().int().nonnegative(),
         realtimeDeparture: z.number().int().nonnegative(),
         realtime: z.boolean(),

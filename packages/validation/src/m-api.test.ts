@@ -98,7 +98,7 @@ describe("mStopTimesSchema", () => {
 
   it("accepts a pattern group with its times", () => {
     const [parsed] = mStopTimesSchema.parse([group]);
-    expect(parsed?.times[0]).toEqual({ scheduledDeparture: 36360, realtimeDeparture: 36408, realtime: true, serviceDay: 1793919600 });
+    expect(parsed?.times[0]).toEqual({ tripId: "SEM:32165104", scheduledDeparture: 36360, realtimeDeparture: 36408, realtime: true, serviceDay: 1793919600 });
   });
 
   it("rejects a time without service day", () => {

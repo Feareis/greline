@@ -5,3 +5,4 @@ export * from "./to-departures";
 export * from "./zip";
 export * from "./schedule";
 export * from "./fetch-schedule";
+export * from "./delays";

@@ -3,7 +3,8 @@ import { mStopTimesSchema } from "@greline/validation";
 import { type FetchLike, fetchFromMApi } from "./fetch-network";
 import { toDepartures } from "./to-departures";
 
-const stopTimesUrl = (stopId: string): string =>
+/** Next departures (realtime when known) of every pattern serving a station. */
+export const stopTimesUrl = (stopId: string): string =>
   `https://data.mobilites-m.fr/api/routers/default/index/clusters/${encodeURIComponent(stopId)}/stoptimes`;
 
 /**
