@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { snapAngle, snapToGrid } from "./index";
+import { snapAngle, snapToGrid } from "./grid";
 
 describe("schematic helpers", () => {
   it("snaps coordinates to the grid", () => {
