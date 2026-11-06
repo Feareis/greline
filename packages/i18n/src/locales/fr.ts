@@ -16,6 +16,20 @@ export const fr = {
     osmCredit: "© contributeurs OpenStreetMap",
     dataCredit: "Données : M (ODbL)",
   },
+  locate: {
+    button: "Me localiser",
+    locating: "Localisation…",
+    youAreHere: "Vous êtes ici",
+    nearestTitle: "Arrêts de tram les plus proches",
+    denied: "Localisation refusée. Autorisez-la dans les réglages du navigateur pour voir les arrêts proches.",
+    unavailable: "Position introuvable pour le moment. Réessayez dans un instant.",
+    timeout: "La localisation a pris trop de temps. Réessayez.",
+    unsupported: "La géolocalisation n'est pas disponible ici (elle nécessite un navigateur compatible et une connexion HTTPS).",
+    distance: (meters: number) =>
+      meters < 1000
+        ? `${Math.round(meters / 10) * 10} m`
+        : `${(meters / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} km`,
+  },
   map: {
     ariaLabel: "Plan schématique des lignes de tram de Grenoble",
     loading: "Chargement du plan…",

@@ -7,6 +7,7 @@ import type { Stop, TramNetwork } from "@greline/types";
 import { setWorkerUrl } from "maplibre-gl";
 import { useMemo, useState } from "react";
 import MapView, { AttributionControl, Layer, type MapEvent, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
+import { LocateButton } from "./locate-button";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
 // Next.js chunks folder once bundled (404). Referencing the worker with a static
@@ -36,12 +37,20 @@ interface StationButtonProps {
   stop: Stop;
   transfer: boolean;
   selected: boolean;
+  /** One of the stops nearest to the user ("locate me"). */
+  nearby: boolean;
   onSelect: (stopId: string) => void;
 }
 
+function ringShadow(selected: boolean, nearby: boolean): string | undefined {
+  if (selected) return `0 0 0 3px ${colors.accent}`;
+  if (nearby) return `0 0 0 4px ${colors.accent}80`;
+  return undefined;
+}
+
 /** Same look as the schematic map: white dot, larger ringed pill for transfers. 24 px hit area. */
-function StationButton({ stop, transfer, selected, onSelect }: StationButtonProps) {
-  const size = transfer ? 14 : 8;
+function StationButton({ stop, transfer, selected, nearby, onSelect }: StationButtonProps) {
+  const size = transfer || nearby ? 14 : 8;
   return (
     <Marker longitude={stop.lon} latitude={stop.lat} anchor="center">
       <button
@@ -63,7 +72,7 @@ function StationButton({ stop, transfer, selected, onSelect }: StationButtonProp
             height: size,
             background: colors.station,
             border: transfer ? `2px solid ${colors.background}` : undefined,
-            boxShadow: selected ? `0 0 0 3px ${colors.accent}` : undefined,
+            boxShadow: ringShadow(selected, nearby),
           }}
         />
       </button>
@@ -79,6 +88,7 @@ interface GeoMapProps {
 
 /** Real geographic map: official track shapes and stations on an OpenStreetMap base. */
 export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
+  const [nearbyIds, setNearbyIds] = useState<ReadonlySet<string>>(new Set());
   const linesData = useMemo(
     () => ({
       type: "FeatureCollection" as const,
@@ -127,9 +137,11 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
             stop={stop}
             transfer={transferIds.has(stop.id)}
             selected={stop.id === selectedId}
+            nearby={nearbyIds.has(stop.id)}
             onSelect={onSelect}
           />
         ))}
+        <LocateButton stops={network.stops} onSelect={onSelect} onNearbyChange={setNearbyIds} />
         <NavigationControl position="bottom-left" showCompass={false} />
         <AttributionControl compact={false} position="bottom-right" customAttribution={[fr.geoMap.osmCredit, fr.geoMap.dataCredit]} />
       </MapView>
