@@ -27,8 +27,10 @@ export const fr = {
     baseMap: "Fond de carte : © contributeurs OpenStreetMap (ODbL), tuiles OpenMapTiles servies par OpenFreeMap.",
     weather: "Météo : Open-Meteo (CC BY 4.0).",
     developmentTitle: "Développement",
-    developer: "Développé par Feareis.",
+    developedBy: "Développé par",
+    developer: "Feareis",
     sourceCode: "Code source sur GitHub",
+    profile: "profil GitHub",
     versionTitle: "Version",
   },
   geoMap: {
@@ -38,7 +40,6 @@ export const fr = {
     dataCredit: "Données : M (ODbL)",
   },
   trams: {
-    legend: "Rames en circulation, positions estimées en temps réel",
     late: "Contour rouge : retard de plus de 2 min",
     unavailable: "Rames indisponibles pour le moment.",
     title: "Rames",
@@ -50,6 +51,7 @@ export const fr = {
     lineCount: (shortName: string, count: number) => `Ligne ${shortName} : ${count}`,
     estimated: "Positions estimées : horaire du jour décalé du retard temps réel",
     pill: (count: number) => `${count} rames`,
+    delaysUnavailable: "Retards temps réel indisponibles",
   },
   day: {
     label: "Grenoble aujourd'hui",
@@ -93,6 +95,7 @@ export const fr = {
     },
     traffic: { smooth: "Trafic fluide", someDelays: "Quelques retards", disrupted: "Trafic perturbé" },
     trafficUnknown: "Trafic : données indisponibles",
+    moonLit: (percent: number) => `${percent} % éclairée`,
   },
   locate: {
     button: "Me localiser",

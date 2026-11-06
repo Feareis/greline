@@ -12,7 +12,9 @@ export interface Palette {
   stationOutline: string;
   /** Outline of a tram running late. */
   late: string;
-  /** Development environment badge. */
+  /** "Some delays" traffic level. */
+  warning: string;
+  /** Development environment badge, disrupted traffic. */
   danger: string;
   /** Production environment badge. */
   success: string;
@@ -30,6 +32,7 @@ export const palettes: Record<ThemeName, Palette> = {
     station: "#FFFFFF",
     stationOutline: "#0B0F14",
     late: "#FF3B30",
+    warning: "#F5A524",
     danger: "#E5484D",
     success: "#30A46C",
   },
@@ -42,6 +45,7 @@ export const palettes: Record<ThemeName, Palette> = {
     station: "#FFFFFF",
     stationOutline: "#0F172A",
     late: "#E5281E",
+    warning: "#B7791F",
     danger: "#D93036",
     success: "#24804D",
   },

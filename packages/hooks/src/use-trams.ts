@@ -1,6 +1,8 @@
-import type { GrelineApiClient } from "@greline/services";
+import { fleetSummary, type GrelineApiClient, vehiclePositions } from "@greline/services";
 import { queryOptions, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { retryServerErrors, useApiConfig } from "./api-config";
+import { useNow } from "./use-now";
 
 export const DEFAULT_DELAYS_REFRESH_MS = 30_000;
 /** The schedule only changes with the service day: an hourly check catches midnight. */
@@ -48,4 +50,22 @@ export function useTramSchedule() {
 export function useTripDelays() {
   const { client, delaysRefreshMs } = useApiConfig();
   return useQuery(tripDelaysQueryOptions(client, delaysRefreshMs));
+}
+
+/** Running trams counted per line, the late ones and the resulting traffic level, every few seconds. */
+export function useFleetSummary(refreshMs = 5_000) {
+  const schedule = useTramSchedule();
+  const delays = useTripDelays();
+  const now = useNow(refreshMs);
+  const summary = useMemo(
+    () => (schedule.data ? fleetSummary(vehiclePositions(schedule.data, delays.data ?? {}, now.getTime() / 1000)) : undefined),
+    [schedule.data, delays.data, now],
+  );
+  return {
+    summary,
+    isLoading: schedule.isPending,
+    isError: schedule.isError,
+    /** Without realtime delays every tram looks on time: late counts are then meaningless. */
+    delaysAvailable: delays.data !== undefined,
+  };
 }

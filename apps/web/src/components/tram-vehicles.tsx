@@ -1,10 +1,8 @@
 "use client";
 
 import { useTramSchedule, useTripDelays } from "@greline/hooks";
-import { fr } from "@greline/i18n";
 import { cumulativeDistances, LATE_THRESHOLD_SECONDS, pointAtDistance, vehiclePositions } from "@greline/services";
-import { colors as iconColors, radii } from "@greline/theme";
-import { colors } from "@/lib/theme-tokens";
+import { colors as iconColors } from "@greline/theme";
 import type { Line, TramSchedule } from "@greline/types";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { useEffect, useMemo } from "react";
@@ -119,26 +117,5 @@ export function TramVehicles({ lines }: { lines: readonly Line[] }) {
         }}
       />
     </Source>
-  );
-}
-
-/** Explains the moving trams; says so when the schedule cannot be loaded. */
-export function TramLegend() {
-  const { isError } = useTramSchedule();
-  return (
-    <p
-      className="absolute bottom-3 left-3 z-10 max-w-xs px-3 py-2 text-xs shadow-lg"
-      style={{ background: colors.surface, color: colors.textMuted, borderRadius: radii.md }}
-    >
-      {isError ? (
-        fr.trams.unavailable
-      ) : (
-        <>
-          {fr.trams.legend}
-          <br />
-          <span style={{ color: colors.late }}>{fr.trams.late}</span>
-        </>
-      )}
-    </p>
   );
 }

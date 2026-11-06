@@ -7,8 +7,9 @@ import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 import type { UserLocation } from "./locate-button";
 import { StationPanel } from "./station-panel";
+import { DayPanel } from "./day-panel";
 import { TopBar } from "./top-bar";
-import { TramLegend } from "./tram-vehicles";
+import { TramSummary } from "./tram-summary";
 
 // MapLibre is heavy and needs the browser: it is loaded on the client only.
 const GeoMap = dynamic(() => import("./geo-map").then((m) => m.GeoMap), {
@@ -35,7 +36,8 @@ export function NetworkView({ network }: { network: TramNetwork }) {
     <div className="relative h-full w-full">
       <GeoMap network={network} selectedId={selectedId} onSelect={setSelectedId} userLocation={userLocation} />
       <TopBar stops={network.stops} onSelect={setSelectedId} onLocated={setUserLocation} />
-      <TramLegend />
+      <TramSummary lines={network.lines} />
+      <DayPanel />
       {selectedStop && <StationPanel stop={selectedStop} lines={selectedLines} onClose={closePanel} />}
     </div>
   );
