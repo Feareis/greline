@@ -5,6 +5,17 @@ export const fr = {
     unofficial: "Projet indépendant, non officiel.",
     dataCredit: "Données : M – Mobilités de l'agglomération grenobloise (ODbL)",
   },
+  views: {
+    label: "Type de vue",
+    plan: "Plan",
+    map: "Carte",
+  },
+  geoMap: {
+    ariaLabel: "Carte géographique des lignes de tram de Grenoble",
+    loading: "Chargement de la carte…",
+    osmCredit: "© contributeurs OpenStreetMap",
+    dataCredit: "Données : M (ODbL)",
+  },
   map: {
     ariaLabel: "Plan schématique des lignes de tram de Grenoble",
     loading: "Chargement du plan…",
