@@ -4,7 +4,7 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import { fr } from "@greline/i18n";
 import { palettes, type ThemeName, toCssColor } from "@greline/theme";
 import type { NetworkId, Stop, TransitNetwork } from "@greline/types";
-import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
+import { type ExpressionSpecification, type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView, {
   AttributionControl,
@@ -35,6 +35,11 @@ const LOCATED_ZOOM = 15;
 /** Bus stops and line numbers only show once the map is zoomed enough to tell them apart. */
 const BUS_STOPS_MIN_ZOOM = 13;
 const BUS_STOPS_LAYER = "bus-stops";
+// Transit-map convention: trams are thick and outlined, buses thin and slightly faded underneath.
+const TRAM_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 2.5, 16, 8];
+const TRAM_CASING_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 4.5, 16, 12];
+const BUS_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 1, 16, 3];
+const BUS_OPACITY = 0.8;
 
 /** Aligns the dark base map with our design tokens (the light one is used as is). */
 function applyBaseColors(map: MapLibreMap) {
@@ -236,20 +241,27 @@ export function GeoMap({ network, networks, selectedId, onSelect, userLocation }
         style={{ width: "100%", height: "100%" }}
       >
         <Source id="lines" type="geojson" data={linesData}>
-          {/* Buses below trams, thinner; their numbers along the line (Chrono lines share a color). */}
+          {/* Buses below trams, thinner and faded; their numbers along the line (Chrono lines share a color). */}
           <Layer
             id="bus-lines"
             type="line"
             filter={["==", ["get", "mode"], "bus"]}
             layout={{ "line-join": "round", "line-cap": "round" }}
-            paint={{ "line-color": ["get", "color"], "line-width": ["interpolate", ["linear"], ["zoom"], 11, 1.2, 16, 4] }}
+            paint={{ "line-color": ["get", "color"], "line-width": BUS_WIDTH, "line-opacity": BUS_OPACITY }}
+          />
+          <Layer
+            id="tram-casing"
+            type="line"
+            filter={["==", ["get", "mode"], "tram"]}
+            layout={{ "line-join": "round", "line-cap": "round" }}
+            paint={{ "line-color": palette.background, "line-width": TRAM_CASING_WIDTH }}
           />
           <Layer
             id="tram-lines"
             type="line"
             filter={["==", ["get", "mode"], "tram"]}
             layout={{ "line-join": "round", "line-cap": "round" }}
-            paint={{ "line-color": ["get", "color"], "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2, 16, 7] }}
+            paint={{ "line-color": ["get", "color"], "line-width": TRAM_WIDTH }}
           />
           <Layer
             id="bus-line-labels"

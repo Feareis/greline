@@ -58,6 +58,8 @@ export const fr = {
     lineCount: (shortName: string, count: number) => `Ligne ${shortName} : ${count}`,
     estimated: "Positions estimées : horaire du jour décalé du retard temps réel",
     delaysUnavailable: "Retards temps réel indisponibles",
+    tramLine: "Ligne de tram : trait épais bordé",
+    busLine: "Ligne de bus : trait fin",
   },
   day: {
     label: "Grenoble aujourd'hui",

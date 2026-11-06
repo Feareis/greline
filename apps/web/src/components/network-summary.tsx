@@ -23,6 +23,16 @@ function VehicleGlyph({ bus = false, late = false }: { bus?: boolean; late?: boo
   );
 }
 
+/** The map's line styles: thick outlined tram, thin faded bus. */
+function LineGlyph({ bus = false }: { bus?: boolean }) {
+  return (
+    <svg width="30" height="12" viewBox="0 0 30 12" aria-hidden className="shrink-0">
+      {!bus && <path d="M2 6h26" stroke={colors.background} strokeWidth="8" strokeLinecap="round" />}
+      <path d="M2 6h26" stroke={colors.textMuted} strokeWidth={bus ? 2 : 5} strokeOpacity={bus ? 0.8 : 1} strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function ChevronIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
@@ -142,6 +152,14 @@ export function NetworkSummary({ lines, networks, onChange }: NetworkSummaryProp
           </>
         )}
         <ul className="mt-2 space-y-1 text-xs" style={{ color: colors.textMuted }}>
+          <li className="flex items-center gap-2">
+            <LineGlyph />
+            {fr.fleet.tramLine}
+          </li>
+          <li className="flex items-center gap-2">
+            <LineGlyph bus />
+            {fr.fleet.busLine}
+          </li>
           <li className="flex items-center gap-2">
             <VehicleGlyph />
             <VehicleGlyph bus />
