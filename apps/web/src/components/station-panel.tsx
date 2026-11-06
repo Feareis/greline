@@ -4,6 +4,7 @@ import { fr } from "@greline/i18n";
 import { colors, radii, toCssColor } from "@greline/theme";
 import type { Line, Stop } from "@greline/types";
 import { useEffect, useRef } from "react";
+import { DepartureList } from "./departure-list";
 
 interface StationPanelProps {
   stop: Stop;
@@ -67,6 +68,10 @@ export function StationPanel({ stop, lines, onClose }: StationPanelProps) {
           </li>
         ))}
       </ul>
+      <h3 className="mt-5 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
+        {fr.departures.title}
+      </h3>
+      <DepartureList stopId={stop.id} lines={lines} />
     </aside>
   );
 }

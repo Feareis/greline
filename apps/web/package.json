@@ -18,6 +18,7 @@
     "@greline/theme": "workspace:*",
     "@greline/types": "workspace:*",
     "@greline/validation": "workspace:*",
+    "@tanstack/react-query": "^5.106.1",
     "d3-selection": "^3.0.1",
     "d3-zoom": "^3.0.1",
     "next": "16.4.5",
