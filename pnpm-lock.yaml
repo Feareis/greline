@@ -117,6 +117,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@greline/gtfs':
+        specifier: workspace:*
+        version: link:../../packages/gtfs
       '@greline/hooks':
         specifier: workspace:*
         version: link:../../packages/hooks
