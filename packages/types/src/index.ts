@@ -21,10 +21,15 @@ export interface Stop {
   lon: number;
 }
 
+/** A geographic position, GeoJSON order: longitude first, then latitude (degrees). */
+export type LonLat = [lon: number, lat: number];
+
 /** A line together with the stops of its canonical path (occasional variants excluded). */
 export interface NetworkLine extends Line {
   /** Stop ids in travel order, from one terminus to the other. */
   stopIds: string[];
+  /** Official track geometry: one polyline per part (a branch or a disconnected section). */
+  shape: LonLat[][];
 }
 
 /** The tram network as exposed by our API: lines and every stop they serve. */

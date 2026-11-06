@@ -1,5 +1,5 @@
 import { distanceToPolylineMeters } from "@greline/schematic";
-import type { NetworkLine, Stop, TramNetwork } from "@greline/types";
+import type { LonLat, NetworkLine, Stop, TramNetwork } from "@greline/types";
 import type { MLineShapes, MRoute, MTimesheet } from "@greline/validation";
 
 /**
@@ -28,19 +28,22 @@ function longestDirection(timesheet: MTimesheet): TimesheetStop[] {
   );
 }
 
-function stopsOnShape(route: MRoute, input: MTramNetworkInput): TimesheetStop[] {
+function shapeOf(route: MRoute, input: MTramNetworkInput): LonLat[][] {
   const shape = input.shapes.features.find((f) => f.properties.id === shapeIdOf(route.id));
   if (!shape) throw new Error(`M API: no shape for route ${route.id}`);
+  return shape.geometry.coordinates;
+}
+
+function stopsOnShape(route: MRoute, parts: readonly LonLat[][], input: MTramNetworkInput): TimesheetStop[] {
   const timesheet = input.timesheets.get(route.id);
   if (!timesheet) throw new Error(`M API: no timesheet for route ${route.id}`);
-  const parts = shape.geometry.coordinates;
   return longestDirection(timesheet).filter((stop) => {
     const distance = Math.min(...parts.map((part) => distanceToPolylineMeters([stop.lon, stop.lat], part)));
     return distance <= MAX_STOP_DISTANCE_TO_SHAPE_M;
   });
 }
 
-function toLine(route: MRoute, stops: readonly TimesheetStop[]): NetworkLine {
+function toLine(route: MRoute, stops: readonly TimesheetStop[], shape: LonLat[][]): NetworkLine {
   const codes = stops.map((s) => s.parentStation.code);
   return {
     id: route.id,
@@ -51,6 +54,7 @@ function toLine(route: MRoute, stops: readonly TimesheetStop[]): NetworkLine {
     textColor: route.textColor.toUpperCase(),
     // Two platforms of one station can follow each other in a timesheet: keep the station once.
     stopIds: codes.filter((code, i) => code !== codes[i - 1]),
+    shape,
   };
 }
 
@@ -59,11 +63,12 @@ export function toTramNetwork(input: MTramNetworkInput): TramNetwork {
   const stops = new Map<string, Stop>();
   const routes = [...input.routes].sort((a, b) => a.shortName.localeCompare(b.shortName));
   const lines = routes.map((route) => {
-    const lineStops = stopsOnShape(route, input);
+    const shape = shapeOf(route, input);
+    const lineStops = stopsOnShape(route, shape, input);
     for (const { parentStation: station } of lineStops) {
       stops.set(station.code, { id: station.code, name: station.name, city: station.city, lat: station.lat, lon: station.lon });
     }
-    return toLine(route, lineStops);
+    return toLine(route, lineStops, shape);
   });
   return { lines, stops: [...stops.values()] };
 }

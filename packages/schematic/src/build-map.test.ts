@@ -13,6 +13,7 @@ const line = (id: string, stopIds: string[]): NetworkLine => ({
   color: "3376B8",
   textColor: "FFFFFF",
   stopIds,
+  shape: [],
 });
 
 // A cross: line A runs west-east, line B north-south, both through "center".

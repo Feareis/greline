@@ -43,6 +43,15 @@ describe("toTramNetwork", () => {
     expect(network.stops).toHaveLength(31 + 19 - 1);
   });
 
+  it("keeps the official shape of each line, as [lon, lat] parts", () => {
+    const lineA = network.lines.find((l) => l.id === "SEM:A")!;
+    expect(lineA.shape).toHaveLength(1);
+    expect(lineA.shape[0]!.length).toBeGreaterThan(100);
+    const [lon, lat] = lineA.shape[0]![0]!;
+    expect(lon).toBeCloseTo(5.67, 1);
+    expect(lat).toBeCloseTo(45.2, 1);
+  });
+
   it("fails loudly when a line has no shape", () => {
     const withoutShapes = { ...input, shapes: { ...input.shapes, features: [] } };
     expect(() => toTramNetwork(withoutShapes)).toThrow(/SEM:A/);
