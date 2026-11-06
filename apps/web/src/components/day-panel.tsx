@@ -4,6 +4,7 @@ import { useFleetSummary, useNow, useWeather } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { moonState, type TrafficLevel, weatherCondition } from "@greline/services";
 import { radii } from "@greline/theme";
+import type { NetworkId } from "@greline/types";
 import { colors, glass } from "@/lib/theme-tokens";
 
 const PARIS_DAY = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" });
@@ -38,8 +39,8 @@ function WeatherLines() {
   );
 }
 
-function TrafficLine() {
-  const { summary, delaysAvailable } = useFleetSummary();
+function TrafficLine({ networks }: { networks: readonly NetworkId[] }) {
+  const { summary, delaysAvailable } = useFleetSummary(networks);
   if (!summary || !delaysAvailable) return <p style={{ color: colors.textMuted }}>{fr.day.trafficUnknown}</p>;
   return (
     <p className="flex items-center gap-1.5 font-medium">
@@ -49,8 +50,8 @@ function TrafficLine() {
   );
 }
 
-/** Bottom-left helper: today's date and time in Grenoble, weather, moon and overall traffic. */
-export function DayPanel() {
+/** Bottom-left helper: today's date and time in Grenoble, weather, moon and traffic of the shown networks. */
+export function DayPanel({ networks }: { networks: readonly NetworkId[] }) {
   const now = useNow(1_000);
   const moon = moonState(now);
   return (
@@ -68,7 +69,7 @@ export function DayPanel() {
         <span aria-hidden>{fr.day.moonIcon[moon.phase]} </span>
         {fr.day.moon[moon.phase]} · {fr.day.moonLit(Math.round(moon.illumination * 100))}
       </p>
-      <TrafficLine />
+      <TrafficLine networks={networks} />
     </section>
   );
 }

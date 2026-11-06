@@ -38,18 +38,25 @@ export const fr = {
     osmCredit: "© contributeurs OpenStreetMap",
     dataCredit: "Données : M (ODbL)",
   },
-  trams: {
+  networks: {
+    label: "Réseaux affichés",
+    names: { tram: "Tram", chrono: "Chrono", proximo: "Proximo" },
+    all: "Tout",
+  },
+  fleet: {
     late: "Contour rouge : retard de plus de 2 min",
-    unavailable: "Rames indisponibles pour le moment.",
-    title: "Rames",
-    loading: "Chargement des rames…",
+    unavailable: "Véhicules indisponibles pour le moment.",
+    loading: "Chargement des véhicules…",
     running: (count: number) =>
-      count === 0 ? "Aucune rame en circulation" : count === 1 ? "1 rame en circulation" : `${count} rames en circulation`,
+      count === 0
+        ? "Aucun véhicule en circulation"
+        : count === 1
+          ? "1 véhicule en circulation"
+          : `${count} véhicules en circulation`,
     lateSummary: (count: number, averageMinutes: number) =>
-      count === 0 ? "Aucune en retard" : `${count} en retard · moy. +${averageMinutes} min`,
+      count === 0 ? "Aucun en retard" : `${count} en retard · moy. +${averageMinutes} min`,
     lineCount: (shortName: string, count: number) => `Ligne ${shortName} : ${count}`,
     estimated: "Positions estimées : horaire du jour décalé du retard temps réel",
-    pill: (count: number) => `${count} rames`,
     delaysUnavailable: "Retards temps réel indisponibles",
   },
   day: {
