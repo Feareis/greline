@@ -5,7 +5,7 @@ import type { TramNetwork } from "@greline/types";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { LINE_SPACING } from "@/components/map-style";
-import { TramMap } from "@/components/tram-map";
+import { NetworkViews } from "@/components/network-views";
 import { getTramNetwork } from "@/lib/tram-network";
 
 async function loadNetwork(): Promise<TramNetwork | null> {
@@ -29,7 +29,7 @@ async function TramMapSection() {
     );
   }
   // The layout is computed on the server: the browser only receives ready-to-draw coordinates.
-  return <TramMap map={buildSchematicMap(network, { lineSpacing: LINE_SPACING })} network={network} />;
+  return <NetworkViews network={network} schematic={buildSchematicMap(network, { lineSpacing: LINE_SPACING })} />;
 }
 
 export default function HomePage() {

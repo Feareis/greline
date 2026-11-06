@@ -6,9 +6,8 @@ import { colors, toCssColor } from "@greline/theme";
 import type { SchematicMap, SchematicStation, Stop, TramNetwork } from "@greline/types";
 import { select } from "d3-selection";
 import { zoom } from "d3-zoom";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { LINE_SPACING, LINE_WIDTH } from "./map-style";
-import { StationPanel } from "./station-panel";
 
 const MAX_ZOOM = 8;
 const STATION_RADIUS = 3;
@@ -90,14 +89,14 @@ function StationMarker({ station, stop, labelSide, selected, onSelect }: Station
 interface TramMapProps {
   map: SchematicMap;
   network: TramNetwork;
+  selectedId: string | null;
+  onSelect: (stopId: string) => void;
 }
 
-/** Interactive schematic tram map: pan and zoom (mouse, touch), station details on click. */
-export function TramMap({ map, network }: TramMapProps) {
+/** Interactive schematic tram map: pan and zoom (mouse, touch), station selection on click. */
+export function TramMap({ map, network, selectedId, onSelect }: TramMapProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const layerRef = useRef<SVGGElement>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const closePanel = useCallback(() => setSelectedId(null), []);
 
   const stopsById = useMemo(() => new Map(network.stops.map((s) => [s.id, s])), [network.stops]);
   const linesById = useMemo(() => new Map(network.lines.map((l) => [l.id, l])), [network.lines]);
@@ -123,51 +122,41 @@ export function TramMap({ map, network }: TramMapProps) {
     };
   }, [map.width, map.height]);
 
-  const selectedStop = selectedId ? stopsById.get(selectedId) : undefined;
-  const selectedLines = map.stations
-    .find((s) => s.stopId === selectedId)
-    ?.lineIds.flatMap((id) => linesById.get(id) ?? []);
-
   return (
-    <div className="relative h-full w-full">
-      <svg
-        ref={svgRef}
-        viewBox={`0 0 ${map.width} ${map.height}`}
-        role="img"
-        aria-label={fr.map.ariaLabel}
-        className="h-full w-full touch-none select-none"
-      >
-        <g ref={layerRef}>
-          {map.paths.map((path) => (
-            <polyline
-              key={path.lineId}
-              points={path.points.map((p) => `${p.x},${p.y}`).join(" ")}
-              fill="none"
-              stroke={toCssColor(linesById.get(path.lineId)?.color ?? "FFFFFF")}
-              strokeWidth={LINE_WIDTH}
-              strokeLinejoin="round"
-              strokeLinecap="round"
+    <svg
+      ref={svgRef}
+      viewBox={`0 0 ${map.width} ${map.height}`}
+      role="img"
+      aria-label={fr.map.ariaLabel}
+      className="h-full w-full touch-none select-none"
+    >
+      <g ref={layerRef}>
+        {map.paths.map((path) => (
+          <polyline
+            key={path.lineId}
+            points={path.points.map((p) => `${p.x},${p.y}`).join(" ")}
+            fill="none"
+            stroke={toCssColor(linesById.get(path.lineId)?.color ?? "FFFFFF")}
+            strokeWidth={LINE_WIDTH}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
+        ))}
+        {map.stations.map((station) => {
+          const stop = stopsById.get(station.stopId);
+          if (!stop) return null;
+          return (
+            <StationMarker
+              key={station.stopId}
+              station={station}
+              stop={stop}
+              labelSide={labelSides.get(station.stopId)}
+              selected={station.stopId === selectedId}
+              onSelect={onSelect}
             />
-          ))}
-          {map.stations.map((station) => {
-            const stop = stopsById.get(station.stopId);
-            if (!stop) return null;
-            return (
-              <StationMarker
-                key={station.stopId}
-                station={station}
-                stop={stop}
-                labelSide={labelSides.get(station.stopId)}
-                selected={station.stopId === selectedId}
-                onSelect={setSelectedId}
-              />
-            );
-          })}
-        </g>
-      </svg>
-      {selectedStop && selectedLines && (
-        <StationPanel stop={selectedStop} lines={selectedLines} onClose={closePanel} />
-      )}
-    </div>
+          );
+        })}
+      </g>
+    </svg>
   );
 }
