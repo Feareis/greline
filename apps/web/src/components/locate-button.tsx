@@ -1,22 +1,28 @@
 "use client";
 
 import { fr } from "@greline/i18n";
-import { nearestStops, type NearbyStop } from "@greline/services";
+import { type NearbyStop, nearestStops } from "@greline/services";
 import { radii } from "@greline/theme";
-import { colors } from "@/lib/theme-tokens";
 import type { Stop } from "@greline/types";
 import { useState } from "react";
-import { Marker, useMap } from "react-map-gl/maplibre";
+import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
+import { LocateIcon } from "./icons";
 
 const NEARBY_COUNT = 3;
-const LOCATED_ZOOM = 15;
 const GEOLOCATION_OPTIONS: PositionOptions = { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 };
+
+/** Where the user is, and the stops closest to them. */
+export interface UserLocation {
+  lat: number;
+  lon: number;
+  nearby: NearbyStop[];
+}
 
 type LocateState =
   | { status: "idle" }
   | { status: "locating" }
   | { status: "failed"; message: string }
-  | { status: "located"; lat: number; lon: number; nearby: NearbyStop[] };
+  | { status: "located"; nearby: NearbyStop[] };
 
 function failureMessage(error: GeolocationPositionError): string {
   if (error.code === error.PERMISSION_DENIED) return fr.locate.denied;
@@ -27,13 +33,12 @@ function failureMessage(error: GeolocationPositionError): string {
 interface LocateButtonProps {
   stops: readonly Stop[];
   onSelect: (stopId: string) => void;
-  /** Reports the highlighted stops so the map can ring them. */
-  onNearbyChange: (stopIds: ReadonlySet<string>) => void;
+  /** The map centers on the location and rings the nearby stops; null clears them. */
+  onLocated: (location: UserLocation | null) => void;
 }
 
-/** "Locate me": asks for the position only on click, centers the map and lists the nearest stops. */
-export function LocateButton({ stops, onSelect, onNearbyChange }: LocateButtonProps) {
-  const { current: map } = useMap();
+/** "Locate me": asks for the position only on click, then lists the nearest stops below. */
+export function LocateButton({ stops, onSelect, onLocated }: LocateButtonProps) {
   const [state, setState] = useState<LocateState>({ status: "idle" });
 
   const locate = () => {
@@ -47,37 +52,38 @@ export function LocateButton({ stops, onSelect, onNearbyChange }: LocateButtonPr
       ({ coords }) => {
         const here = { lat: coords.latitude, lon: coords.longitude };
         const nearby = nearestStops(here, stops, NEARBY_COUNT);
-        setState({ status: "located", ...here, nearby });
-        onNearbyChange(new Set(nearby.map((n) => n.stop.id)));
-        map?.flyTo({ center: [here.lon, here.lat], zoom: LOCATED_ZOOM });
+        setState({ status: "located", nearby });
+        onLocated({ ...here, nearby });
       },
       (error) => {
         setState({ status: "failed", message: failureMessage(error) });
-        onNearbyChange(new Set());
+        onLocated(null);
       },
       GEOLOCATION_OPTIONS,
     );
   };
 
   return (
-    <>
-      <div className="absolute top-3 left-3 z-10 w-64 space-y-2">
-        <button
-          type="button"
-          onClick={locate}
-          disabled={state.status === "locating"}
-          className="px-4 py-2 text-sm font-medium shadow-lg focus-visible:outline-2 disabled:opacity-60"
-          style={{ background: colors.surface, color: colors.text, borderRadius: radii.pill }}
-        >
-          {state.status === "locating" ? fr.locate.locating : fr.locate.button}
-        </button>
+    <div className="relative">
+      <button
+        type="button"
+        onClick={locate}
+        disabled={state.status === "locating"}
+        aria-label={state.status === "locating" ? fr.locate.locating : fr.locate.button}
+        className={FLOATING_BUTTON}
+        style={glass}
+      >
+        <LocateIcon />
+        <span className="hidden sm:inline">{state.status === "locating" ? fr.locate.locating : fr.locate.button}</span>
+      </button>
+      <div className="absolute top-full right-0 mt-2 w-64 max-w-[calc(100vw-1.5rem)]">
         {state.status === "failed" && (
-          <p role="alert" className="p-3 text-sm shadow-lg" style={{ background: colors.surface, color: colors.text, borderRadius: radii.md }}>
+          <p role="alert" className="p-3 text-sm shadow-lg" style={{ ...glass, borderRadius: radii.md }}>
             {state.message}
           </p>
         )}
         {state.status === "located" && (
-          <section aria-live="polite" className="p-3 shadow-lg" style={{ background: colors.surface, borderRadius: radii.md }}>
+          <section aria-live="polite" className="p-3 shadow-lg backdrop-blur" style={{ ...glass, borderRadius: radii.md }}>
             <h2 className="text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
               {fr.locate.nearestTitle}
             </h2>
@@ -88,7 +94,6 @@ export function LocateButton({ stops, onSelect, onNearbyChange }: LocateButtonPr
                     type="button"
                     onClick={() => onSelect(stop.id)}
                     className="flex w-full justify-between gap-2 rounded px-1 py-0.5 text-left text-sm hover:opacity-80 focus-visible:outline-2"
-                    style={{ color: colors.text }}
                   >
                     <span className="truncate">{stop.name}</span>
                     <span style={{ color: colors.textMuted }}>{fr.locate.distance(distanceMeters)}</span>
@@ -99,17 +104,6 @@ export function LocateButton({ stops, onSelect, onNearbyChange }: LocateButtonPr
           </section>
         )}
       </div>
-      {state.status === "located" && (
-        <Marker longitude={state.lon} latitude={state.lat} anchor="center">
-          <span
-            role="img"
-            aria-label={fr.locate.youAreHere}
-            title={fr.locate.youAreHere}
-            className="block h-4 w-4 rounded-full border-2"
-            style={{ background: colors.accent, borderColor: colors.station }}
-          />
-        </Marker>
-      )}
-    </>
+    </div>
   );
 }

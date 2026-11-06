@@ -5,11 +5,11 @@ import { fr } from "@greline/i18n";
 import { palettes, type ThemeName, toCssColor } from "@greline/theme";
 import type { Stop, TramNetwork } from "@greline/types";
 import { type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView, { AttributionControl, Layer, type MapRef, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
 import { useTheme } from "@/lib/theme";
 import { colors } from "@/lib/theme-tokens";
-import { LocateButton } from "./locate-button";
+import type { UserLocation } from "./locate-button";
 import { addTramIcon, TramVehicles } from "./tram-vehicles";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
@@ -23,6 +23,7 @@ const MAP_STYLES: Record<ThemeName, string> = {
   light: "https://tiles.openfreemap.org/styles/positron",
 };
 const SELECTED_STATION_ZOOM = 15;
+const LOCATED_ZOOM = 15;
 
 /** Aligns the dark base map with our design tokens (the light one is used as is). */
 function applyBaseColors(map: MapLibreMap) {
@@ -43,6 +44,12 @@ function setUpMap(ref: MapRef | null) {
   const map = ref?.getMap();
   if (!map) return;
   map.on("style.load", () => applyBaseColors(map));
+  // MapLibre opens the compact attribution at start; fold it to the "i" (details live in Sources).
+  map.once("load", () => {
+    const attribution = map.getContainer().querySelector(".maplibregl-ctrl-attrib");
+    attribution?.classList.remove("maplibregl-compact-show");
+    attribution?.removeAttribute("open");
+  });
   map.setMissingStyleImageResolver(async (id) => {
     if (await addTramIcon(map, id)) return;
     if (!map.hasImage(id)) map.addImage(id, TRANSPARENT_PIXEL);
@@ -105,15 +112,40 @@ function StationButton({ stop, transfer, selected, nearby, onSelect }: StationBu
   );
 }
 
+function UserMarker({ lat, lon }: { lat: number; lon: number }) {
+  return (
+    <Marker longitude={lon} latitude={lat} anchor="center">
+      <span
+        role="img"
+        aria-label={fr.locate.youAreHere}
+        title={fr.locate.youAreHere}
+        className="block h-4 w-4 rounded-full border-2"
+        style={{ background: colors.accent, borderColor: colors.station }}
+      />
+    </Marker>
+  );
+}
+
 interface GeoMapProps {
   network: TramNetwork;
   selectedId: string | null;
   onSelect: (stopId: string) => void;
+  userLocation: UserLocation | null;
 }
 
 /** Real geographic map: official track shapes, moving trams and stations on an OpenStreetMap base. */
-export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
-  const [nearbyIds, setNearbyIds] = useState<ReadonlySet<string>>(new Set());
+export function GeoMap({ network, selectedId, onSelect, userLocation }: GeoMapProps) {
+  const mapRef = useRef<MapRef | null>(null);
+  // Stable callback: React calls a new ref callback on every render otherwise.
+  const attachMap = useCallback((ref: MapRef | null) => {
+    mapRef.current = ref;
+    setUpMap(ref);
+  }, []);
+  const nearbyIds = useMemo(() => new Set(userLocation?.nearby.map((n) => n.stop.id)), [userLocation]);
+
+  useEffect(() => {
+    if (userLocation) mapRef.current?.flyTo({ center: [userLocation.lon, userLocation.lat], zoom: LOCATED_ZOOM });
+  }, [userLocation]);
   const linesData = useMemo(
     () => ({
       type: "FeatureCollection" as const,
@@ -143,7 +175,7 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
   return (
     <div className="h-full w-full" role="region" aria-label={fr.geoMap.ariaLabel}>
       <MapView
-        ref={setUpMap}
+        ref={attachMap}
         initialViewState={initialViewState}
         mapStyle={MAP_STYLES[theme]}
         // A full style reload on theme switch fires "style.load", where base colors are re-applied.
@@ -170,9 +202,10 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
             onSelect={onSelect}
           />
         ))}
-        <LocateButton stops={network.stops} onSelect={onSelect} onNearbyChange={setNearbyIds} />
+        {userLocation && <UserMarker lat={userLocation.lat} lon={userLocation.lon} />}
         <NavigationControl position="bottom-right" showCompass={false} />
-        <AttributionControl compact={false} position="bottom-right" customAttribution={[fr.geoMap.osmCredit, fr.geoMap.dataCredit]} />
+        {/* Licences (OSM, ODbL) require credits on the map: a folded "i" here, details in Sources. */}
+        <AttributionControl compact position="bottom-right" customAttribution={[fr.geoMap.osmCredit, fr.geoMap.dataCredit]} />
       </MapView>
     </div>
   );

@@ -30,7 +30,7 @@ export function StationPanel({ stop, lines, onClose }: StationPanelProps) {
   return (
     <aside
       aria-labelledby="station-panel-title"
-      className="absolute inset-x-3 bottom-3 z-10 max-h-[60%] overflow-y-auto p-4 shadow-2xl sm:inset-x-auto sm:right-4 sm:top-4 sm:bottom-auto sm:w-80"
+      className="absolute inset-x-3 bottom-3 z-10 max-h-[60%] overflow-y-auto p-4 shadow-2xl sm:inset-x-auto sm:right-3 sm:top-16 sm:bottom-auto sm:w-80"
       style={{ background: colors.surface, color: colors.text, borderRadius: radii.md }}
     >
       <div className="flex items-start justify-between gap-3">

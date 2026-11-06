@@ -30,28 +30,18 @@ async function TramMapSection() {
 }
 
 export default function HomePage() {
+  // Full-screen map; the top bar and the helpers float over it (credits live in "Sources").
   return (
-    <main className="flex h-dvh flex-col" style={{ background: colors.background, color: colors.text }}>
-      <header className="flex flex-wrap items-baseline gap-x-3 px-4 pt-3">
-        <h1 className="text-xl font-bold tracking-tight">{fr.app.name}</h1>
-        <p className="text-sm" style={{ color: colors.textMuted }}>
-          {fr.map.hint}
-        </p>
-      </header>
-      <div className="relative flex min-h-0 flex-1">
-        <Suspense
-          fallback={
-            <p className="m-auto" style={{ color: colors.textMuted }}>
-              {fr.map.loading}
-            </p>
-          }
-        >
-          <TramMapSection />
-        </Suspense>
-      </div>
-      <footer className="px-4 pb-3 text-xs" style={{ color: colors.textMuted }}>
-        {fr.app.unofficial} {fr.app.dataCredit}
-      </footer>
+    <main className="relative flex h-dvh" style={{ background: colors.background, color: colors.text }}>
+      <Suspense
+        fallback={
+          <p className="m-auto" style={{ color: colors.textMuted }}>
+            {fr.map.loading}
+          </p>
+        }
+      >
+        <TramMapSection />
+      </Suspense>
     </main>
   );
 }

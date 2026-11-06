@@ -23,3 +23,13 @@ export const themeCss =
  * so the page never flashes the wrong colors. Blocked storage (private mode) means no saved theme.
  */
 export const themeScript = `(function(){var t=null;try{t=localStorage.getItem("${THEME_STORAGE_KEY}")}catch(e){t=null}if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=t})()`;
+
+/** Translucent surface for controls floating over the map. */
+export const glass = {
+  background: `color-mix(in srgb, ${colors.surface} 88%, transparent)`,
+  color: colors.text,
+} as const;
+
+/** Shared look of the round controls floating over the map. */
+export const FLOATING_BUTTON =
+  "flex h-9 min-w-9 items-center justify-center gap-2 rounded-full px-2.5 text-sm font-medium shadow-lg backdrop-blur hover:opacity-90 focus-visible:outline-2 disabled:opacity-60";
