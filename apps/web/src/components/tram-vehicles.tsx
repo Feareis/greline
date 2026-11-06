@@ -2,7 +2,7 @@
 
 import { useTramSchedule, useTripDelays } from "@greline/hooks";
 import { fr } from "@greline/i18n";
-import { cumulativeDistances, pointAtDistance, vehiclePositions } from "@greline/services";
+import { cumulativeDistances, LATE_THRESHOLD_SECONDS, pointAtDistance, vehiclePositions } from "@greline/services";
 import { colors, radii } from "@greline/theme";
 import type { Line, TramSchedule } from "@greline/types";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
@@ -10,7 +10,6 @@ import { useEffect, useMemo } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
 
 const SOURCE_ID = "trams";
-const LATE_THRESHOLD_S = 120;
 /** Trams move a few meters per second: 10 redraws per second look smooth and spare the CPU. */
 const REDRAW_INTERVAL_MS = 100;
 /** GeoJSON types come through MapLibre, which already depends on them. */
@@ -65,7 +64,7 @@ function vehicleFeatures(
       type: "Feature" as const,
       geometry: { type: "Point" as const, coordinates: [lon, lat] },
       // The icon points east: rotate it from there to the direction of travel.
-      properties: { icon: tramIconId(color, vehicle.delaySeconds > LATE_THRESHOLD_S), rotate: bearing - 90 },
+      properties: { icon: tramIconId(color, vehicle.delaySeconds > LATE_THRESHOLD_SECONDS), rotate: bearing - 90 },
     };
   });
   return { type: "FeatureCollection", features };
