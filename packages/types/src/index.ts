@@ -44,6 +44,10 @@ export interface TramPattern {
   headsign: string;
   /** Station ids (cluster codes), in travel order. */
   stopIds: string[];
+  /** Index in TramSchedule.shapes: the track these trips run on. */
+  shape: number;
+  /** Meters along the shape of each stop of `stopIds`, never decreasing. */
+  stopDistances: number[];
 }
 
 /**
@@ -63,45 +67,10 @@ export interface TramTrip {
 export interface TramSchedule {
   /** "YYYY-MM-DD". */
   serviceDate: string;
+  /** Track geometries, in travel direction, shared by the patterns. */
+  shapes: LonLat[][];
   patterns: TramPattern[];
   trips: TramTrip[];
-}
-
-/** A point in schematic map units (SVG user space, y pointing down). */
-export interface SchematicPoint {
-  x: number;
-  y: number;
-}
-
-/** A station placed on the schematic map. */
-export interface SchematicStation {
-  stopId: string;
-  position: SchematicPoint;
-  /** Ids of the lines serving the station; two or more means a transfer. */
-  lineIds: string[];
-}
-
-/** The drawn geometry between two consecutive stations of a line, offset like the line itself. */
-export interface SchematicEdge {
-  fromStopId: string;
-  toStopId: string;
-  points: SchematicPoint[];
-}
-
-/** The drawn path of one line, made of 0/45/90 degree segments. */
-export interface SchematicPath {
-  lineId: string;
-  points: SchematicPoint[];
-  /** One entry per pair of consecutive stations, in line order (used to place moving trams). */
-  edges: SchematicEdge[];
-}
-
-/** Everything needed to draw the schematic map, independent of any renderer. */
-export interface SchematicMap {
-  width: number;
-  height: number;
-  stations: SchematicStation[];
-  paths: SchematicPath[];
 }
 
 /** A single upcoming departure at a stop. */

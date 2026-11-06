@@ -1,21 +1,21 @@
 import type { TramSchedule } from "@greline/types";
 
-/** Where a tram is right now: between two consecutive stations of its trip. */
+/** Where a tram is right now: how far along the track of its pattern. */
 export interface VehiclePosition {
   /** Unique per running trip (a trip id can appear on two service days). */
   key: string;
   tripId: string;
   lineId: string;
-  fromStopId: string;
-  toStopId: string;
-  /** 0 at `fromStopId`, 1 at `toStopId`. */
-  progress: number;
+  /** Index in TramSchedule.patterns; its `shape` is the track the tram runs on. */
+  pattern: number;
+  /** Meters along the pattern's shape. */
+  distance: number;
   delaySeconds: number;
 }
 
 /**
  * Positions of every tram running at `now` (Unix seconds), interpolated linearly in time
- * between scheduled departures, the whole trip shifted by its realtime delay.
+ * between scheduled departures at its stops, the whole trip shifted by its realtime delay.
  * ponytail: one delay for the whole trip (no per-stop catch-up); per-stop estimates would need
  * one M API request per station.
  */
@@ -36,13 +36,14 @@ export function vehiclePositions(
     const from = offsets[segment]!;
     const to = offsets[segment + 1]!;
     const pattern = schedule.patterns[trip.pattern]!;
+    const progress = to > from ? (elapsed - from) / (to - from) : 0;
+    const start = pattern.stopDistances[segment]!;
     positions.push({
       key: `${trip.id}@${trip.start}`,
       tripId: trip.id,
       lineId: pattern.lineId,
-      fromStopId: pattern.stopIds[segment]!,
-      toStopId: pattern.stopIds[segment + 1]!,
-      progress: to > from ? (elapsed - from) / (to - from) : 0,
+      pattern: trip.pattern,
+      distance: start + progress * (pattern.stopDistances[segment + 1]! - start),
       delaySeconds,
     });
   }

@@ -1,4 +1,4 @@
-import { serviceDayOrigin } from "@greline/services";
+import { cumulativeDistances, serviceDayOrigin } from "@greline/services";
 import { describe, expect, it } from "vitest";
 import { buildTramSchedule } from "./schedule";
 
@@ -32,6 +32,19 @@ const files = new Map([
       "service_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,start_date,end_date",
       "WEEK,1,1,1,1,1,0,0,20260901,20261231",
       "SAT,0,0,0,0,0,1,0,20260901,20261231",
+    ),
+  ],
+  [
+    "shapes.txt",
+    csv(
+      "shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence,shape_dist_traveled",
+      // Tram A towards Gares, through the platforms; shape 2 is missing (drawn straight).
+      "1,45.19691,5.67249,1,",
+      "1,45.19691,5.67249,2,",
+      "1,45.1937,5.6804,3,",
+      "1,45.1914,5.7145,4,",
+      "3,45.1914,5.7145,1,",
+      "3,45.2,5.72,2,",
     ),
   ],
   ["calendar_dates.txt", csv("service_id,date,exception_type", "EXTRA,20261106,1", "WEEK,20261111,2")],
@@ -97,10 +110,35 @@ describe("buildTramSchedule", () => {
     expect(schedule.trips.find((t) => t.id === "SEM:100")!.offsets).toEqual([0, 150, 600]);
   });
 
-  it("shares one pattern between trips serving the same stops", () => {
-    expect(schedule.patterns).toEqual([
-      { lineId: "SEM:A", headsign: "Grenoble, Gares", stopIds: ["SEM:GENLP", "SEM:GENCM", "SEM:GENGAR"] },
-      { lineId: "SEM:A", headsign: "Fontaine, La Poya", stopIds: ["SEM:GENGAR", "SEM:GENCM", "SEM:GENLP"] },
+  it("shares one pattern between trips serving the same stops on the same track", () => {
+    expect(schedule.patterns.map(({ lineId, headsign, stopIds, shape }) => ({ lineId, headsign, stopIds, shape }))).toEqual([
+      { lineId: "SEM:A", headsign: "Grenoble, Gares", stopIds: ["SEM:GENLP", "SEM:GENCM", "SEM:GENGAR"], shape: 0 },
+      { lineId: "SEM:A", headsign: "Fontaine, La Poya", stopIds: ["SEM:GENGAR", "SEM:GENCM", "SEM:GENLP"], shape: 1 },
+    ]);
+  });
+
+  it("keeps the GTFS track of tram trips only, without duplicate points", () => {
+    expect(schedule.shapes[0]).toEqual([
+      [5.67249, 45.19691],
+      [5.6804, 45.1937],
+      [5.7145, 45.1914],
+    ]);
+    expect(schedule.shapes).toHaveLength(2);
+  });
+
+  it("measures each stop along the track, in meters", () => {
+    const [first, middle, last] = schedule.patterns[0]!.stopDistances;
+    const lengths = cumulativeDistances(schedule.shapes[0]!);
+    expect(first).toBe(0);
+    expect(middle).toBe(Math.round(lengths[1]!));
+    expect(last).toBe(Math.round(lengths[2]!));
+  });
+
+  it("draws a trip without a GTFS shape straight from platform to platform", () => {
+    expect(schedule.shapes[1]).toEqual([
+      [5.7145, 45.1914],
+      [5.6804, 45.1937],
+      [5.67249, 45.19691],
     ]);
   });
 

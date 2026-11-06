@@ -60,7 +60,7 @@ export function LocateButton({ stops, onSelect, onNearbyChange }: LocateButtonPr
 
   return (
     <>
-      <div className="absolute top-16 left-3 z-10 w-64 space-y-2">
+      <div className="absolute top-3 left-3 z-10 w-64 space-y-2">
         <button
           type="button"
           onClick={locate}

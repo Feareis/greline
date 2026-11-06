@@ -1,9 +1,10 @@
-import { serviceDayOrigin } from "@greline/services";
-import type { TramPattern, TramSchedule, TramTrip } from "@greline/types";
+import { cumulativeDistances, serviceDayOrigin } from "@greline/services";
+import type { LonLat, TramPattern, TramSchedule, TramTrip } from "@greline/types";
 import { csvRecords, csvTable, splitCsvLine } from "./csv";
+import { readShapes, simplifyPolyline, stopDistancesAlong } from "./shapes";
 
 /** GTFS files needed to build the tram schedule of a day. */
-export const GTFS_SCHEDULE_FILES = ["routes.txt", "trips.txt", "stop_times.txt", "stops.txt", "calendar.txt", "calendar_dates.txt"];
+export const GTFS_SCHEDULE_FILES = ["routes.txt", "trips.txt", "stop_times.txt", "stops.txt", "calendar.txt", "calendar_dates.txt", "shapes.txt"];
 
 type GtfsFiles = ReadonlyMap<string, string>;
 
@@ -11,6 +12,10 @@ type GtfsFiles = ReadonlyMap<string, string>;
 const AGENCY_PREFIX = "SEM:";
 const TRAM_ROUTE_TYPE = "0";
 const SECONDS_PER_DAY = 86_400;
+/** Track points closer than this to a straight line are dropped: invisible on a map, much lighter. */
+const SHAPE_TOLERANCE_M = 2;
+/** 5 decimals of a degree is ~1 m. */
+const roundCoordinate = (value: number): number => Math.round(value * 1e5) / 1e5;
 const WEEKDAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
 function file(files: GtfsFiles, name: string): string {
@@ -46,16 +51,25 @@ function activeServices(files: GtfsFiles, date: string): Set<string> {
   return active;
 }
 
-/** Platform stop_id -> station id ("2109" -> "SEM:GENLP"), through the parent station's code. */
-function stationIds(files: GtfsFiles): Map<string, string> {
+interface PlatformIndex {
+  /** Platform stop_id -> station id ("2109" -> "SEM:GENLP"), through the parent station's code. */
+  stationOf: Map<string, string>;
+  positionOf: Map<string, LonLat>;
+}
+
+function platformIndex(files: GtfsFiles): PlatformIndex {
   const stops = csvRecords(file(files, "stops.txt"));
   const codeById = new Map(stops.map((s) => [s.stop_id!, s.stop_code!]));
-  return new Map(stops.map((s) => [s.stop_id!, AGENCY_PREFIX + (codeById.get(s.parent_station!) ?? s.stop_code)]));
+  return {
+    stationOf: new Map(stops.map((s) => [s.stop_id!, AGENCY_PREFIX + (codeById.get(s.parent_station!) ?? s.stop_code)])),
+    positionOf: new Map(stops.map((s) => [s.stop_id!, [Number(s.stop_lon), Number(s.stop_lat)]])),
+  };
 }
 
 interface TripInstance {
   lineId: string;
   headsign: string;
+  shapeId: string;
   origin: number;
   previousDay: boolean;
 }
@@ -80,7 +94,13 @@ function tripInstances(files: GtfsFiles, date: string): Map<string, TripInstance
     if (running.length === 0) continue;
     instances.set(
       trip.trip_id!,
-      running.map((d) => ({ lineId, headsign: trip.trip_headsign!, origin: d.origin, previousDay: d.previousDay })),
+      running.map((d) => ({
+        lineId,
+        headsign: trip.trip_headsign!,
+        shapeId: trip.shape_id ?? "",
+        origin: d.origin,
+        previousDay: d.previousDay,
+      })),
     );
   }
   return instances;
@@ -114,34 +134,74 @@ function stopTimesOf(files: GtfsFiles, tripIds: ReadonlySet<string>): Map<string
   return byTrip;
 }
 
-/** Interns patterns: trips serving the same stops of a line share one entry. */
-function patternRegistry() {
+interface PatternKey {
+  lineId: string;
+  headsign: string;
+  shapeId: string;
+  platformIds: string[];
+}
+
+/**
+ * Interns shapes and patterns: trips on the same track serving the same platforms share one
+ * pattern, patterns on the same track share one shape.
+ */
+function patternRegistry(rawShapes: ReadonlyMap<string, LonLat[]>, platforms: PlatformIndex) {
+  const shapes: LonLat[][] = [];
+  const cumulatives: number[][] = [];
+  const shapeIndex = new Map<string, number>();
   const patterns: TramPattern[] = [];
-  const indexByKey = new Map<string, number>();
-  const indexOf = (pattern: TramPattern): number => {
-    const key = `${pattern.lineId}|${pattern.headsign}|${pattern.stopIds.join(",")}`;
-    const known = indexByKey.get(key);
+  const patternIndex = new Map<string, number>();
+
+  const addShape = (points: readonly LonLat[]): number => {
+    const rounded = points.map(([lon, lat]): LonLat => [roundCoordinate(lon), roundCoordinate(lat)]);
+    const shape = simplifyPolyline(rounded, SHAPE_TOLERANCE_M);
+    shapes.push(shape);
+    cumulatives.push(cumulativeDistances(shape));
+    return shapes.length - 1;
+  };
+  const shapeFor = (shapeId: string, stops: readonly LonLat[]): number => {
+    const raw = rawShapes.get(shapeId);
+    // A trip without a GTFS shape is drawn straight from platform to platform.
+    if (!raw) return addShape(stops);
+    const known = shapeIndex.get(shapeId);
     if (known !== undefined) return known;
-    patterns.push(pattern);
-    indexByKey.set(key, patterns.length - 1);
+    const index = addShape(raw);
+    shapeIndex.set(shapeId, index);
+    return index;
+  };
+  const positionOf = (platformId: string): LonLat => {
+    const position = platforms.positionOf.get(platformId);
+    if (!position) throw new Error(`GTFS stop_times refers to unknown stop ${platformId}`);
+    return position;
+  };
+
+  const indexOf = ({ lineId, headsign, shapeId, platformIds }: PatternKey): number => {
+    const key = `${lineId}|${headsign}|${shapeId}|${platformIds.join(",")}`;
+    const known = patternIndex.get(key);
+    if (known !== undefined) return known;
+    const stops = platformIds.map(positionOf);
+    const shape = shapeFor(shapeId, stops);
+    const stopDistances = stopDistancesAlong(shapes[shape]!, cumulatives[shape]!, stops).map(Math.round);
+    const stopIds = platformIds.map((id) => platforms.stationOf.get(id) ?? AGENCY_PREFIX + id);
+    patterns.push({ lineId, headsign, stopIds, shape, stopDistances });
+    patternIndex.set(key, patterns.length - 1);
     return patterns.length - 1;
   };
-  return { patterns, indexOf };
+  return { shapes, patterns, indexOf };
 }
 
 /** The tram schedule of a service day ("YYYY-MM-DD"), from the text files of a GTFS feed. */
 export function buildTramSchedule(files: GtfsFiles, serviceDate: string): TramSchedule {
   const instances = tripInstances(files, serviceDate);
   const stopTimes = stopTimesOf(files, new Set(instances.keys()));
-  const stations = stationIds(files);
-  const registry = patternRegistry();
+  const shapeIds = new Set([...instances.values()].flatMap((runs) => runs.map((run) => run.shapeId)));
+  const registry = patternRegistry(readShapes(file(files, "shapes.txt"), shapeIds), platformIndex(files));
   const trips: TramTrip[] = [];
   for (const [tripId, runs] of instances) {
     const times = stopTimes.get(tripId) ?? [];
     if (times.length < 2) continue;
-    const { lineId, headsign } = runs[0]!;
-    const stopIds = times.map((t) => stations.get(t.stopId) ?? AGENCY_PREFIX + t.stopId);
-    const pattern = registry.indexOf({ lineId, headsign, stopIds });
+    const { lineId, headsign, shapeId } = runs[0]!;
+    const pattern = registry.indexOf({ lineId, headsign, shapeId, platformIds: times.map((t) => t.stopId) });
     const first = times[0]!.seconds;
     const offsets = times.map((t) => t.seconds - first);
     const runsPastMidnight = times.at(-1)!.seconds >= SECONDS_PER_DAY;
@@ -151,5 +211,5 @@ export function buildTramSchedule(files: GtfsFiles, serviceDate: string): TramSc
     }
   }
   trips.sort((a, b) => a.start - b.start);
-  return { serviceDate, patterns: registry.patterns, trips };
+  return { serviceDate, shapes: registry.shapes, patterns: registry.patterns, trips };
 }

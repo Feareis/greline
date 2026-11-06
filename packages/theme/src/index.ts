@@ -7,7 +7,7 @@ export const colors = {
   accent: "#4CC3FF",
   station: "#FFFFFF",
   /** Outline of a tram running late. */
-  late: "#FF9F1C",
+  late: "#FF3B30",
 } as const;
 
 export const spacing = {

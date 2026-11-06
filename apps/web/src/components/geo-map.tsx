@@ -8,6 +8,7 @@ import { setWorkerUrl } from "maplibre-gl";
 import { useMemo, useState } from "react";
 import MapView, { AttributionControl, Layer, type MapEvent, type MapRef, Marker, NavigationControl, Source } from "react-map-gl/maplibre";
 import { LocateButton } from "./locate-button";
+import { addTramIcon, TramVehicles } from "./tram-vehicles";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
 // Next.js chunks folder once bundled (404). Referencing the worker with a static
@@ -27,12 +28,14 @@ function applyThemeColors({ target: map }: MapEvent) {
 const TRANSPARENT_PIXEL = { width: 1, height: 1, data: new Uint8Array(4) };
 
 /**
- * The OpenFreeMap dark style fills woods with a "wood-pattern" its own sprite lacks, so MapLibre
- * logs a warning for every tile. A transparent stand-in keeps the same look (no pattern) quietly.
+ * Draws tram icons on demand. Any other missing image is a gap of the base style (its dark
+ * variant fills woods with a "wood-pattern" its own sprite lacks, and MapLibre warns for every
+ * tile): a transparent stand-in keeps the same look (no pattern) quietly.
  */
-function silenceMissingStyleImages(ref: MapRef | null) {
+function resolveMissingImages(ref: MapRef | null) {
   const map = ref?.getMap();
-  map?.setMissingStyleImageResolver((id) => {
+  map?.setMissingStyleImageResolver(async (id) => {
+    if (await addTramIcon(map, id)) return;
     if (!map.hasImage(id)) map.addImage(id, TRANSPARENT_PIXEL);
   });
 }
@@ -99,7 +102,7 @@ interface GeoMapProps {
   onSelect: (stopId: string) => void;
 }
 
-/** Real geographic map: official track shapes and stations on an OpenStreetMap base. */
+/** Real geographic map: official track shapes, moving trams and stations on an OpenStreetMap base. */
 export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
   const [nearbyIds, setNearbyIds] = useState<ReadonlySet<string>>(new Set());
   const linesData = useMemo(
@@ -130,7 +133,7 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
   return (
     <div className="h-full w-full" role="region" aria-label={fr.geoMap.ariaLabel}>
       <MapView
-        ref={silenceMissingStyleImages}
+        ref={resolveMissingImages}
         initialViewState={initialViewState}
         mapStyle={MAP_STYLE_URL}
         attributionControl={false}
@@ -145,6 +148,7 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
             paint={{ "line-color": ["get", "color"], "line-width": ["interpolate", ["linear"], ["zoom"], 11, 2, 16, 7] }}
           />
         </Source>
+        <TramVehicles lines={network.lines} />
         {network.stops.map((stop) => (
           <StationButton
             key={stop.id}
@@ -156,7 +160,7 @@ export function GeoMap({ network, selectedId, onSelect }: GeoMapProps) {
           />
         ))}
         <LocateButton stops={network.stops} onSelect={onSelect} onNearbyChange={setNearbyIds} />
-        <NavigationControl position="bottom-left" showCompass={false} />
+        <NavigationControl position="bottom-right" showCompass={false} />
         <AttributionControl compact={false} position="bottom-right" customAttribution={[fr.geoMap.osmCredit, fr.geoMap.dataCredit]} />
       </MapView>
     </div>

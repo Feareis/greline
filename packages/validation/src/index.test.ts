@@ -28,7 +28,13 @@ describe("departuresResponseSchema", () => {
 describe("tramScheduleSchema", () => {
   const schedule = {
     serviceDate: "2026-11-06",
-    patterns: [{ lineId: "SEM:A", headsign: "Gares", stopIds: ["SEM:GENLP", "SEM:GENGAR"] }],
+    shapes: [
+      [
+        [5.67, 45.19],
+        [5.71, 45.19],
+      ],
+    ],
+    patterns: [{ lineId: "SEM:A", headsign: "Gares", stopIds: ["SEM:GENLP", "SEM:GENGAR"], shape: 0, stopDistances: [0, 3150] }],
     trips: [{ id: "SEM:1", pattern: 0, start: 1793956000, offsets: [0, 600] }],
   };
 
@@ -38,6 +44,12 @@ describe("tramScheduleSchema", () => {
 
   it("rejects a trip pointing to a missing pattern", () => {
     expect(tramScheduleSchema.safeParse({ ...schedule, trips: [{ ...schedule.trips[0], pattern: 3 }] }).success).toBe(false);
+  });
+
+  it("rejects a pattern pointing to a missing shape or without one distance per stop", () => {
+    const pattern = schedule.patterns[0]!;
+    expect(tramScheduleSchema.safeParse({ ...schedule, patterns: [{ ...pattern, shape: 1 }] }).success).toBe(false);
+    expect(tramScheduleSchema.safeParse({ ...schedule, patterns: [{ ...pattern, stopDistances: [0, 10, 20] }] }).success).toBe(false);
   });
 });
 

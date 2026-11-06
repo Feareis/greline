@@ -5,7 +5,7 @@ import { departuresQueryOptions } from "./use-departures";
 
 const client: GrelineApiClient = {
   getDepartures: vi.fn(async () => []),
-  getTramSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", patterns: [], trips: [] })),
+  getTramSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", shapes: [], patterns: [], trips: [] })),
   getTripDelays: vi.fn(async () => ({})),
 };
 

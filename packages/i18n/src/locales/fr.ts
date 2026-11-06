@@ -5,11 +5,6 @@ export const fr = {
     unofficial: "Projet indépendant, non officiel.",
     dataCredit: "Données : M – Mobilités de l'agglomération grenobloise (ODbL)",
   },
-  views: {
-    label: "Type de vue",
-    plan: "Plan",
-    map: "Carte",
-  },
   geoMap: {
     ariaLabel: "Carte géographique des lignes de tram de Grenoble",
     loading: "Chargement de la carte…",
@@ -18,7 +13,7 @@ export const fr = {
   },
   trams: {
     legend: "Rames en circulation, positions estimées en temps réel",
-    late: "Contour orange : retard de plus de 2 min",
+    late: "Contour rouge : retard de plus de 2 min",
     unavailable: "Rames indisponibles pour le moment.",
   },
   locate: {
@@ -36,7 +31,6 @@ export const fr = {
         : `${(meters / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} km`,
   },
   map: {
-    ariaLabel: "Plan schématique des lignes de tram de Grenoble",
     loading: "Chargement du plan…",
     unavailable: "Le plan est indisponible pour le moment : les données M ne répondent pas. Réessayez dans quelques minutes.",
     hint: "Molette ou pincement pour zoomer, glisser pour déplacer, clic sur une station pour le détail.",

@@ -34,8 +34,15 @@ export type DeparturesResponse = z.infer<typeof departuresResponseSchema>;
 export const tramScheduleSchema = z
   .object({
     serviceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    shapes: z.array(z.array(z.tuple([z.number(), z.number()])).min(2)),
     patterns: z.array(
-      z.object({ lineId: z.string().min(1), headsign: z.string(), stopIds: z.array(z.string().min(1)).min(2) }),
+      z.object({
+        lineId: z.string().min(1),
+        headsign: z.string(),
+        stopIds: z.array(z.string().min(1)).min(2),
+        shape: z.number().int().nonnegative(),
+        stopDistances: z.array(z.number().nonnegative()).min(2),
+      }),
     ),
     trips: z.array(
       z.object({
@@ -48,7 +55,12 @@ export const tramScheduleSchema = z
   })
   .refine((schedule) => schedule.trips.every((trip) => trip.pattern < schedule.patterns.length), {
     message: "a trip refers to a missing pattern",
-  }) satisfies z.ZodType<TramSchedule>;
+  })
+  .refine(
+    (schedule) =>
+      schedule.patterns.every((p) => p.shape < schedule.shapes.length && p.stopDistances.length === p.stopIds.length),
+    { message: "a pattern refers to a missing shape or has one distance per stop missing" },
+  ) satisfies z.ZodType<TramSchedule>;
 
 /** Body of `GET /api/network/trams/delays`: seconds, keyed by trip id. */
 export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });

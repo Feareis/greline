@@ -1,11 +1,9 @@
 import { fr } from "@greline/i18n";
-import { buildSchematicMap } from "@greline/schematic";
 import { colors } from "@greline/theme";
 import type { TramNetwork } from "@greline/types";
 import { connection } from "next/server";
 import { Suspense } from "react";
-import { LINE_SPACING } from "@/components/map-style";
-import { NetworkViews } from "@/components/network-views";
+import { NetworkView } from "@/components/network-view";
 import { getTramNetwork } from "@/lib/tram-network";
 
 async function loadNetwork(): Promise<TramNetwork | null> {
@@ -28,8 +26,7 @@ async function TramMapSection() {
       </p>
     );
   }
-  // The layout is computed on the server: the browser only receives ready-to-draw coordinates.
-  return <NetworkViews network={network} schematic={buildSchematicMap(network, { lineSpacing: LINE_SPACING })} />;
+  return <NetworkView network={network} />;
 }
 
 export default function HomePage() {

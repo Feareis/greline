@@ -53,7 +53,13 @@ describe("createApiClient().getDepartures", () => {
 describe("createApiClient() tram endpoints", () => {
   const schedule = {
     serviceDate: "2026-11-06",
-    patterns: [{ lineId: "SEM:A", headsign: "Gares", stopIds: ["SEM:GENLP", "SEM:GENGAR"] }],
+    shapes: [
+      [
+        [5.67, 45.19],
+        [5.71, 45.19],
+      ],
+    ],
+    patterns: [{ lineId: "SEM:A", headsign: "Gares", stopIds: ["SEM:GENLP", "SEM:GENGAR"], shape: 0, stopDistances: [0, 3150] }],
     trips: [{ id: "SEM:1", pattern: 0, start: 1793956000, offsets: [0, 600] }],
   };
 
