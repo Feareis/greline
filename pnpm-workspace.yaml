@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# Native/binary dependencies whose install scripts are not needed.
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

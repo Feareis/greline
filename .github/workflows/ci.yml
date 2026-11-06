@@ -1,0 +1,41 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Guardrails (files)
+        run: pnpm check:guardrails
+
+      - name: Guardrails (commit messages)
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="origin/${{ github.base_ref }}..HEAD"
+          elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+            RANGE="HEAD"
+          else
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          fi
+          node scripts/guardrails/check-commits.mjs "$RANGE"
+
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm lint

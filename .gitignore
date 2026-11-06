@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+web-build/
+coverage/
+*.tsbuildinfo
+
+# Expo / React Native
+.expo/
+expo-env.d.ts
+/apps/mobile/ios
+/apps/mobile/android
+
+# Generated data (GTFS imports, exports)
+/data/
+
+# Env files (commit only .env.example)
+.env
+.env.*
+!.env.example
+
+# OS / editors
+.DS_Store
+Thumbs.db
+*.pem
+.vercel
+
+# Logs
+*.log

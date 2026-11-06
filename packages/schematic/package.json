@@ -1,0 +1,21 @@
+{
+  "name": "@greline/schematic",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@greline/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@greline/tsconfig": "workspace:*",
+    "typescript": "~6.0.3"
+  }
+}

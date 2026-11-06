@@ -1,0 +1,24 @@
+{
+  "name": "greline",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.2",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter @greline/web dev",
+    "dev:mobile": "pnpm --filter @greline/mobile start",
+    "build:web": "pnpm --filter @greline/web build",
+    "typecheck": "pnpm -r --parallel typecheck",
+    "lint": "pnpm -r --parallel lint",
+    "test": "vitest run",
+    "check:guardrails": "node scripts/guardrails/check-files.mjs --all",
+    "check": "pnpm check:guardrails && pnpm typecheck && pnpm test",
+    "prepare": "node scripts/guardrails/install-hooks.mjs"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.3",
+    "vitest": "^5.1.0"
+  }
+}

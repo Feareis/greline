@@ -1,0 +1,6 @@
+# Force LF everywhere (git hooks break with CRLF on Windows).
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.ttf binary

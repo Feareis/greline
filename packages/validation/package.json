@@ -1,0 +1,22 @@
+{
+  "name": "@greline/validation",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@greline/types": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@greline/tsconfig": "workspace:*",
+    "typescript": "~6.0.3"
+  }
+}

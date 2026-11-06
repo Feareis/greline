@@ -1,0 +1,27 @@
+{
+  "name": "@greline/hooks",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@greline/services": "workspace:*",
+    "@greline/types": "workspace:*"
+  },
+  "devDependencies": {
+    "@greline/tsconfig": "workspace:*",
+    "@types/react": "~19.3.0",
+    "react": "19.3.0",
+    "typescript": "~6.0.3"
+  },
+  "peerDependencies": {
+    "react": "19.3.0"
+  }
+}

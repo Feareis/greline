@@ -1,0 +1,6 @@
+{
+  "extends": "@greline/tsconfig/library.json",
+  "include": [
+    "src"
+  ]
+}
