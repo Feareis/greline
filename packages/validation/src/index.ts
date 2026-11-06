@@ -31,7 +31,7 @@ export const stopIdSchema = z.string().regex(/^[A-Z0-9]{3}:[0-9a-zA-Z-]{1,128}$/
 export const departuresResponseSchema = z.object({ departures: z.array(departureSchema) });
 export type DeparturesResponse = z.infer<typeof departuresResponseSchema>;
 
-/** Body of `GET /api/network/trams/schedule`. */
+/** Body of `GET /api/network/schedule?network=...`. */
 export const transitScheduleSchema = z
   .object({
     serviceDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
@@ -63,8 +63,11 @@ export const transitScheduleSchema = z
     { message: "a pattern refers to a missing shape or has one distance per stop missing" },
   ) satisfies z.ZodType<TransitSchedule>;
 
-/** Body of `GET /api/network/trams/delays`: seconds, keyed by trip id. */
+/** Body of `GET /api/network/delays`: seconds, keyed by trip id. */
 export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });
+
+/** One of our networks, e.g. in `?network=chrono`. */
+export const networkIdSchema = z.enum(NETWORK_IDS);
 
 /** Body of `GET /api/weather`. */
 export const weatherSchema = z.object({

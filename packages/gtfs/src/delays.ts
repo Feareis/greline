@@ -1,21 +1,40 @@
+import type { LineMode } from "@greline/types";
 import { mStopTimesSchema, type MStopTimes } from "@greline/validation";
 import { stopTimesUrl } from "./fetch-departures";
 import { type FetchLike, fetchFromMApi, MApiError } from "./fetch-network";
 import { lineIdOfPattern } from "./to-departures";
 
 /**
- * Probe a station every 8 stops: a probe lists each pattern's next ~3 departures (~15 min at
- * tram headways), so nearly every running tram is approaching a probe, for ~12 requests in all.
+ * At most this many stops between two probes of a line. A probe lists each pattern's next ~3
+ * departures: ~15 min at tram headways, 30 min and more for buses, which run less often.
  */
-export const DELAY_PROBE_SPACING = 8;
+export const PROBE_SPACING: Readonly<Record<LineMode, number>> = { tram: 8, bus: 12 };
 
-/** Stations sampled every `spacing` stops of each line, starting half a spacing in. */
-export function delayProbeStations(lines: readonly { stopIds: readonly string[] }[], spacing = DELAY_PROBE_SPACING): string[] {
-  const stations = new Set<string>();
-  for (const line of lines) {
-    for (let i = Math.floor(spacing / 2); i < line.stopIds.length; i += spacing) stations.add(line.stopIds[i]!);
+interface ProbedLine {
+  mode: LineMode;
+  stopIds: readonly string[];
+}
+
+/**
+ * Stations to ask for realtime departures so every line has a probe at least every
+ * PROBE_SPACING stops. A probe answers for every line serving its station, so each window of a
+ * line reuses an already chosen station, or else picks its busiest one (~35 probes for trams,
+ * Chrono and Proximo, against ~70 with fixed sampling).
+ */
+export function delayProbeStations(lines: readonly ProbedLine[]): string[] {
+  const linesAt = new Map<string, number>();
+  for (const line of lines) for (const id of line.stopIds) linesAt.set(id, (linesAt.get(id) ?? 0) + 1);
+  const chosen = new Set<string>();
+  // Long lines first: their probes are the most likely to serve shorter lines too.
+  for (const line of [...lines].sort((a, b) => b.stopIds.length - a.stopIds.length)) {
+    const spacing = PROBE_SPACING[line.mode];
+    for (let start = 0; start < line.stopIds.length; start += spacing) {
+      const window = line.stopIds.slice(start, start + spacing);
+      if (window.some((id) => chosen.has(id))) continue;
+      chosen.add(window.reduce((best, id) => (linesAt.get(id)! > linesAt.get(best)! ? id : best)));
+    }
   }
-  return [...stations];
+  return [...chosen];
 }
 
 /**
@@ -47,7 +66,7 @@ export interface TripDelays {
   failedStations: number;
 }
 
-/** Realtime delays of the trams approaching the probe stations. Fails only if every probe fails. */
+/** Realtime delays of the vehicles approaching the probe stations. Fails only if every probe fails. */
 export async function fetchTripDelays(
   stationIds: readonly string[],
   lineIds: ReadonlySet<string>,

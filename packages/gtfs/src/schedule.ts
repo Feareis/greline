@@ -10,7 +10,6 @@ type GtfsFiles = ReadonlyMap<string, string>;
 
 /** Ids in our API and in the realtime feed carry the agency prefix ("SEM:32135884", "SEM:GENGAR"). */
 const AGENCY_PREFIX = "SEM:";
-const TRAM_ROUTE_TYPE = "0";
 const SECONDS_PER_DAY = 86_400;
 /** Track points closer than this to a straight line are dropped: invisible on a map, much lighter. */
 const SHAPE_TOLERANCE_M = 2;
@@ -74,11 +73,11 @@ interface TripInstance {
   previousDay: boolean;
 }
 
-/** Tram trips running on `date`, plus those of the day before (kept if they run past midnight). */
-function tripInstances(files: GtfsFiles, date: string): Map<string, TripInstance[]> {
+/** Trips of the given networks running on `date`, plus those of the day before (kept if they run past midnight). */
+function tripInstances(files: GtfsFiles, date: string, networks: ReadonlySet<string>): Map<string, TripInstance[]> {
   const lineIds = new Map(
     csvRecords(file(files, "routes.txt"))
-      .filter((r) => r.route_type === TRAM_ROUTE_TYPE)
+      .filter((r) => networks.has(r.network_id!))
       .map((r) => [r.route_id!, AGENCY_PREFIX + r.route_short_name]),
   );
   const yesterday = shiftDate(date, -1);
@@ -190,9 +189,9 @@ function patternRegistry(rawShapes: ReadonlyMap<string, LonLat[]>, platforms: Pl
   return { shapes, patterns, indexOf };
 }
 
-/** The tram schedule of a service day ("YYYY-MM-DD"), from the text files of a GTFS feed. */
-export function buildSchedule(files: GtfsFiles, serviceDate: string): TransitSchedule {
-  const instances = tripInstances(files, serviceDate);
+/** The schedule of a service day ("YYYY-MM-DD") for the lines of the given GTFS `network_id`s. */
+export function buildSchedule(files: GtfsFiles, serviceDate: string, networks: ReadonlySet<string>): TransitSchedule {
+  const instances = tripInstances(files, serviceDate, networks);
   const stopTimes = stopTimesOf(files, new Set(instances.keys()));
   const shapeIds = new Set([...instances.values()].flatMap((runs) => runs.map((run) => run.shapeId)));
   const registry = patternRegistry(readShapes(file(files, "shapes.txt"), shapeIds), platformIndex(files));

@@ -65,14 +65,14 @@ describe("createApiClient() tram endpoints", () => {
 
   it("fetches the tram schedule of the day", async () => {
     const fetchSpy = answering(Response.json(schedule));
-    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getSchedule()).resolves.toEqual(schedule);
-    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/trams/schedule");
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getSchedule("chrono")).resolves.toEqual(schedule);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/schedule?network=chrono");
   });
 
   it("fetches the realtime trip delays", async () => {
     const fetchSpy = answering(Response.json({ delays: { "SEM:1": 90 } }));
     await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTripDelays()).resolves.toEqual({ "SEM:1": 90 });
-    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/trams/delays");
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/delays");
   });
 
   it("reports API errors of the tram endpoints the same way", async () => {

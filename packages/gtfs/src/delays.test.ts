@@ -14,12 +14,17 @@ const time = (tripId: string, scheduled: number, realtime: number, isRealtime = 
 const pattern = { id: "SEM:A:0:1", desc: "La Poya" };
 
 describe("delayProbeStations", () => {
-  it("samples every few stops of each line, starting a few stops in, without duplicates", () => {
-    const lines = [
-      { stopIds: ["a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7", "a8", "a9", "a10", "a11", "a12"] },
-      { stopIds: ["b0", "b1", "b2", "b3", "a4"] },
-    ];
-    expect(delayProbeStations(lines, 8)).toEqual(["a4", "a12"]);
+  const stops = (prefix: string, count: number) => Array.from({ length: count }, (_, i) => `${prefix}${i}`);
+
+  it("probes every line at least every 8 stops for trams, 12 for buses", () => {
+    expect(delayProbeStations([{ mode: "tram", stopIds: stops("a", 17) }])).toEqual(["a0", "a8", "a16"]);
+    expect(delayProbeStations([{ mode: "bus", stopIds: stops("b", 17) }])).toEqual(["b0", "b12"]);
+  });
+
+  it("prefers stations shared by several lines, and reuses them for every line", () => {
+    const tram = { mode: "tram" as const, stopIds: ["a0", "a1", "hub", "a3", "a4"] };
+    const bus = { mode: "bus" as const, stopIds: ["b0", "hub", "b2"] };
+    expect(delayProbeStations([tram, bus])).toEqual(["hub"]);
   });
 });
 

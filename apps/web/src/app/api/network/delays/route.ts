@@ -7,7 +7,7 @@ export async function GET(): Promise<Response> {
     const { delays } = await getTripDelays();
     return Response.json({ delays });
   } catch (error) {
-    console.error("GET /api/network/trams/delays: M API unavailable", error);
+    console.error("GET /api/network/delays: M API unavailable", error);
     return Response.json({ error: "upstream_unavailable" }, { status: 502 });
   }
 }

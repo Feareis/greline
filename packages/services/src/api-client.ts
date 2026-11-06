@@ -1,4 +1,4 @@
-import type { Departure, TransitSchedule, Weather } from "@greline/types";
+import type { Departure, NetworkId, TransitSchedule, Weather } from "@greline/types";
 import { departuresResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
 
 /** Our API answered with an error status, or with a body we cannot trust. */
@@ -24,7 +24,8 @@ export interface ApiClientOptions {
 
 export interface GrelineApiClient {
   getDepartures(stopId: string, signal?: AbortSignal): Promise<Departure[]>;
-  getSchedule(signal?: AbortSignal): Promise<TransitSchedule>;
+  /** Today's schedule of one network. */
+  getSchedule(network: NetworkId, signal?: AbortSignal): Promise<TransitSchedule>;
   /** Realtime delays in seconds, keyed by trip id. */
   getTripDelays(signal?: AbortSignal): Promise<Record<string, number>>;
   /** Current weather in Grenoble. */
@@ -60,9 +61,9 @@ export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOp
       const body = await getJson(`/api/stops/${encodeURIComponent(stopId)}/departures`, departuresResponseSchema, signal);
       return body.departures;
     },
-    getSchedule: (signal) => getJson("/api/network/trams/schedule", transitScheduleSchema, signal),
+    getSchedule: (network, signal) => getJson(`/api/network/schedule?network=${network}`, transitScheduleSchema, signal),
     async getTripDelays(signal) {
-      return (await getJson("/api/network/trams/delays", tripDelaysResponseSchema, signal)).delays;
+      return (await getJson("/api/network/delays", tripDelaysResponseSchema, signal)).delays;
     },
     getWeather: (signal) => getJson("/api/weather", weatherSchema, signal),
   };

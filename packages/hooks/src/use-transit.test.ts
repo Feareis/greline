@@ -1,6 +1,6 @@
 import type { GrelineApiClient } from "@greline/services";
 import { describe, expect, it, vi } from "vitest";
-import { mergeDelays, scheduleQueryOptions, tripDelaysQueryOptions } from "./use-trams";
+import { mergeDelays, scheduleQueryOptions, tripDelaysQueryOptions } from "./use-transit";
 
 const client: GrelineApiClient = {
   getDepartures: vi.fn(async () => []),
@@ -13,9 +13,10 @@ type QueryFn = (context: { signal: AbortSignal }) => unknown;
 
 describe("scheduleQueryOptions", () => {
   it("loads the schedule from our API and refreshes it hourly (the service day changes at night)", async () => {
-    const options = scheduleQueryOptions(client);
+    const options = scheduleQueryOptions(client, "chrono");
+    expect(options.queryKey).toEqual(["schedule", "chrono"]);
     await (options.queryFn as QueryFn)({ signal });
-    expect(client.getSchedule).toHaveBeenCalledWith(signal);
+    expect(client.getSchedule).toHaveBeenCalledWith("chrono", signal);
     expect(options.refetchInterval).toBe(3_600_000);
   });
 });

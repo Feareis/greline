@@ -83,15 +83,17 @@ const files = new Map([
       "105,2216,08:30:00,08:30:00,1,0,0",
       "105,2041,08:38:00,08:38:00,2,0,0",
       "200,2216,08:00:00,08:00:00,1,0,0",
+      "200,2041,08:06:00,08:06:00,2,0,0",
     ),
   ],
 ]);
 
+const TRAMS = new Set(["TRAM"]);
 const friday = serviceDayOrigin("2026-11-06");
 const thursday = serviceDayOrigin("2026-11-05");
 
 describe("buildSchedule", () => {
-  const schedule = buildSchedule(files, "2026-11-06");
+  const schedule = buildSchedule(files, "2026-11-06", TRAMS);
   const startsOf = (id: string) => schedule.trips.filter((t) => t.id === id).map((t) => t.start);
 
   it("keeps tram trips whose service runs that day, plus exceptions, and drops buses", () => {
@@ -149,7 +151,13 @@ describe("buildSchedule", () => {
 
   it("honours removals from calendar_dates", () => {
     // 2026-11-11: WEEK is removed; only the night trip of the 10th remains.
-    const holiday = buildSchedule(files, "2026-11-11");
+    const holiday = buildSchedule(files, "2026-11-11", TRAMS);
     expect(holiday.trips.map((t) => t.id)).toEqual(["SEM:104"]);
+  });
+
+  it("builds the schedule of other networks from their GTFS network_id", () => {
+    const chrono = buildSchedule(files, "2026-11-06", new Set(["CHRONO"]));
+    expect(chrono.trips.map((t) => t.id)).toEqual(["SEM:200"]);
+    expect(chrono.patterns[0]).toMatchObject({ lineId: "SEM:C1", stopIds: ["SEM:GENGAR", "SEM:GENCM"] });
   });
 });
