@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { mLineShapesSchema, mRoutesSchema, mTimesheetSchema } from "./m-api";
+import { mLineShapesSchema, mRoutesSchema, mStopTimesSchema, mTimesheetSchema } from "./m-api";
 
 const route = {
   id: "SEM:A",
@@ -76,5 +76,33 @@ describe("mTimesheetSchema", () => {
     const { code: _code, ...parentWithoutCode } = timesheetStop.parentStation;
     const stop = { ...timesheetStop, parentStation: parentWithoutCode };
     expect(mTimesheetSchema.safeParse({ "0": { arrets: [stop] } }).success).toBe(false);
+  });
+});
+
+describe("mStopTimesSchema", () => {
+  const group = {
+    pattern: { id: "SEM:B:1:234041489", desc: "Plaine des Sports", dir: 2, shortDesc: "GIERES PL. DES " },
+    times: [
+      {
+        stopId: "SEM:2216",
+        scheduledDeparture: 36360,
+        realtimeDeparture: 36408,
+        departureDelay: 48,
+        realtime: true,
+        realtimeState: "UPDATED",
+        serviceDay: 1793919600,
+        tripId: "SEM:32165104",
+      },
+    ],
+  };
+
+  it("accepts a pattern group with its times", () => {
+    const [parsed] = mStopTimesSchema.parse([group]);
+    expect(parsed?.times[0]).toEqual({ scheduledDeparture: 36360, realtimeDeparture: 36408, realtime: true, serviceDay: 1793919600 });
+  });
+
+  it("rejects a time without service day", () => {
+    const { serviceDay: _serviceDay, ...time } = group.times[0]!;
+    expect(mStopTimesSchema.safeParse([{ ...group, times: [time] }]).success).toBe(false);
   });
 });

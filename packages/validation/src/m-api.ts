@@ -56,3 +56,21 @@ export const mTimesheetSchema = z.record(
   z.object({ arrets: z.array(mTimesheetStopSchema) }),
 );
 export type MTimesheet = z.infer<typeof mTimesheetSchema>;
+
+/** `GET /api/routers/default/index/clusters/{code}/stoptimes`: next departures per pattern. */
+export const mStopTimesSchema = z.array(
+  z.object({
+    // Pattern id starts with the route id: "SEM:B:1:234041489" -> line "SEM:B", direction 1.
+    pattern: z.object({ id: z.string().min(1), desc: z.string() }),
+    times: z.array(
+      z.object({
+        scheduledDeparture: z.number().int().nonnegative(),
+        realtimeDeparture: z.number().int().nonnegative(),
+        realtime: z.boolean(),
+        /** Unix seconds of the service day origin ("noon minus 12 h", see GTFS). */
+        serviceDay: z.number().int().positive(),
+      }),
+    ),
+  }),
+);
+export type MStopTimes = z.infer<typeof mStopTimesSchema>;
