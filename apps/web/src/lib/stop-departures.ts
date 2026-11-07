@@ -2,7 +2,7 @@ import { fetchStopDepartures } from "@greline/gtfs";
 import type { Departure } from "@greline/types";
 import { cacheLife } from "next/cache";
 
-const REFRESH_S = 15;
+export const STOP_DEPARTURES_REFRESH_S = 15;
 
 /**
  * Next departures at a station, cached per station (the arguments are the cache key): however
@@ -11,6 +11,6 @@ const REFRESH_S = 15;
  */
 export async function getStopDepartures(stopId: string, tramLineIds: readonly string[]): Promise<Departure[]> {
   "use cache";
-  cacheLife({ stale: REFRESH_S, revalidate: REFRESH_S, expire: 4 * REFRESH_S });
+  cacheLife({ stale: STOP_DEPARTURES_REFRESH_S, revalidate: STOP_DEPARTURES_REFRESH_S, expire: 4 * STOP_DEPARTURES_REFRESH_S });
   return fetchStopDepartures(stopId, new Set(tramLineIds));
 }

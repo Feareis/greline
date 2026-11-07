@@ -2,7 +2,7 @@ import { fetchItineraries, type Place } from "@greline/gtfs";
 import type { Itinerary } from "@greline/types";
 import { cacheLife } from "next/cache";
 
-const REFRESH_S = 60;
+export const ITINERARIES_REFRESH_S = 60;
 
 /**
  * Itineraries leaving now, cached per pair of places (the arguments are the cache key): the M
@@ -11,6 +11,6 @@ const REFRESH_S = 60;
  */
 export async function getItineraries(from: Place, to: Place): Promise<Itinerary[]> {
   "use cache";
-  cacheLife({ stale: REFRESH_S, revalidate: REFRESH_S, expire: 2 * REFRESH_S });
+  cacheLife({ stale: ITINERARIES_REFRESH_S, revalidate: ITINERARIES_REFRESH_S, expire: 2 * ITINERARIES_REFRESH_S });
   return fetchItineraries(from, to);
 }
