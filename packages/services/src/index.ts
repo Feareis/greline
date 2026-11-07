@@ -8,3 +8,4 @@ export * from "./traffic";
 export * from "./weather";
 export * from "./disruptions";
 export * from "./personal";
+export * from "./share";

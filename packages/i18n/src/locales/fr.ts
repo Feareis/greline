@@ -189,6 +189,11 @@ export const fr = {
     tripTo: "Aller ici",
     line: (shortName: string) => `Ligne ${shortName}`,
   },
+  share: {
+    label: (name: string) => `Partager un lien vers ${name}`,
+    copied: "Lien copié",
+    failed: "Copie impossible",
+  },
   departures: {
     title: "Prochains passages",
     loading: "Chargement des passages…",
