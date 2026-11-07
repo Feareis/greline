@@ -8,6 +8,7 @@ Les trams et les bus de Grenoble en temps réel, sur une carte.
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)
 ![MapLibre](https://img.shields.io/badge/MapLibre-GL-396cb2)
+[![Licence](https://img.shields.io/badge/licence-MIT-yellow)](LICENSE)
 
 Ouvrez [greline.app](https://greline.app) : chaque tram et chaque bus de la SEM avance sur son vrai tracé. Cliquez sur un arrêt pour voir les prochains passages ; si une ligne est coupée, le tronçon s'affiche en pointillés.
 
@@ -230,6 +231,6 @@ Dans un coin de ma tête aussi :
 - Données de transport : M – Mobilités de l'agglomération grenobloise, licence [ODbL](https://opendatacommons.org/licenses/odbl/).
 - Fond de carte : © contributeurs [OpenStreetMap](https://www.openstreetmap.org/copyright), tuiles [OpenFreeMap](https://openfreemap.org).
 - Météo : [Open-Meteo](https://open-meteo.com).
-- Licence du code : à définir.
+- Code : licence [MIT](LICENSE). Les données restent sous leur propre licence (ODbL pour M et OpenStreetMap).
 
 Fait par [Feareis](https://github.com/Feareis).
