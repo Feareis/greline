@@ -6,6 +6,8 @@ import { Suspense } from "react";
 import { NetworkView } from "@/components/network-view";
 import { getTransitNetwork } from "@/lib/transit-network";
 
+const RETRY_AFTER_S = 30;
+
 async function loadNetwork(): Promise<TransitNetwork | null> {
   try {
     return await getTransitNetwork();
@@ -21,9 +23,13 @@ async function TramMapSection() {
   const network = await loadNetwork();
   if (!network) {
     return (
-      <p role="alert" className="m-auto max-w-sm p-6 text-center" style={{ color: colors.textMuted }}>
-        {fr.map.unavailable}
-      </p>
+      <>
+        {/* Try again on its own: the outage is usually over in a minute (React hoists it to <head>). */}
+        <meta httpEquiv="refresh" content={String(RETRY_AFTER_S)} />
+        <p role="alert" className="m-auto max-w-sm p-6 text-center" style={{ color: colors.textMuted }}>
+          {fr.map.unavailable(RETRY_AFTER_S)}
+        </p>
+      </>
     );
   }
   return <NetworkView network={network} />;

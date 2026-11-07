@@ -136,7 +136,8 @@ export const fr = {
   },
   map: {
     loading: "Chargement de la carte…",
-    unavailable: "La carte est indisponible pour le moment : les données M ne répondent pas. Réessayez dans quelques minutes.",
+    unavailable: (seconds: number) =>
+      `La carte est indisponible pour le moment : les données M ne répondent pas. Nouvel essai automatique dans ${seconds} secondes.`,
   },
   mine: {
     button: "Mes arrêts",
