@@ -36,6 +36,7 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Donne les prochains passages de n'importe quel arrêt, par ligne et par direction, rafraîchis toutes les 15 secondes.
 - Montre les perturbations du jour dans un bandeau, et sur la carte quand le texte officiel permet de retrouver le tronçon.
 - Garde vos arrêts favoris et votre trajet habituel sur l'appareil, sans compte.
+- Cherche les itinéraires de ce trajet en partant maintenant, avec correspondances et marche à pied.
 - Trouve les arrêts autour de vous.
 - Résume la journée : heure, météo, soleil, lune et état général du trafic.
 
@@ -80,6 +81,7 @@ Chaque route a son propre rythme, selon la vitesse à laquelle ses données chan
 | `/api/network/schedule?network=` | Courses du jour d'un réseau, tirées du GTFS (~6,5 Mo) | 6 h | toutes les heures |
 | `/api/network/delays` | Retard mesuré de chaque course | 30 s | toutes les 30 s |
 | `/api/stops/[id]/departures` | Prochains passages d'un arrêt | 15 s | toutes les 15 s |
+| `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts en partant maintenant (calculateur de M) | 1 min | toutes les minutes |
 | `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
 | `/api/weather` | Météo et soleil à Grenoble (Open-Meteo) | 15 min | toutes les 15 min |
 
@@ -219,8 +221,8 @@ Le projet avance par étapes. Chacune donne une version utilisable.
 | 1.5 | Les bus Chrono et Proximo | fait |
 | 1.6 | Les perturbations | fait |
 | 1.7 | Les favoris et le trajet habituel | fait |
-| 1.8 | La recherche d'itinéraire avec correspondances | prochaine étape |
-| mobile 1.0 | L'app mobile et les notifications de perturbation | plus tard |
+| 1.8 | La recherche d'itinéraire avec correspondances | fait |
+| mobile 1.0 | L'app mobile et les notifications de perturbation | prochaine étape |
 
 Dans un coin de ma tête aussi :
 - épaissir les lignes selon leur fréquence ;
