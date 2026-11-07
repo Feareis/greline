@@ -24,9 +24,9 @@ describe("scheduleQueryOptions", () => {
 });
 
 describe("tripDelaysQueryOptions", () => {
-  it("refreshes every 30 s by default, and only while the page is visible", () => {
+  it("refreshes every 15 s by default, and only while the page is visible", () => {
     const options = tripDelaysQueryOptions(client);
-    expect(options.refetchInterval).toBe(30_000);
+    expect(options.refetchInterval).toBe(15_000);
     expect(options.refetchIntervalInBackground).toBe(false);
   });
 
