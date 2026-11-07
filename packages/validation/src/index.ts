@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
+import { type Departure, type Disruption, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -65,6 +65,22 @@ export const transitScheduleSchema = z
 
 /** Body of `GET /api/network/delays`: seconds, keyed by trip id. */
 export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });
+
+/** Body of `GET /api/disruptions`. */
+export const disruptionsResponseSchema = z.object({
+  disruptions: z.array(
+    z.object({
+      id: z.string().min(1),
+      lineId: z.string().min(1),
+      severity: z.enum(["interrupted", "disrupted", "info"]),
+      title: z.string(),
+      description: z.string(),
+      start: z.iso.datetime(),
+      end: z.iso.datetime(),
+      stretch: z.array(z.tuple([z.number(), z.number()])).min(2).nullable(),
+    }) satisfies z.ZodType<Disruption>,
+  ),
+});
 
 /** One of our networks, e.g. in `?network=chrono`. */
 export const networkIdSchema = z.enum(NETWORK_IDS);

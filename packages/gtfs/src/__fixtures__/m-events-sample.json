@@ -1,0 +1,262 @@
+{
+ "SEM_118711349989358101_C5": {
+  "code": "SEM_118711349989358101_C5",
+  "titre": "travaux rue Diderot",
+  "description": "jusqu'au 19/12/2026 03:00\r\nLa ligne C5 est déviée en direction de Palais de Justice - Gare  entre les arrêts Vallier - Catane et Esclangon  en raison de travaux secteur rue Diderot.\nMise en place d’un arrêt provisoire à la sortie de l’autoroute pour remplacer l’arrêt Berriat.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "15/07/2026 04:00",
+  "dateFin": "19/12/2026 03:00",
+  "listeLigne": "SEM_C5",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_7360068835255766500_C3": {
+  "code": "SEM_7360068835255766500_C3",
+  "titre": "fermeture de voiries Rue Aimé Pupin, Grenoble",
+  "description": "jusqu'au 01/01/2027 03:00\r\nLa ligne C3 est déviée en direction de Victor Hugo  entre les arrêts Edmond Esmonin et Vigny  en raison d'une fermeture de voiries secteur Rue Aimé Pupin, Grenoble.\nSe reporter à l'arrêt Maison des Anciens de la ligne C6 et à l'arrêt provisoire situé rue Lucien-Andrieux, en direction de Victor Hugo. Cet arrêt n’est  pas accessible aux personnes à mobilité réduite. \nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "12/06/2026 04:00",
+  "dateFin": "01/01/2027 03:00",
+  "listeLigne": "SEM_C3",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_139367353955287284_C8": {
+  "code": "SEM_139367353955287284_C8",
+  "titre": "travaux rue d'Alembert",
+  "description": "jusqu'au 01/02/2027 03:00\r\nLa ligne C8 est déviée en direction de Université - IUT-STAPS, Université - Biologie  entre les arrêts Condorcet et Vallier - Docteur Calmette  en raison de travaux secteur rue d'Alembert.\nDirigez-vous vers les arrêts de report à proximité. Depuis Chorier-Saint-Bruno, reportez-vous aux arrêts Condorcet ou Estacade-Condorcet de la ligne 25.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "21/09/2026 04:00",
+  "dateFin": "01/02/2027 03:00",
+  "listeLigne": "SEM_C8",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_3296725494008794991_C1": {
+  "code": "SEM_3296725494008794991_C1",
+  "titre": "travaux de voirie avenue Felix Viallet",
+  "description": "jusqu'au 21/11/2026 03:00\r\nL'arrêt Docteur Mazet de la ligne C1 direction Pré de l'Eau, Cité Jean Macé est reporté à l'arrêt provisoire à proximité en raison de travaux de voirie. \nLa prise en charge se fait sur les places de stationnement situées au niveau du 18 avenue Félix-Viallet. Cet arrêt provisoire n'est pas accessible aux personnes à mobilité réduite (PMR). Merci de votre compréhension.",
+  "dateDebut": "04/11/2026 04:00",
+  "dateFin": "21/11/2026 03:00",
+  "listeLigne": "SEM_C1",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_2459657903988524098_15": {
+  "code": "SEM_2459657903988524098_15",
+  "titre": "travaux Gières",
+  "description": "jusqu'au 07/11/2026 03:00\r\nEn raison de travaux sur la commune de Gières, la circulation se fait par alternat et du retard peut être constaté sur la ligne 15.\n\nMerci de votre compréhension.",
+  "dateDebut": "28/10/2026 04:00",
+  "dateFin": "07/11/2026 03:00",
+  "listeLigne": "SEM_15",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_1610579277108676106_C8": {
+  "code": "SEM_1610579277108676106_C8",
+  "titre": "travaux sur le quai",
+  "description": "jusqu'au 25/11/2026 03:00\r\nLes arrêts Pablo Neruda, Rocheplane de la ligne C8 direction Victor Hugo - Belgrade, Université - Biologie, Université - IUT-STAPS sont reportés aux arrêts provisoires à proximité en raison de travaux sur le quai. \nUn arrêt provisoire 50 mètres en amont de Pablo Neruda, direction Victor Hugo, sur le trottoir au niveau des pompiers. Un arrêt provisoire 50 mètres en amont de Rocheplane, direction IUT, avant le carrefour avec la rue Pierre-Courtade.",
+  "dateDebut": "03/11/2026 04:00",
+  "dateFin": "25/11/2026 03:00",
+  "listeLigne": "SEM_C8",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_4790368082412786183_C7": {
+  "code": "SEM_4790368082412786183_C7",
+  "titre": "travaux sur le quai",
+  "description": "jusqu'au 25/11/2026 03:00\r\nL'arrêt Pablo Neruda de la ligne C7 direction Comboire est reporté à l'arrêt provisoire à proximité en raison de travaux sur le quai. \nUn arrêt provisoire 50 mètres en amont de Pablo Neruda, direction Victor Hugo, sur le trottoir au niveau des pompiers.",
+  "dateDebut": "03/11/2026 04:00",
+  "dateFin": "25/11/2026 03:00",
+  "listeLigne": "SEM_C7",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_1099940208832112712_C8": {
+  "code": "SEM_1099940208832112712_C8",
+  "titre": "travaux avenue Marcel Cachin - Saint Martin d'Hères",
+  "description": "à partir du 09/11/2026 04:00|jusqu'au 28/11/2026 02:00\r\nLa ligne C8 est déviée  entre les arrêts Pré Ruffier et Collège des Saules  en raison de travaux secteur avenue Marcel Cachin - Saint Martin d'Hères.\nReportez-vous aux arrêts provisoires situés avenue Paul Eluard et George Sand.\nRetrouvez le plan détaillé du parcours de déviation en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "09/11/2026 04:00",
+  "dateFin": "28/11/2026 02:00",
+  "listeLigne": "SEM_C8",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_2933338107756474355_C": {
+  "code": "SEM_2933338107756474355_C",
+  "titre": "match Stade des Alpes",
+  "description": "jusqu'au 07/11/2026 03:00\r\nM réso vous rappelle que le billet d’entrée au Stade des Alpes ne constitue pas un titre de transport et ne permet pas de voyager gratuitement sur le réseau.\nNous vous invitons à vous munir d’un titre de transport valide pour l’ensemble de vos déplacements.\nNous vous remercions pour votre attention et pour votre compréhension.",
+  "dateDebut": "06/11/2026 04:00",
+  "dateFin": "07/11/2026 03:00",
+  "listeLigne": "SEM_C",
+  "nsv_id": 1,
+  "visibleTC": true
+ },
+ "SEM_1744724031228586907_A": {
+  "code": "SEM_1744724031228586907_A",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nLa ligne A ne circule pas entre les stations Malherbe et La Poya en raison d'une manifestation secteur Grenoble.\nLe dernier départ Tram depuis La Poya est prévu à 11h30. Pendant la manifestation, des navettes bus assurent la liaison entre La Poya et Oxford.\nÀ noter que la ligne pourra reprendre son itinéraire normal dès que les conditions le permettront.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_A",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_4424039041326085299_B": {
+  "code": "SEM_4424039041326085299_B",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nLa ligne B ne circule pas entre les stations Notre-Dame - Musée et Oxford en raison d'une manifestation secteur Grenoble.\nLe dernier départ Tram depuis Oxford est prévu à 11h37. Pendant la manifestation, des navettes bus assurent la liaison entre La Poya et Oxford.\nÀ noter que la ligne pourra reprendre son itinéraire normal dès que les conditions le permettront.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_B",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_373214290121477402_D": {
+  "code": "SEM_373214290121477402_D",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nLa ligne D ne circule pas entre les stations Notre-Dame - Musée et Gares en raison d'une manifestation secteur Grenoble.\nLe dernier départ depuis la Gare est prévu à 11h48.\nÀ noter que la ligne pourra reprendre son itinéraire normal dès que les conditions le permettront.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_D",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_2897946000335116240_E": {
+  "code": "SEM_2897946000335116240_E",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nLa ligne E ne circule pas entre les stations Louise Michel et Annie Fratellini-Esplanade en raison d'une manifestation secteur Grenoble.\nÀ noter que la ligne pourra reprendre son itinéraire normal dès que les conditions le permettront.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_E",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_1577236376687568843_C1": {
+  "code": "SEM_1577236376687568843_C1",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne C1 ne circule pas entre les arrêts Sablons et Cité Jean Macé en raison d'une manifestation secteur Grenoble.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_C1",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_6296951691678184189_C3": {
+  "code": "SEM_6296951691678184189_C3",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne C3 ne circule pas entre les arrêts Victor Hugo et Clos d'Or en raison d'une manifestation secteur Grenoble.Retrouvez le plan détaillé et les arrêts de report en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_C3",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_9023778207011610899_C4": {
+  "code": "SEM_9023778207011610899_C4",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne C4 ne circule pas entre les arrêts Jean Racine et Victor Hugo en raison d'une manifestation secteur Grenoble.Retrouvez le plan détaillé et les arrêts de report en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_C4",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_5823486446625618476_C8": {
+  "code": "SEM_5823486446625618476_C8",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne C8 ne circule pas entre les arrêts Vallier - Docteur Calmette et Victor Hugo - Belgrade en raison d'une manifestation secteur Grenoble.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_C8",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_16307455283879539_16": {
+  "code": "SEM_16307455283879539_16",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne 16 ne circule pas entre les arrêts Les Alloves et Clos d'Or en raison d'une manifestation secteur Grenoble.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_16",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_8990308413923774981_18": {
+  "code": "SEM_8990308413923774981_18",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne 18 ne circule pas entre les arrêts André Argouges et Saint-Roch en raison d'une manifestation secteur Grenoble.Retrouvez le plan détaillé et les arrêts de report en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_18",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_3681787896303310011_15": {
+  "code": "SEM_3681787896303310011_15",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne 15 ne circule pas entre les arrêts Neyrpic - Belledonne et Verdun - Préfecture en raison d'une manifestation secteur Grenoble.Retrouvez le plan détaillé et les arrêts de report en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_15",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_4928649720083015202_17": {
+  "code": "SEM_4928649720083015202_17",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne 17 ne circule pas entre les arrêts Verdun et Corenc Mairie. Afin de rapprocher les voyageurs du centre-ville, elle emprunte un itinéraire de déviation par l’avenue des Cèdres, suivant le parcours de la ligne 18, et dessert les arrêts Le Cèdre, Centre Théologique, Musée Hébert et Hôpital Couple Enfant.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_17",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SEM_4789518229487367631_24": {
+  "code": "SEM_4789518229487367631_24",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne 24 ne circule pas entre les arrêts Verdun - Préfecture et Cité Labeye en raison d'une manifestation secteur Grenoble.Retrouvez le plan détaillé et les arrêts de report en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_24",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_5695951356010065530_25": {
+  "code": "SEM_5695951356010065530_25",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 07/11/2026 19:00\r\nEn fonction de l'affluence, la ligne 25 ne circule pas entre les arrêts Louise Michel et Gares en raison d'une manifestation secteur Grenoble.Retrouvez le plan détaillé et les arrêts de report en téléchargement sur reso-m.fr/trafic.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "07/11/2026 19:00",
+  "listeLigne": "SEM_25",
+  "nsv_id": 3,
+  "visibleTC": true
+ },
+ "SEM_1876432010595712200_C": {
+  "code": "SEM_1876432010595712200_C",
+  "titre": "manifestation Grenoble",
+  "description": "à partir du 07/11/2026 12:00|jusqu'au 08/11/2026 02:00\r\nLa ligne C est interrompue jusqu'à la fin de service en raison d'une manifestation.À partir de 10h30, les tramways regagnent progressivement le dépôt. L'interruption du service sera effective à partir de 12h.",
+  "dateDebut": "07/11/2026 12:00",
+  "dateFin": "08/11/2026 02:00",
+  "listeLigne": "SEM_C",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SMA_1f07f50b-021c-6600-9d19-b171e20a48b8": {
+  "code": "SMA_1f07f50b-021c-6600-9d19-b171e20a48b8",
+  "titre": "SACADO 569 - Mutulalisation SACADO 565",
+  "description": "En raison de pénurie de conducteur un Plan de Transport Adapté entre en vigeur.\nAinsi afin de ne pas supprimer de ligne scolaire : SACADO 569 mutualisation à bord de la ligne SACADO 565  pour le trajet retour du soir et midi. Ce plan de transport adapté est valable à partir du 1er septembre 2025 jusqu'à nouvel ordre.",
+  "dateDebut": "22/08/2025 14:00",
+  "dateFin": "31/12/2050 23:59",
+  "listeLigne": "TPV_569",
+  "nsv_id": 2,
+  "visibleTC": true
+ },
+ "SMA_1f07f511-598f-6670-9e1d-27862318e698": {
+  "code": "SMA_1f07f511-598f-6670-9e1d-27862318e698",
+  "titre": "SACADO 528 - Mutualisation SACADO 530 et FLEXO 39 ",
+  "description": "En raison de pénurie de conducteur un Plan de Transport Adapté entre en vigueur.\nAinsi afin de ne pas supprimer de ligne scolaire, la SACADO est mutualisée à bord des lignes SACADO 530 et FLEXO 39 pour les trajets du matin et du soir. Ce plan de transport adapté est valable à partir du 1er septembre 2025 jusqu'à nouvel ordre.",
+  "dateDebut": "22/08/2025 15:00",
+  "dateFin": "31/12/2050 23:59",
+  "listeLigne": "TPV_528",
+  "nsv_id": 2,
+  "visibleTC": true
+ }
+}

@@ -15,6 +15,7 @@ export const M_API = {
   routes: `${M_API_BASE}/routers/default/index/routes?reseaux=${Object.values(M_NETWORK_TYPES).flat().join(",")}`,
   lineShapes: (shapeIds: readonly string[]) =>
     `${M_API_BASE}/lines/json?types=ligne&codes=${shapeIds.map(encodeURIComponent).join(",")}`,
+  events: `${M_API_BASE}/dyn/evtTC/json`,
   /** `time` (Unix ms) picks the trips listed; their stops give each line's stop order. */
   timesheet: (routeId: string, time: number) =>
     `${M_API_BASE}/ficheHoraires/json?route=${encodeURIComponent(routeId)}&time=${time}`,

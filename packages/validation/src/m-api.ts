@@ -77,3 +77,25 @@ export const mStopTimesSchema = z.array(
   }),
 );
 export type MStopTimes = z.infer<typeof mStopTimesSchema>;
+
+/** "07/11/2026 12:00": day/month/year hours:minutes, Grenoble time. */
+const mDateTime = z.string().regex(/^\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}$/, "expected DD/MM/YYYY HH:MM");
+
+/** One event of `GET /api/dyn/evtTC/json` (disruptions and information of the transit lines). */
+export const mEventSchema = z.object({
+  code: z.string().min(1),
+  titre: z.string(),
+  description: z.string(),
+  dateDebut: mDateTime,
+  dateFin: mDateTime,
+  /** One line per event, as "SEM_A". */
+  listeLigne: z.string(),
+  /** Severity level (see toDisruptions in @greline/gtfs). */
+  nsv_id: z.number().int(),
+  visibleTC: z.boolean(),
+});
+export type MEvent = z.infer<typeof mEventSchema>;
+
+/** `GET /api/dyn/evtTC/json`: events keyed by code. Each is validated on its own (mEventSchema). */
+export const mEventsSchema = z.record(z.string(), z.unknown());
+
