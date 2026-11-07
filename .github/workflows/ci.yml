@@ -29,7 +29,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             RANGE="origin/${{ github.base_ref }}..HEAD"
-          elif [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+          elif ! git cat-file -e "${{ github.event.before }}^{commit}" 2>/dev/null; then
+            # New branch (all-zero sha) or rewritten history: the previous tip is gone, check everything.
             RANGE="HEAD"
           else
             RANGE="${{ github.event.before }}..${{ github.sha }}"
