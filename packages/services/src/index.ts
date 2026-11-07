@@ -10,3 +10,4 @@ export * from "./disruptions";
 export * from "./personal";
 export * from "./share";
 export * from "./search";
+export * from "./itinerary-end";

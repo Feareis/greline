@@ -40,6 +40,7 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Met l'arrêt ou la ligne ouverte dans l'adresse de la page : un lien copié ou partagé ouvre la même fiche.
 - Garde vos arrêts favoris et votre trajet habituel sur l'appareil, sans compte.
 - Cherche les itinéraires de ce trajet en partant maintenant, avec correspondances et marche à pied.
+- Cherche aussi un itinéraire entre deux arrêts quelconques, ou depuis votre position (arrondie à 100 m avant d'être envoyée).
 - Trouve les arrêts autour de vous.
 - Résume la journée : heure, météo, soleil, lune et état général du trafic.
 
@@ -84,7 +85,7 @@ Chaque route a son propre rythme, selon la vitesse à laquelle ses données chan
 | `/api/network/schedule?network=` | Courses du jour d'un réseau, tirées du GTFS (~6,5 Mo) | 6 h | toutes les heures |
 | `/api/network/delays` | Retard mesuré de chaque course | 15 s | toutes les 15 s |
 | `/api/stops/[id]/departures` | Prochains passages d'un arrêt | 15 s | toutes les 15 s |
-| `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts en partant maintenant (calculateur de M) | 30 s | toutes les 30 s |
+| `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts, ou depuis une position, en partant maintenant (calculateur de M) | 30 s | toutes les 30 s |
 | `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
 | `/api/weather` | Météo et soleil à Grenoble (Open-Meteo) | 15 min | toutes les 15 min |
 

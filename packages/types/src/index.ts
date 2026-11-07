@@ -131,6 +131,9 @@ export interface Departure {
   realtime: boolean;
 }
 
+/** One end of an itinerary search: a stop, or a position (the user's). */
+export type ItineraryEnd = { kind: "stop"; stopId: string } | { kind: "position"; lat: number; lon: number };
+
 /** One ride of an itinerary, on one line without changing vehicle. */
 export interface ItineraryRide {
   /** Line as the M planner names and colors it: possibly a line Greline does not draw. */

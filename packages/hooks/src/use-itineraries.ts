@@ -16,7 +16,10 @@ export function itinerariesQueryOptions(client: GrelineApiClient, from: string |
   });
 }
 
-/** Best itineraries leaving now between two stops (null = an end is missing, no request). */
+/**
+ * Best itineraries leaving now between two places, each a stop id or "lat,lon" from
+ * itineraryEndParam (null = an end is missing, no request).
+ */
 export function useItineraries(from: string | null, to: string | null) {
   return useQuery(itinerariesQueryOptions(useApiConfig().client, from, to));
 }

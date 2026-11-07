@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { departuresResponseSchema, stopIdSchema, transitScheduleSchema, tripDelaysResponseSchema } from "./index";
+import { departuresResponseSchema, itineraryEndParamSchema, stopIdSchema, transitScheduleSchema, tripDelaysResponseSchema } from "./index";
 
 describe("stopIdSchema", () => {
   it("accepts M API cluster codes", () => {
@@ -10,6 +10,23 @@ describe("stopIdSchema", () => {
   it("rejects anything that could escape the URL path", () => {
     for (const bad of ["", "../../x", "SEM:GEN/GAR", "SEM:GEN GAR", "sem:GENGAR", `SEM:${"A".repeat(129)}`]) {
       expect(stopIdSchema.safeParse(bad).success).toBe(false);
+    }
+  });
+});
+
+describe("itineraryEndParamSchema", () => {
+  it("reads a stop id", () => {
+    expect(itineraryEndParamSchema.parse("SEM:GENGAR")).toEqual({ kind: "stop", stopId: "SEM:GENGAR" });
+  });
+
+  it("reads a position, rounded to about 100 m", () => {
+    expect(itineraryEndParamSchema.parse("45.18849,5.72451")).toEqual({ kind: "position", lat: 45.188, lon: 5.725 });
+    expect(itineraryEndParamSchema.parse("-33.9,-70.1")).toEqual({ kind: "position", lat: -33.9, lon: -70.1 });
+  });
+
+  it("rejects anything else", () => {
+    for (const bad of ["", "45.1", "45.1,abc", "1e5,2", "91,5", "45,181", "45.1,5.7,3", " 45.1,5.7", "SEM:GEN GAR"]) {
+      expect(itineraryEndParamSchema.safeParse(bad).success).toBe(false);
     }
   });
 });
