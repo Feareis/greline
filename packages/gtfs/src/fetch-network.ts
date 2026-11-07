@@ -9,6 +9,33 @@ const M_API_BASE = "https://data.mobilites-m.fr/api";
 export const M_API_ORIGIN = "greline";
 
 const REQUEST_TIMEOUT_MS = 10_000;
+/**
+ * A cold server builds the network from ~28 parallel requests: one hiccup used to blank the whole
+ * map. Transient failures (network error, timeout, 5xx, 429) are retried, the rest fail at once.
+ */
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAY_MS = 300;
+
+const isTransientStatus = (status: number) => status >= 500 || status === 429;
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const fetchOnce = (url: string, fetchFn: FetchLike) =>
+  fetchFn(url, { headers: { origin: M_API_ORIGIN }, signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) });
+
+/** `fetchFn` with retries on transient failures; the last attempt's answer or error is passed on. */
+async function fetchWithRetry(url: string, fetchFn: FetchLike): Promise<Response> {
+  for (let attempt = 1; attempt < MAX_ATTEMPTS; attempt += 1) {
+    try {
+      const response = await fetchOnce(url, fetchFn);
+      if (!isTransientStatus(response.status)) return response;
+      console.warn(`M API answered ${response.status} for ${url}, retrying (${attempt}/${MAX_ATTEMPTS})`);
+    } catch (error) {
+      console.warn(`M API request failed for ${url}, retrying (${attempt}/${MAX_ATTEMPTS})`, error);
+    }
+    await wait(RETRY_DELAY_MS * attempt);
+  }
+  return fetchOnce(url, fetchFn);
+}
 
 /** M API endpoints (license: ODbL). Server-side use only: clients call our own API. */
 export const M_API = {
@@ -43,10 +70,7 @@ export async function fetchFromMApi<T>(
   fetchFn: FetchLike,
   whenEmpty?: T,
 ): Promise<T> {
-  const response = await fetchFn(url, {
-    headers: { origin: M_API_ORIGIN },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
+  const response = await fetchWithRetry(url, fetchFn);
   if (!response.ok) throw new MApiError(`M API answered ${response.status} for ${url}`);
   if (response.status === 204) {
     if (whenEmpty === undefined) throw new MApiError(`M API answered 204 (no content) for ${url}`);

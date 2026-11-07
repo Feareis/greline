@@ -51,6 +51,26 @@ describe("fetchTransitNetwork", () => {
     expect(lineE.shape.length).toBeGreaterThan(0);
   });
 
+  it("retries a transient failure (5xx, network error) before giving up", async () => {
+    let routesCalls = 0;
+    const flaky = fakeFetch((url) => {
+      if (!url.includes("/index/routes")) return undefined;
+      routesCalls += 1;
+      if (routesCalls === 1) return new Response("busy", { status: 503 });
+      if (routesCalls === 2) throw new TypeError("fetch failed");
+      return undefined;
+    });
+    const network = await fetchTransitNetwork(flaky);
+    expect(network.lines.length).toBeGreaterThan(0);
+    expect(routesCalls).toBe(3);
+  });
+
+  it("does not retry a client error", async () => {
+    const notFound = fakeFetch((url) => (url.includes("/index/routes") ? new Response("no", { status: 404 }) : undefined));
+    await expect(fetchTransitNetwork(notFound)).rejects.toThrow(MApiError);
+    expect(notFound.mock.calls.filter(([url]) => String(url).includes("/index/routes"))).toHaveLength(1);
+  });
+
   it("rejects with MApiError on an HTTP error", async () => {
     const failing = fakeFetch((url) => (url.includes("/index/routes") ? new Response("down", { status: 503 }) : undefined));
     await expect(fetchTransitNetwork(failing)).rejects.toThrow(MApiError);
