@@ -232,5 +232,3 @@ Dans un coin de ma tête aussi :
 - Fond de carte : © contributeurs [OpenStreetMap](https://www.openstreetmap.org/copyright), tuiles [OpenFreeMap](https://openfreemap.org).
 - Météo : [Open-Meteo](https://open-meteo.com).
 - Code : licence [MIT](LICENSE). Les données restent sous leur propre licence (ODbL pour M et OpenStreetMap).
-
-Fait par [Feareis](https://github.com/Feareis).
