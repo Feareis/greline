@@ -7,3 +7,5 @@ export * from "./schedule";
 export * from "./fetch-schedule";
 export * from "./delays";
 export * from "./disruptions";
+export * from "./to-itineraries";
+export * from "./fetch-itineraries";

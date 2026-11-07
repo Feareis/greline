@@ -25,7 +25,7 @@ function periodText(period: DisruptionPeriod): string {
   }
 }
 
-export function LineChip({ line }: { line: Line }) {
+export function LineChip({ line }: { line: Pick<Line, "shortName" | "color" | "textColor"> }) {
   return (
     <span
       aria-label={fr.station.line(line.shortName)}

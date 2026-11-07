@@ -9,6 +9,7 @@ import { useFavorites, useTrip } from "@/lib/personal";
 import { colors } from "@/lib/theme-tokens";
 import { CompactDepartures, TripDepartureList } from "./departure-list";
 import { StarIcon } from "./icons";
+import { ItineraryList } from "./itinerary-list";
 
 const sectionTitle = "mt-5 mb-2 text-xs font-medium uppercase tracking-wide";
 const smallButton = "rounded px-2 py-1 text-xs font-medium hover:opacity-80 focus-visible:outline-2";
@@ -52,6 +53,10 @@ function TripSection({ network, onShowStop }: Omit<MyStopsPanelProps, "onClose">
       ) : (
         <p className="text-sm" style={muted}>{fr.mine.noDirectLine}</p>
       )}
+      <h4 className="pt-2 text-xs font-medium" style={muted}>
+        {fr.mine.itinerariesTitle}
+      </h4>
+      <ItineraryList from={from} to={trip.to} />
       <div className="flex gap-2">
         <button type="button" onClick={swapTrip} className={smallButton} style={{ background: colors.background }}>
           {fr.mine.swap}

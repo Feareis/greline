@@ -99,3 +99,44 @@ export type MEvent = z.infer<typeof mEventSchema>;
 /** `GET /api/dyn/evtTC/json`: events keyed by code. Each is validated on its own (mEventSchema). */
 export const mEventsSchema = z.record(z.string(), z.unknown());
 
+
+/** Unix milliseconds. */
+const mInstant = z.number().int().nonnegative();
+
+const mPlanLegSchema = z.object({
+  /** WALK, BUS, TRAM, RAIL... */
+  mode: z.string().min(1),
+  transitLeg: z.boolean(),
+  startTime: mInstant,
+  endTime: mInstant,
+  realTime: z.boolean(),
+  from: z.object({ name: z.string() }),
+  to: z.object({ name: z.string() }),
+  // Transit legs only.
+  headsign: z.string().optional(),
+  routeShortName: z.string().optional(),
+  routeLongName: z.string().optional(),
+  routeColor: hexColor.optional(),
+  routeTextColor: hexColor.optional(),
+});
+export type MPlanLeg = z.infer<typeof mPlanLegSchema>;
+
+/**
+ * `GET /api/routers/default/plan?fromPlace=lat,lon&toPlace=lat,lon` (OpenTripPlanner). When
+ * nothing is found, `itineraries` is empty and `error` says why ("PATH_NOT_FOUND").
+ */
+export const mPlanSchema = z.object({
+  plan: z.object({
+    itineraries: z.array(
+      z.object({
+        startTime: mInstant,
+        endTime: mInstant,
+        /** Seconds. */
+        walkTime: z.number().nonnegative(),
+        legs: z.array(mPlanLegSchema).min(1),
+      }),
+    ),
+  }),
+  error: z.object({ message: z.string() }).optional(),
+});
+export type MPlan = z.infer<typeof mPlanSchema>;

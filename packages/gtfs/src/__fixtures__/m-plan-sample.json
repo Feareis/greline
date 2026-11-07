@@ -1,0 +1,427 @@
+{
+  "requestParameters": {
+    "mode": "WALK,TRANSIT",
+    "fromPlace": "45.1925,5.7716",
+    "toPlace": "45.1467,5.7184",
+    "numItineraries": "3"
+  },
+  "plan": {
+    "date": 1794045484000,
+    "itineraries": [
+      {
+        "duration": 1435,
+        "startTime": 1794046380000,
+        "endTime": 1794047815000,
+        "walkTime": 475,
+        "transitTime": 960,
+        "waitingTime": 0,
+        "walkDistance": 589.12,
+        "walkLimitExceeded": false,
+        "generalizedCost": 2484,
+        "elevationLost": 0.74,
+        "elevationGained": 1.75,
+        "transfers": 0,
+        "fare": {
+          "fare": {},
+          "details": {},
+          "legProducts": [
+            {
+              "legIndices": [
+                1
+              ],
+              "products": [
+                {
+                  "id": "SEM:SEM1",
+                  "name": "regular",
+                  "amount": {
+                    "cents": 200,
+                    "currency": {
+                      "currency": "EUR",
+                      "defaultFractionDigits": 2,
+                      "currencyCode": "EUR",
+                      "symbol": "€"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "legs": [
+          {
+            "startTime": 1794046380000,
+            "endTime": 1794046500000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 150.09,
+            "generalizedCost": 233,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Origin",
+              "lon": 5.7716,
+              "lat": 45.1925,
+              "departure": 1794046380000,
+              "vertexType": "NORMAL"
+            },
+            "to": {
+              "name": "Saint-Martin-d'Hères, Université – Bibliothèques",
+              "stopId": "SEM:1265",
+              "stopCode": "1265",
+              "lon": 5.77032,
+              "lat": 45.19172,
+              "arrival": 1794046500000,
+              "departure": 1794046500000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 120
+          },
+          {
+            "startTime": 1794046500000,
+            "endTime": 1794047460000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 8750.26,
+            "generalizedCost": 1560,
+            "pathway": false,
+            "mode": "BUS",
+            "transitLeg": true,
+            "route": "Échirolles Marie Curie / Bernin Cloyères",
+            "agencyName": "M Réso - Métropole Grenobloise",
+            "agencyUrl": "https://www.mobilites-m.fr/",
+            "agencyTimeZoneOffset": 3600000,
+            "routeColor": "EF7C00",
+            "routeType": 3,
+            "routeId": "SEM:10",
+            "routeTextColor": "FFFFFF",
+            "interlineWithPreviousLeg": false,
+            "headsign": "Échirolles, Marie Curie",
+            "agencyId": "SEM:SEM",
+            "tripId": "SEM:32227582",
+            "serviceDate": "2026-11-07",
+            "from": {
+              "name": "Saint-Martin-d'Hères, Université – Bibliothèques",
+              "stopId": "SEM:1265",
+              "stopCode": "1265",
+              "lon": 5.77032,
+              "lat": 45.19172,
+              "arrival": 1794046500000,
+              "departure": 1794046500000,
+              "zoneId": "1",
+              "stopIndex": 26,
+              "stopSequence": 27,
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Échirolles, La Rampe – Centre-Ville",
+              "stopId": "SEM:0248",
+              "stopCode": "0248",
+              "lon": 5.71926,
+              "lat": 45.14968,
+              "arrival": 1794047460000,
+              "departure": 1794047460000,
+              "zoneId": "1",
+              "stopIndex": 35,
+              "stopSequence": 36,
+              "vertexType": "TRANSIT"
+            },
+            "routeShortName": "C10",
+            "routeLongName": "Échirolles Marie Curie / Bernin Cloyères",
+            "duration": 960
+          },
+          {
+            "startTime": 1794047460000,
+            "endTime": 1794047815000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 439.03,
+            "generalizedCost": 689,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Échirolles, La Rampe – Centre-Ville",
+              "stopId": "SEM:0248",
+              "stopCode": "0248",
+              "lon": 5.71926,
+              "lat": 45.14968,
+              "arrival": 1794047460000,
+              "departure": 1794047460000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Destination",
+              "lon": 5.7184,
+              "lat": 45.1467,
+              "arrival": 1794047815000,
+              "vertexType": "NORMAL"
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 355
+          }
+        ],
+        "tooSloped": false,
+        "arrivedAtDestinationWithRentedBicycle": false
+      },
+      {
+        "duration": 2481,
+        "startTime": 1794046825000,
+        "endTime": 1794049306000,
+        "walkTime": 269,
+        "transitTime": 2032,
+        "waitingTime": 180,
+        "walkDistance": 324.49,
+        "walkLimitExceeded": false,
+        "generalizedCost": 3930,
+        "elevationLost": 0.12,
+        "elevationGained": 0.96,
+        "transfers": 1,
+        "fare": {
+          "fare": {},
+          "details": {},
+          "legProducts": [
+            {
+              "legIndices": [
+                1
+              ],
+              "products": [
+                {
+                  "id": "SEM:SEM1",
+                  "name": "regular",
+                  "amount": {
+                    "cents": 200,
+                    "currency": {
+                      "currency": "EUR",
+                      "defaultFractionDigits": 2,
+                      "currencyCode": "EUR",
+                      "symbol": "€"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "legIndices": [
+                2
+              ],
+              "products": [
+                {
+                  "id": "SEM:SEM1",
+                  "name": "regular",
+                  "amount": {
+                    "cents": 200,
+                    "currency": {
+                      "currency": "EUR",
+                      "defaultFractionDigits": 2,
+                      "currencyCode": "EUR",
+                      "symbol": "€"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "legs": [
+          {
+            "startTime": 1794046825000,
+            "endTime": 1794046894000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 78.9,
+            "generalizedCost": 129,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Origin",
+              "lon": 5.7716,
+              "lat": 45.1925,
+              "departure": 1794046825000,
+              "vertexType": "NORMAL"
+            },
+            "to": {
+              "name": "Gières, Université – Bibliothèques",
+              "stopId": "SEM:2059",
+              "stopCode": "2059",
+              "lon": 5.77095,
+              "lat": 45.19271,
+              "arrival": 1794046894000,
+              "departure": 1794046894000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 69
+          },
+          {
+            "startTime": 1794046894000,
+            "endTime": 1794047700000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 3986.26,
+            "generalizedCost": 1406,
+            "pathway": false,
+            "mode": "TRAM",
+            "transitLeg": true,
+            "route": "Saint-Martin-d'Hères Université – Condillac / Seyssins Le Prisme",
+            "agencyName": "M Réso - Métropole Grenobloise",
+            "agencyUrl": "https://www.mobilites-m.fr/",
+            "agencyTimeZoneOffset": 3600000,
+            "routeColor": "C20078",
+            "routeType": 0,
+            "routeId": "SEM:93",
+            "routeTextColor": "FFFFFF",
+            "interlineWithPreviousLeg": false,
+            "headsign": "Seyssins, Le Prisme",
+            "agencyId": "SEM:SEM",
+            "tripId": "SEM:32148333",
+            "serviceDate": "2026-11-07",
+            "from": {
+              "name": "Gières, Université – Bibliothèques",
+              "stopId": "SEM:2059",
+              "stopCode": "2059",
+              "lon": 5.77095,
+              "lat": 45.19271,
+              "arrival": 1794046894000,
+              "departure": 1794046894000,
+              "zoneId": "1",
+              "stopIndex": 1,
+              "stopSequence": 2,
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Grenoble, Chavant",
+              "stopId": "SEM:2255",
+              "stopCode": "2255",
+              "lon": 5.73163,
+              "lat": 45.18427,
+              "arrival": 1794047700000,
+              "departure": 1794047880000,
+              "zoneId": "1",
+              "stopIndex": 8,
+              "stopSequence": 9,
+              "vertexType": "TRANSIT"
+            },
+            "routeShortName": "C",
+            "routeLongName": "Saint-Martin-d'Hères Université – Condillac / Seyssins Le Prisme",
+            "duration": 806
+          },
+          {
+            "startTime": 1794047880000,
+            "endTime": 1794049106000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 5532.15,
+            "generalizedCost": 2006,
+            "pathway": false,
+            "mode": "TRAM",
+            "transitLeg": true,
+            "route": "Le Pont-de-Claix L'Étoile / Fontaine La Poya",
+            "agencyName": "M Réso - Métropole Grenobloise",
+            "agencyUrl": "https://www.mobilites-m.fr/",
+            "agencyTimeZoneOffset": 3600000,
+            "routeColor": "3376B8",
+            "routeType": 0,
+            "routeId": "SEM:91",
+            "routeTextColor": "FFFFFF",
+            "interlineWithPreviousLeg": false,
+            "headsign": "Le Pont-de-Claix, L'Étoile",
+            "agencyId": "SEM:SEM",
+            "tripId": "SEM:32137445",
+            "serviceDate": "2026-11-07",
+            "from": {
+              "name": "Grenoble, Chavant",
+              "stopId": "SEM:2255",
+              "stopCode": "2255",
+              "lon": 5.73163,
+              "lat": 45.18427,
+              "arrival": 1794047700000,
+              "departure": 1794047880000,
+              "zoneId": "1",
+              "stopIndex": 12,
+              "stopSequence": 13,
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Échirolles, La Rampe – Centre-Ville",
+              "stopId": "SEM:2069",
+              "stopCode": "2069",
+              "lon": 5.71791,
+              "lat": 45.14858,
+              "arrival": 1794049106000,
+              "departure": 1794049106000,
+              "zoneId": "1",
+              "stopIndex": 25,
+              "stopSequence": 26,
+              "vertexType": "TRANSIT"
+            },
+            "routeShortName": "A",
+            "routeLongName": "Le Pont-de-Claix L'Étoile / Fontaine La Poya",
+            "duration": 1226
+          },
+          {
+            "startTime": 1794049106000,
+            "endTime": 1794049306000,
+            "departureDelay": 0,
+            "arrivalDelay": 0,
+            "realTime": false,
+            "distance": 245.59,
+            "generalizedCost": 388,
+            "pathway": false,
+            "mode": "WALK",
+            "transitLeg": false,
+            "route": "",
+            "agencyTimeZoneOffset": 3600000,
+            "interlineWithPreviousLeg": false,
+            "from": {
+              "name": "Échirolles, La Rampe – Centre-Ville",
+              "stopId": "SEM:2069",
+              "stopCode": "2069",
+              "lon": 5.71791,
+              "lat": 45.14858,
+              "arrival": 1794049106000,
+              "departure": 1794049106000,
+              "zoneId": "1",
+              "vertexType": "TRANSIT"
+            },
+            "to": {
+              "name": "Destination",
+              "lon": 5.7184,
+              "lat": 45.1467,
+              "arrival": 1794049306000,
+              "vertexType": "NORMAL"
+            },
+            "rentedBike": false,
+            "walkingBike": false,
+            "duration": 200
+          }
+        ],
+        "tooSloped": false,
+        "arrivedAtDestinationWithRentedBicycle": false
+      }
+    ]
+  }
+}

@@ -7,7 +7,7 @@
   `@greline/services`): ids must look like stop ids, anything else is dropped.
 - A trip is two stops. Its departures are those, at the start, of the lines whose direction
   passes the start and then the end (`directTripLegs`): direct trips only. Trips with changes
-  belong to the itinerary search (Proto 8).
+  belong to the itinerary search (Proto 8, see 08).
 - Directions come from the M timesheets ("0", "1" with their stop order, now kept per line in
   `NetworkLine.directions`) and from the realtime pattern ids ("SEM:B:1:..."), which use the
   same numbering (checked on real data: B direction 1 ends at Plaine des Sports in both).

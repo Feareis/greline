@@ -106,3 +106,36 @@ describe("createApiClient() tram endpoints", () => {
     await expect(broken.getWeather()).rejects.toMatchObject({ code: "invalid_response" });
   });
 });
+
+describe("createApiClient().getItineraries", () => {
+  const itinerary = {
+    departureTime: "2026-11-07T10:05:00.000Z",
+    arrivalTime: "2026-11-07T10:32:00.000Z",
+    walkSeconds: 475,
+    rides: [
+      {
+        shortName: "C10",
+        color: "EF7C00",
+        textColor: "FFFFFF",
+        headsign: "Marie Curie",
+        from: "Bibliotheques",
+        to: "La Rampe",
+        departureTime: "2026-11-07T10:07:00.000Z",
+        arrivalTime: "2026-11-07T10:26:00.000Z",
+        realtime: true,
+      },
+    ],
+  };
+
+  it("asks for the itineraries between two stops, ids encoded", async () => {
+    const fetchSpy = answering(Response.json({ itineraries: [itinerary] }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getItineraries("SEM:GENGAR", "SEM:GENCHAVANT")).resolves.toEqual([itinerary]);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/itineraries?from=SEM%3AGENGAR&to=SEM%3AGENCHAVANT");
+  });
+
+  it("rejects a ride without a valid line color", async () => {
+    const broken = { ...itinerary, rides: [{ ...itinerary.rides[0], color: "#EF7C00" }] };
+    const client = createApiClient({ baseUrl: "", fetch: answering(Response.json({ itineraries: [broken] })) });
+    await expect(client.getItineraries("SEM:GENGAR", "SEM:GENCHAVANT")).rejects.toMatchObject({ code: "invalid_response" });
+  });
+});

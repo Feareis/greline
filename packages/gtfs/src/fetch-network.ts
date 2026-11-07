@@ -37,12 +37,23 @@ async function fetchWithRetry(url: string, fetchFn: FetchLike): Promise<Response
   return fetchOnce(url, fetchFn);
 }
 
+/** A point on the map, in degrees. */
+export interface Place {
+  lat: number;
+  lon: number;
+}
+
+const ITINERARY_COUNT = 3;
+
 /** M API endpoints (license: ODbL). Server-side use only: clients call our own API. */
 export const M_API = {
   routes: `${M_API_BASE}/routers/default/index/routes?reseaux=${Object.values(M_NETWORK_TYPES).flat().join(",")}`,
   lineShapes: (shapeIds: readonly string[]) =>
     `${M_API_BASE}/lines/json?types=ligne&codes=${shapeIds.map(encodeURIComponent).join(",")}`,
   events: `${M_API_BASE}/dyn/evtTC/json`,
+  /** Best itineraries leaving now (OpenTripPlanner), walks and changes included. */
+  plan: (from: Place, to: Place) =>
+    `${M_API_BASE}/routers/default/plan?fromPlace=${from.lat},${from.lon}&toPlace=${to.lat},${to.lon}&mode=WALK,TRANSIT&numItineraries=${ITINERARY_COUNT}`,
   /** `time` (Unix ms) picks the trips listed; their stops give each line's stop order. */
   timesheet: (routeId: string, time: number) =>
     `${M_API_BASE}/ficheHoraires/json?route=${encodeURIComponent(routeId)}&time=${time}`,
