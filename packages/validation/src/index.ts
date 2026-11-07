@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Disruption, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
+import { type Departure, type Disruption, type Itinerary, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -80,6 +80,30 @@ export const disruptionsResponseSchema = z.object({
       end: z.iso.datetime(),
       stretch: z.array(z.tuple([z.number(), z.number()])).min(2).nullable(),
     }) satisfies z.ZodType<Disruption>,
+  ),
+});
+
+const itineraryRideSchema = z.object({
+  shortName: z.string().min(1),
+  color: hexColor,
+  textColor: hexColor,
+  headsign: z.string(),
+  from: z.string(),
+  to: z.string(),
+  departureTime: z.iso.datetime(),
+  arrivalTime: z.iso.datetime(),
+  realtime: z.boolean(),
+}) satisfies z.ZodType<ItineraryRide>;
+
+/** Body of `GET /api/itineraries?from=...&to=...`. */
+export const itinerariesResponseSchema = z.object({
+  itineraries: z.array(
+    z.object({
+      departureTime: z.iso.datetime(),
+      arrivalTime: z.iso.datetime(),
+      walkSeconds: z.number().nonnegative(),
+      rides: z.array(itineraryRideSchema),
+    }) satisfies z.ZodType<Itinerary>,
   ),
 });
 

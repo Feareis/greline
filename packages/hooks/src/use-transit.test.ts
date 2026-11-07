@@ -8,6 +8,7 @@ const client: GrelineApiClient = {
   getTripDelays: vi.fn(async () => ({ "SEM:1": 90 })),
   getWeather: vi.fn(async () => ({ temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" })),
   getDisruptions: vi.fn(async () => []),
+  getItineraries: vi.fn(async () => []),
 };
 const signal = new AbortController().signal;
 type QueryFn = (context: { signal: AbortSignal }) => unknown;

@@ -5,3 +5,4 @@ export * from "./api-config";
 export * from "./use-transit";
 export * from "./use-weather";
 export * from "./use-disruptions";
+export * from "./use-itineraries";

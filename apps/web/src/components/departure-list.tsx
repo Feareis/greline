@@ -36,7 +36,7 @@ function DepartureTime({ departure, now }: { departure: Departure; now: Date }) 
   );
 }
 
-function StatusMessage({ children }: { children: ReactNode }) {
+export function StatusMessage({ children }: { children: ReactNode }) {
   return (
     <p className="mt-2 text-sm" style={{ color: colors.textMuted }}>
       {children}
