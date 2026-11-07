@@ -130,3 +130,30 @@ export interface Departure {
   departureTime: string;
   realtime: boolean;
 }
+
+/** One ride of an itinerary, on one line without changing vehicle. */
+export interface ItineraryRide {
+  /** Line as the M planner names and colors it: possibly a line Greline does not draw. */
+  shortName: string;
+  /** Hex colors without "#". */
+  color: string;
+  textColor: string;
+  headsign: string;
+  /** Stop names, without their city ("Chavant"). */
+  from: string;
+  to: string;
+  /** ISO 8601 instants. */
+  departureTime: string;
+  arrivalTime: string;
+  realtime: boolean;
+}
+
+/** A way from one place to another found by the M planner: rides, with walks before, between and after. */
+export interface Itinerary {
+  /** ISO 8601 instants, walks included. */
+  departureTime: string;
+  arrivalTime: string;
+  walkSeconds: number;
+  /** Empty when walking is the best way. */
+  rides: ItineraryRide[];
+}
