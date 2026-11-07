@@ -2,13 +2,16 @@
 
 import { useDepartures, useNow } from "@greline/hooks";
 import { fr } from "@greline/i18n";
-import { departureCountdown, formatClockTime, GrelineApiError, groupDepartures } from "@greline/services";
+import { departureCountdown, formatClockTime, GrelineApiError, groupDepartures, type TripLeg, tripDepartures } from "@greline/services";
 import { radii, toCssColor } from "@greline/theme";
 import { colors } from "@/lib/theme-tokens";
 import type { Departure, Line } from "@greline/types";
 import type { ReactNode } from "react";
+import { LineChip } from "./disruption-list";
 
 const DEPARTURES_PER_DIRECTION = 3;
+const COMPACT_PER_DIRECTION = 2;
+const TRIP_DEPARTURES = 4;
 const COUNTDOWN_TICK_MS = 5_000;
 
 function countdownLabel(departure: Departure, now: Date): string {
@@ -101,5 +104,53 @@ export function DepartureList({ stopId, lines }: { stopId: string; lines: readon
         {error && updatedAt ? fr.departures.staleWarning(updatedAt) : updatedAt && fr.departures.updatedAt(updatedAt)}
       </p>
     </div>
+  );
+}
+
+/** One row per line and direction with its next two departures: for the favorite stops. */
+export function CompactDepartures({ stopId, lines }: { stopId: string; lines: readonly Line[] }) {
+  const { data, isPending } = useDepartures(stopId);
+  const now = useNow(COUNTDOWN_TICK_MS);
+  if (isPending) return <StatusMessage>{fr.departures.loading}</StatusMessage>;
+  if (!data) return <StatusMessage>{fr.departures.unavailable}</StatusMessage>;
+  const rows = groupDepartures(data, lines).flatMap(({ line, directions }) => directions.map((direction) => ({ line, ...direction })));
+  if (rows.length === 0) return <StatusMessage>{fr.departures.empty}</StatusMessage>;
+  return (
+    <ul className="mt-1.5 space-y-1">
+      {rows.map(({ line, headsign, departures }) => (
+        <li key={`${line.id}-${headsign}`} className="flex items-center gap-2 text-xs">
+          <LineChip line={line} />
+          <span className="min-w-0 flex-1 truncate">{fr.departures.direction(headsign)}</span>
+          {departures.slice(0, COMPACT_PER_DIRECTION).map((departure, i) => (
+            <DepartureTime key={`${departure.departureTime}-${i}`} departure={departure} now={now} />
+          ))}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Next departures at the trip's start on the lines that reach its end without changing. */
+export function TripDepartureList({ stopId, legs, lines }: { stopId: string; legs: readonly TripLeg[]; lines: readonly Line[] }) {
+  const { data, isPending } = useDepartures(stopId);
+  const now = useNow(COUNTDOWN_TICK_MS);
+  if (isPending) return <StatusMessage>{fr.departures.loading}</StatusMessage>;
+  if (!data) return <StatusMessage>{fr.departures.unavailable}</StatusMessage>;
+  const departures = tripDepartures(data, legs).slice(0, TRIP_DEPARTURES);
+  if (departures.length === 0) return <StatusMessage>{fr.departures.empty}</StatusMessage>;
+  const linesById = new Map(lines.map((line) => [line.id, line]));
+  return (
+    <ul className="space-y-1">
+      {departures.map((departure, i) => {
+        const line = linesById.get(departure.lineId);
+        return (
+          <li key={`${departure.lineId}-${departure.departureTime}-${i}`} className="flex items-center gap-2 text-xs">
+            {line && <LineChip line={line} />}
+            <span className="min-w-0 flex-1 truncate">{fr.departures.direction(departure.headsign)}</span>
+            <DepartureTime departure={departure} now={now} />
+          </li>
+        );
+      })}
+    </ul>
   );
 }

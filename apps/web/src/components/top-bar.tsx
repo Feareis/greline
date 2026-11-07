@@ -5,7 +5,7 @@ import type { Stop } from "@greline/types";
 import { setTheme, useTheme } from "@/lib/theme";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { AboutDialog } from "./about-dialog";
-import { MoonIcon, SunIcon } from "./icons";
+import { MoonIcon, StarIcon, SunIcon } from "./icons";
 import { LocateButton, type UserLocation } from "./locate-button";
 
 // Inlined at build time from next.config.ts.
@@ -39,7 +39,13 @@ function VersionBadge() {
       style={{ background: ENVIRONMENT === "prod" ? colors.success : colors.danger }}
     >
       <span className="sr-only">{fr.topBar.versionLabel(fr.topBar.environment[ENVIRONMENT], VERSION)}</span>
-      <span aria-hidden>{VERSION_TEXT}</span>
+      {/* Small screens: the environment only; the version stays in the tooltip and in Sources. */}
+      <span aria-hidden className="sm:hidden">
+        {fr.topBar.environment[ENVIRONMENT]}
+      </span>
+      <span aria-hidden className="hidden sm:inline">
+        {VERSION_TEXT}
+      </span>
     </span>
   );
 }
@@ -48,10 +54,12 @@ interface TopBarProps {
   stops: readonly Stop[];
   onSelect: (stopId: string) => void;
   onLocated: (location: UserLocation | null) => void;
+  mineOpen: boolean;
+  onToggleMine: () => void;
 }
 
 /** Transparent bar over the map: site name on the left, controls and version on the right. */
-export function TopBar({ stops, onSelect, onLocated }: TopBarProps) {
+export function TopBar({ stops, onSelect, onLocated, mineOpen, onToggleMine }: TopBarProps) {
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-3">
       {/* No logo yet: the name stands in for it. */}
@@ -61,9 +69,21 @@ export function TopBar({ stops, onSelect, onLocated }: TopBarProps) {
       >
         {fr.app.name}
       </h1>
-      <nav aria-label={fr.topBar.label} className="pointer-events-auto flex items-center gap-2">
+      <nav aria-label={fr.topBar.label} className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
         <ThemeToggle />
         <LocateButton stops={stops} onSelect={onSelect} onLocated={onLocated} />
+        <button
+          type="button"
+          onClick={onToggleMine}
+          aria-pressed={mineOpen}
+          aria-label={fr.mine.buttonLabel}
+          title={fr.mine.buttonLabel}
+          className={FLOATING_BUTTON}
+          style={glass}
+        >
+          <StarIcon filled={mineOpen} />
+          <span className="hidden sm:inline">{fr.mine.button}</span>
+        </button>
         <AboutDialog versionText={VERSION_TEXT} />
         <VersionBadge />
       </nav>

@@ -180,13 +180,15 @@ interface GeoMapProps {
   networks: readonly NetworkId[];
   /** Ongoing disruptions to dash on the map: their stretch, or the whole line. */
   disrupted: readonly Disruption[];
+  /** A stop to center the map on, picked from a list; `at` tells two requests apart. */
+  focus: { stopId: string; at: number } | null;
   selectedId: string | null;
   onSelect: (stopId: string) => void;
   userLocation: UserLocation | null;
 }
 
 /** Real geographic map: official shapes, moving vehicles and stops on an OpenStreetMap base. */
-export function GeoMap({ network, networks, disrupted, selectedId, onSelect, userLocation }: GeoMapProps) {
+export function GeoMap({ network, networks, disrupted, focus, selectedId, onSelect, userLocation }: GeoMapProps) {
   const mapRef = useRef<MapRef | null>(null);
   // Stable callback: React calls a new ref callback on every render otherwise.
   const attachMap = useCallback((ref: MapRef | null) => {
@@ -202,6 +204,13 @@ export function GeoMap({ network, networks, disrupted, selectedId, onSelect, use
   useEffect(() => {
     if (userLocation) mapRef.current?.flyTo({ center: [userLocation.lon, userLocation.lat], zoom: LOCATED_ZOOM });
   }, [userLocation]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const stop = focus && network.stops.find((s) => s.id === focus.stopId);
+    if (!map || !stop) return;
+    map.flyTo({ center: [stop.lon, stop.lat], zoom: Math.max(map.getZoom(), SELECTED_STATION_ZOOM) });
+  }, [focus, network.stops]);
 
   const linesData = useMemo(
     () => ({

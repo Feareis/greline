@@ -4,6 +4,7 @@ import { useDisruptions, useNow } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { isOngoing, startsLaterToday } from "@greline/services";
 import { useNetworkFilter } from "@/lib/network-filter";
+import { useFavorites, useTrip } from "@/lib/personal";
 import { colors } from "@/lib/theme-tokens";
 import type { Disruption, NetworkId, TransitNetwork } from "@greline/types";
 import dynamic from "next/dynamic";
@@ -12,6 +13,7 @@ import type { UserLocation } from "./locate-button";
 import { StationPanel } from "./station-panel";
 import { DayPanel } from "./day-panel";
 import { DisruptionBanner } from "./disruption-banner";
+import { MyStopsPanel } from "./my-stops-panel";
 import { TopBar } from "./top-bar";
 import { NetworkSummary } from "./network-summary";
 
@@ -63,6 +65,22 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
   }, [network, networks]);
   const { now, linesById, shown, ongoing, seriousOngoing, seriousUpcoming } = useShownDisruptions(network, networks);
   const closePanel = useCallback(() => setSelectedId(null), []);
+  // "My stops" opens on its own when there is something in it, until the user decides.
+  const { favoriteIds } = useFavorites();
+  const { trip } = useTrip();
+  const hasPersonal = favoriteIds.length > 0 || trip.from !== null || trip.to !== null;
+  const [mineChoice, setMineChoice] = useState<boolean | null>(null);
+  const mineOpen = selectedId === null && (mineChoice ?? hasPersonal);
+  const toggleMine = () => {
+    setSelectedId(null);
+    setMineChoice(!mineOpen);
+  };
+  // A stop picked from a list is also centered on the map; `at` re-centers on the same stop.
+  const [focus, setFocus] = useState<{ stopId: string; at: number } | null>(null);
+  const showStop = (stopId: string) => {
+    setSelectedId(stopId);
+    setFocus({ stopId, at: Date.now() });
+  };
   const selectedStop = useMemo(() => network.stops.find((s) => s.id === selectedId), [network.stops, selectedId]);
   const selectedLines = useMemo(
     () => (selectedId ? network.lines.filter((line) => line.stopIds.includes(selectedId)) : []),
@@ -75,14 +93,22 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         network={network}
         networks={networks}
         disrupted={seriousOngoing}
+        focus={focus}
         selectedId={selectedId}
         onSelect={setSelectedId}
         userLocation={userLocation}
       />
-      <TopBar stops={shownStops} onSelect={setSelectedId} onLocated={setUserLocation} />
+      <TopBar
+        stops={shownStops}
+        onSelect={setSelectedId}
+        onLocated={setUserLocation}
+        mineOpen={mineOpen}
+        onToggleMine={toggleMine}
+      />
       <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} />
       <DisruptionBanner ongoing={seriousOngoing} upcoming={seriousUpcoming} linesById={linesById} now={now} />
       <DayPanel networks={networks} ongoingSeverities={ongoing.map((d) => d.severity)} />
+      {mineOpen && <MyStopsPanel network={network} onShowStop={showStop} onClose={() => setMineChoice(false)} />}
       {selectedStop && (
         <StationPanel
           stop={selectedStop}

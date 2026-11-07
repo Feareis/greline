@@ -7,6 +7,8 @@ import type { Disruption, Line, Stop } from "@greline/types";
 import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";
 import { DisruptionList } from "./disruption-list";
+import { StarIcon } from "./icons";
+import { useFavorites, useTrip } from "@/lib/personal";
 
 interface StationPanelProps {
   stop: Stop;
@@ -22,6 +24,14 @@ interface StationPanelProps {
 /** Details of the selected station. Non-modal: the map stays usable behind it. */
 export function StationPanel({ stop, lines, disruptions, linesById, now, onClose }: StationPanelProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const { favoriteIds, toggleFavorite } = useFavorites();
+  const { trip, setTrip } = useTrip();
+  const favorite = favoriteIds.includes(stop.id);
+  const tripChip = (pressed: boolean) => ({
+    background: pressed ? colors.accent : "transparent",
+    color: pressed ? colors.background : colors.text,
+    borderColor: pressed ? colors.accent : colors.textMuted,
+  });
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -47,6 +57,17 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onClose
             {stop.city}
           </p>
         </div>
+        <button
+          type="button"
+          onClick={() => toggleFavorite(stop.id)}
+          aria-pressed={favorite}
+          aria-label={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
+          title={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
+          className="-m-1 ml-auto rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
+          style={{ color: favorite ? colors.warning : colors.textMuted }}
+        >
+          <StarIcon filled={favorite} />
+        </button>
         <button
           ref={closeButtonRef}
           type="button"
@@ -74,6 +95,26 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onClose
           </li>
         ))}
       </ul>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button
+          type="button"
+          aria-pressed={trip.from === stop.id}
+          onClick={() => setTrip({ from: stop.id, to: trip.to === stop.id ? null : trip.to })}
+          className="rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-2"
+          style={tripChip(trip.from === stop.id)}
+        >
+          {fr.station.tripFrom}
+        </button>
+        <button
+          type="button"
+          aria-pressed={trip.to === stop.id}
+          onClick={() => setTrip({ from: trip.from === stop.id ? null : trip.from, to: stop.id })}
+          className="rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-2"
+          style={tripChip(trip.to === stop.id)}
+        >
+          {fr.station.tripTo}
+        </button>
+      </div>
       {disruptions.length > 0 && (
         <>
           <h3 className="mt-5 mb-2 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
