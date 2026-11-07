@@ -3,7 +3,7 @@
 Les trams et les bus de Grenoble en temps réel, sur une carte.
 
 [![Site](https://img.shields.io/badge/site-greline.app-2ea44f)](https://greline.app)
-![Version](https://img.shields.io/badge/version-0.7.1-blue)
+![Version](https://img.shields.io/github/package-json/v/Feareis/greline?filename=apps%2Fweb%2Fpackage.json&label=version&color=blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6?logo=typescript&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)
@@ -204,7 +204,7 @@ Quelques conventions, vérifiées automatiquement par les hooks git et la CI :
 - On ne commite pas de `.env`, on n'utilise pas `--no-verify`, et on ne réécrit pas l'historique de `main`.
 - Pas de logos M, TAG ou SEMITAG : le projet n'est pas officiel et ne doit pas en avoir l'air.
 
-La version affichée sur le site vient de `apps/web/package.json`. Elle prend +0.1 à chaque nouvelle étape et +0.0.1 à chaque correctif.
+La version affichée sur le site vient de `apps/web/package.json` et se lit `1.étape.commits` : le chiffre du milieu est l'étape en cours, le dernier compte les commits qui touchent le site (`apps/web` ou `packages`) depuis le début de l'étape. Le hook pre-commit l'incrémente tout seul. Pour une nouvelle étape, on passe la version à `1.(étape).0` à la main. Pour un `git commit --amend`, on définit `GRELINE_KEEP_VERSION=1` afin de ne pas compter deux fois le même commit. L'app mobile a sa propre version, en `0.x` tant qu'elle n'est pas publiée.
 
 ## Où en est le projet
 
@@ -212,15 +212,15 @@ Le projet avance par étapes. Chacune donne une version utilisable.
 
 | Version | Contenu | |
 |---|---|---|
-| 0.1 | Les lignes de tram et leurs stations | fait |
-| 0.2 | Les prochains passages en temps réel | fait |
-| 0.3 | Les rames animées, la vraie carte, la géolocalisation | fait |
-| 0.4 | Le design, le thème clair/sombre, les infos du jour | fait |
-| 0.5 | Les bus Chrono et Proximo | fait |
-| 0.6 | Les perturbations | fait |
-| 0.7 | Les favoris et le trajet habituel | fait |
-| 0.8 | La recherche d'itinéraire avec correspondances | prochaine étape |
-| 1.0 | L'app mobile et les notifications de perturbation | plus tard |
+| 1.1 | Les lignes de tram et leurs stations | fait |
+| 1.2 | Les prochains passages en temps réel | fait |
+| 1.3 | Les rames animées, la vraie carte, la géolocalisation | fait |
+| 1.4 | Le design, le thème clair/sombre, les infos du jour | fait |
+| 1.5 | Les bus Chrono et Proximo | fait |
+| 1.6 | Les perturbations | fait |
+| 1.7 | Les favoris et le trajet habituel | fait |
+| 1.8 | La recherche d'itinéraire avec correspondances | prochaine étape |
+| mobile 1.0 | L'app mobile et les notifications de perturbation | plus tard |
 
 Dans un coin de ma tête aussi :
 - épaissir les lignes selon leur fréquence ;
