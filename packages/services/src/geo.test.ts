@@ -7,7 +7,9 @@ import {
   distanceMeters,
   distanceToPolylineMeters,
   nearestStops,
+  locateOnPolyline,
   pointAtDistance,
+  slicePolyline,
 } from "./geo";
 
 const stop = (id: string, lat: number, lon: number): Stop => ({ id, name: id, city: "Grenoble", lat, lon });
@@ -140,5 +142,29 @@ describe("pointAtDistance", () => {
   it("clamps to the ends of the track", () => {
     expect(pointAtDistance(track, cumulative, -5)).toMatchObject({ lon: 5.72, lat: 45.18 });
     expect(pointAtDistance(track, cumulative, 99_999)).toMatchObject({ lon: 5.73, lat: 45.19 });
+  });
+});
+
+describe("locateOnPolyline and slicePolyline", () => {
+  // North for ~1112 m, then east for ~784 m.
+  const track: [number, number][] = [
+    [5.72, 45.18],
+    [5.72, 45.19],
+    [5.73, 45.19],
+  ];
+  const cumulative = cumulativeDistances(track);
+
+  it("finds how far along the track a nearby point lies", () => {
+    const located = locateOnPolyline([5.7201, 45.185], track, cumulative);
+    expect(located.along).toBeCloseTo(cumulative[1]! / 2, 0);
+    expect(located.offset).toBeCloseTo(7.9, 0);
+  });
+
+  it("cuts the track between two distances, keeping the corners in between", () => {
+    expect(slicePolyline(track, cumulative, cumulative[1]! + 100, 500)).toEqual([
+      [5.72, expect.closeTo(45.1845, 4)],
+      [5.72, 45.19],
+      [expect.closeTo(5.7213, 4), 45.19],
+    ]);
   });
 });

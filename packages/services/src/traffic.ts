@@ -1,3 +1,4 @@
+import type { DisruptionSeverity } from "@greline/types";
 import type { VehiclePosition } from "./vehicles";
 
 /** A tram later than this is shown as late (red outline) and counted as delayed. */
@@ -33,4 +34,16 @@ export function fleetSummary(vehicles: readonly VehiclePosition[]): FleetSummary
   const share = vehicles.length > 0 ? late / vehicles.length : 0;
   const level: TrafficLevel = share >= DISRUPTED_SHARE ? "disrupted" : share >= SOME_DELAYS_SHARE ? "someDelays" : "smooth";
   return { running: vehicles.length, byLine, late, averageLateSeconds: late > 0 ? lateSeconds / late : 0, level };
+}
+
+const LEVEL_RANK: Readonly<Record<TrafficLevel, number>> = { smooth: 0, someDelays: 1, disrupted: 2 };
+const LEVEL_OF_SEVERITY: Readonly<Record<DisruptionSeverity, TrafficLevel>> = {
+  interrupted: "disrupted",
+  disrupted: "someDelays",
+  info: "smooth",
+};
+
+/** The worse of the level measured from delays and the level of the ongoing official disruptions. */
+export function trafficLevel(measured: TrafficLevel, ongoing: readonly DisruptionSeverity[]): TrafficLevel {
+  return ongoing.map((severity) => LEVEL_OF_SEVERITY[severity]).reduce((worst, level) => (LEVEL_RANK[level] > LEVEL_RANK[worst] ? level : worst), measured);
 }

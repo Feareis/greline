@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatClockTime, minutesUntil, parisDate, serviceDayOrigin, serviceTimeToDate } from "./time";
+import { formatClockTime, minutesUntil, parisDate, parisDateTime, serviceDayOrigin, serviceTimeToDate } from "./time";
 
 const unixSeconds = (iso: string): number => Date.parse(iso) / 1000;
 
@@ -75,5 +75,12 @@ describe("parisDate", () => {
   it("gives the calendar date in Grenoble, not in UTC", () => {
     expect(parisDate(new Date("2026-11-06T23:30:00Z"))).toBe("2026-11-07");
     expect(parisDate(new Date("2026-11-06T22:30:00Z"))).toBe("2026-11-06");
+  });
+});
+
+describe("parisDateTime", () => {
+  it("reads a Grenoble wall-clock time in winter (UTC+1) and in summer (UTC+2)", () => {
+    expect(parisDateTime("2026-11-07", "12:00").toISOString()).toBe("2026-11-07T11:00:00.000Z");
+    expect(parisDateTime("2026-07-14", "09:30").toISOString()).toBe("2026-07-14T07:30:00.000Z");
   });
 });

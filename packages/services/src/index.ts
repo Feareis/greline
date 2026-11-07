@@ -1,4 +1,4 @@
-export { formatClockTime, minutesUntil, parisDate, serviceDayOrigin, serviceTimeToDate } from "./time";
+export { formatClockTime, minutesUntil, parisDate, parisDateTime, serviceDayOrigin, serviceTimeToDate } from "./time";
 export * from "./departures";
 export * from "./api-client";
 export * from "./geo";

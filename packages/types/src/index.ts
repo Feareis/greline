@@ -78,6 +78,23 @@ export interface TransitSchedule {
   trips: TransitTrip[];
 }
 
+/** Severity of an official disruption: line cut, service modified (works, detour), or information. */
+export type DisruptionSeverity = "interrupted" | "disrupted" | "info";
+
+/** An official disruption of one of our lines, as exposed by our API. */
+export interface Disruption {
+  id: string;
+  lineId: string;
+  severity: DisruptionSeverity;
+  title: string;
+  description: string;
+  /** ISO 8601 instants. */
+  start: string;
+  end: string;
+  /** Affected stretch of the line when the text names its two ends; null means the whole line. */
+  stretch: LonLat[] | null;
+}
+
 /** Current weather in Grenoble, as exposed by our API. */
 export interface Weather {
   /** Degrees Celsius. */

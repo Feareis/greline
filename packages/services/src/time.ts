@@ -58,3 +58,14 @@ export function serviceDayOrigin(serviceDate: string): number {
 export function parisDate(instant: Date): string {
   return PARIS_DATE.format(instant);
 }
+
+/**
+ * The instant of a Grenoble wall-clock time ("2026-11-07", "12:00"). The offset is taken at the
+ * naive UTC reading, which only errs inside the skipped or repeated hour of a clock change.
+ */
+export function parisDateTime(date: string, time: string): Date {
+  const [year, month, day] = date.split("-").map(Number) as [number, number, number];
+  const [hours, minutes] = time.split(":").map(Number) as [number, number];
+  const naive = Date.UTC(year, month - 1, day, hours, minutes);
+  return new Date(naive - parisOffsetMinutes(new Date(naive)) * 60_000);
+}

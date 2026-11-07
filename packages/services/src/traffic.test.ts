@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fleetSummary } from "./traffic";
+import { fleetSummary, trafficLevel } from "./traffic";
 import type { VehiclePosition } from "./vehicles";
 
 const tram = (lineId: string, delaySeconds: number): VehiclePosition => ({
@@ -26,5 +26,18 @@ describe("fleetSummary", () => {
 
   it("is smooth with no tram running (night)", () => {
     expect(fleetSummary([])).toEqual({ running: 0, byLine: {}, late: 0, averageLateSeconds: 0, level: "smooth" });
+  });
+});
+
+describe("trafficLevel", () => {
+  it("keeps the measured level without official disruptions, or with mere information", () => {
+    expect(trafficLevel("smooth", [])).toBe("smooth");
+    expect(trafficLevel("someDelays", ["info"])).toBe("someDelays");
+  });
+
+  it("raises the level for disrupted or interrupted lines, never lowers it", () => {
+    expect(trafficLevel("smooth", ["disrupted"])).toBe("someDelays");
+    expect(trafficLevel("smooth", ["info", "interrupted"])).toBe("disrupted");
+    expect(trafficLevel("disrupted", ["disrupted"])).toBe("disrupted");
   });
 });

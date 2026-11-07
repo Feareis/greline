@@ -124,3 +124,37 @@ export function pointAtDistance(polyline: readonly Position[], cumulative: reado
   const t = length > 0 ? Math.max(0, Math.min(1, (distance - cumulative[low]!) / length)) : 0;
   return { lon: a[0] + t * (b[0] - a[0]), lat: a[1] + t * (b[1] - a[1]), bearing: bearingDegrees(a, b) };
 }
+
+/**
+ * Where the polyline passes closest to `point`: the distance along it (meters, `cumulative` from
+ * cumulativeDistances) and how far the point lies from it.
+ */
+export function locateOnPolyline(
+  point: Position,
+  polyline: readonly Position[],
+  cumulative: readonly number[],
+): { along: number; offset: number } {
+  const project = createLocalProjection(point);
+  const plane = polyline.map(project);
+  const origin = { x: 0, y: 0 };
+  let best = { along: 0, offset: Infinity };
+  for (let i = 0; i < plane.length - 1; i++) {
+    const offset = distanceToSegment(origin, plane[i]!, plane[i + 1]!);
+    if (offset >= best.offset) continue;
+    const t = segmentFraction(origin, plane[i]!, plane[i + 1]!);
+    best = { along: cumulative[i]! + t * (cumulative[i + 1]! - cumulative[i]!), offset };
+  }
+  return best;
+}
+
+/** The part of a polyline between two distances along it, given in either order. */
+export function slicePolyline(polyline: readonly Position[], cumulative: readonly number[], from: number, to: number): LonLat[] {
+  const start = Math.min(from, to);
+  const end = Math.max(from, to);
+  const at = (distance: number): LonLat => {
+    const { lon, lat } = pointAtDistance(polyline, cumulative, distance);
+    return [lon, lat];
+  };
+  const inside = polyline.filter((_, i) => cumulative[i]! > start && cumulative[i]! < end).map(([lon, lat]): LonLat => [lon, lat]);
+  return [at(start), ...inside, at(end)];
+}
