@@ -11,9 +11,9 @@ import { LocateButton, type UserLocation } from "./locate-button";
 // Inlined at build time from next.config.ts.
 const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 const ENVIRONMENT = process.env.NEXT_PUBLIC_APP_ENV === "prod" ? "prod" : "dev";
-// Production shows the version alone; elsewhere it is prefixed with the environment ("DEV@v0.7.0").
+// Production shows the version alone; elsewhere it is prefixed with the environment ("DEV@v1.7.5").
 const VERSION_TEXT = ENVIRONMENT === "prod" ? `v${VERSION}` : `${fr.topBar.environment.dev}@v${VERSION}`;
-/** Narrow screens: "v0.7.0" in production, "DEV" elsewhere (the full text is in Sources). */
+/** Narrow screens: "v1.7.5" in production, "DEV" elsewhere (the full text is in Sources). */
 const SHORT_VERSION_TEXT = ENVIRONMENT === "prod" ? VERSION_TEXT : fr.topBar.environment.dev;
 
 function ThemeToggle() {
@@ -33,7 +33,7 @@ function ThemeToggle() {
   );
 }
 
-/** "DEV@v0.7.0" in red, or "v1.0.0" in green in production. */
+/** "DEV@v1.7.5" in red, or "v1.7.5" in green in production. */
 function VersionBadge() {
   return (
     <span
