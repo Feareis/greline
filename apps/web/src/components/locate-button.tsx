@@ -5,11 +5,11 @@ import { type NearbyStop, nearestStops } from "@greline/services";
 import { radii } from "@greline/theme";
 import type { Stop } from "@greline/types";
 import { useState } from "react";
+import { currentPosition } from "@/lib/geolocation";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { LocateIcon } from "./icons";
 
 const NEARBY_COUNT = 3;
-const GEOLOCATION_OPTIONS: PositionOptions = { enableHighAccuracy: true, timeout: 10_000, maximumAge: 60_000 };
 
 /** Where the user is, and the stops closest to them. */
 export interface UserLocation {
@@ -24,12 +24,6 @@ type LocateState =
   | { status: "failed"; message: string }
   | { status: "located"; nearby: NearbyStop[] };
 
-function failureMessage(error: GeolocationPositionError): string {
-  if (error.code === error.PERMISSION_DENIED) return fr.locate.denied;
-  if (error.code === error.TIMEOUT) return fr.locate.timeout;
-  return fr.locate.unavailable;
-}
-
 interface LocateButtonProps {
   stops: readonly Stop[];
   onSelect: (stopId: string) => void;
@@ -41,26 +35,17 @@ interface LocateButtonProps {
 export function LocateButton({ stops, onSelect, onLocated }: LocateButtonProps) {
   const [state, setState] = useState<LocateState>({ status: "idle" });
 
-  const locate = () => {
-    // Also covers insecure (http) pages, where browsers hide the geolocation API.
-    if (!("geolocation" in navigator)) {
-      setState({ status: "failed", message: fr.locate.unsupported });
-      return;
-    }
+  const locate = async () => {
     setState({ status: "locating" });
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        const here = { lat: coords.latitude, lon: coords.longitude };
-        const nearby = nearestStops(here, stops, NEARBY_COUNT);
-        setState({ status: "located", nearby });
-        onLocated({ ...here, nearby });
-      },
-      (error) => {
-        setState({ status: "failed", message: failureMessage(error) });
-        onLocated(null);
-      },
-      GEOLOCATION_OPTIONS,
-    );
+    try {
+      const here = await currentPosition();
+      const nearby = nearestStops(here, stops, NEARBY_COUNT);
+      setState({ status: "located", nearby });
+      onLocated({ ...here, nearby });
+    } catch (error) {
+      setState({ status: "failed", message: error instanceof Error ? error.message : fr.locate.unavailable });
+      onLocated(null);
+    }
   };
 
   return (

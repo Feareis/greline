@@ -32,8 +32,11 @@ export interface GrelineApiClient {
   getWeather(signal?: AbortSignal): Promise<Weather>;
   /** Ongoing and upcoming official disruptions of our lines. */
   getDisruptions(signal?: AbortSignal): Promise<Disruption[]>;
-  /** Best itineraries leaving now from one stop to another, changes included. */
-  getItineraries(fromStopId: string, toStopId: string, signal?: AbortSignal): Promise<Itinerary[]>;
+  /**
+   * Best itineraries leaving now from one place to another, changes included. Each end is a
+   * stop id or "lat,lon", as written by itineraryEndParam.
+   */
+  getItineraries(from: string, to: string, signal?: AbortSignal): Promise<Itinerary[]>;
 }
 
 interface Parser<T> {
@@ -73,8 +76,8 @@ export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOp
     async getDisruptions(signal) {
       return (await getJson("/api/disruptions", disruptionsResponseSchema, signal)).disruptions;
     },
-    async getItineraries(fromStopId, toStopId, signal) {
-      const query = new URLSearchParams({ from: fromStopId, to: toStopId });
+    async getItineraries(from, to, signal) {
+      const query = new URLSearchParams({ from, to });
       return (await getJson(`/api/itineraries?${query}`, itinerariesResponseSchema, signal)).itineraries;
     },
   };
