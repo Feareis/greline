@@ -29,7 +29,7 @@ export const fr = {
     developmentTitle: "Développement",
     developedBy: "Développé par",
     developer: "Feareis",
-    profile: "profil GitHub",
+    repository: "code source et contributions sur GitHub",
     versionTitle: "Version",
   },
   geoMap: {

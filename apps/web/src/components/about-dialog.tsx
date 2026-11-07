@@ -10,7 +10,8 @@ const LINKS = {
   transit: "https://data.mobilites-m.fr",
   osm: "https://www.openstreetmap.org/copyright",
   openMeteo: "https://open-meteo.com",
-  developer: "https://github.com/Feareis",
+  // The repository, where contributions go.
+  developer: "https://github.com/Feareis/greline",
 } as const;
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
@@ -98,7 +99,8 @@ export function AboutDialog({ versionText }: { versionText: string }) {
                 target="_blank"
                 rel="noreferrer"
                 style={linkStyle}
-                aria-label={`${fr.about.developer}, ${fr.about.profile}`}
+                aria-label={`${fr.about.developer}, ${fr.about.repository}`}
+                title={fr.about.repository}
               >
                 {fr.about.developer}
               </a>
