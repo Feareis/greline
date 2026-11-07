@@ -35,7 +35,8 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Anime chaque véhicule sur son tracé, orienté dans le sens de la marche, avec un contour rouge au-delà de 2 minutes de retard.
 - Donne les prochains passages de n'importe quel arrêt, par ligne et par direction, rafraîchis toutes les 15 secondes.
 - Montre les perturbations du jour dans un bandeau, et sur la carte quand le texte officiel permet de retrouver le tronçon.
-- Met l'arrêt ouvert dans l'adresse de la page : un lien copié ou partagé ouvre le même arrêt.
+- Ouvre la fiche d'une ligne : véhicules en circulation et en retard, perturbations, tous ses arrêts, et son tracé mis en avant sur la carte.
+- Met l'arrêt ou la ligne ouverte dans l'adresse de la page : un lien copié ou partagé ouvre la même fiche.
 - Garde vos arrêts favoris et votre trajet habituel sur l'appareil, sans compte.
 - Cherche les itinéraires de ce trajet en partant maintenant, avec correspondances et marche à pied.
 - Trouve les arrêts autour de vous.

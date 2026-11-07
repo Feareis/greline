@@ -5,7 +5,7 @@ import { fr } from "@greline/i18n";
 import { palettes, type ThemeName, toCssColor } from "@greline/theme";
 import type { Disruption, NetworkId, Stop, TransitNetwork } from "@greline/types";
 import { type ExpressionSpecification, type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView, {
   AttributionControl,
   Layer,
@@ -18,6 +18,7 @@ import MapView, {
 import { useTheme } from "@/lib/theme";
 import { colors } from "@/lib/theme-tokens";
 import type { UserLocation } from "./locate-button";
+import type { MapFocus } from "./network-view";
 import { addVehicleIcon, Vehicles } from "./vehicles";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
@@ -40,6 +41,24 @@ const TRAM_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"]
 const TRAM_CASING_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 4.5, 16, 12];
 const BUS_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 1, 16, 3];
 const BUS_OPACITY = 0.8;
+/** Lines other than the one whose panel is open fade into the background. */
+const FADED_OPACITY = 0.2;
+const LINE_FOCUS_PADDING = 60;
+/** Wide screens: the panel covers the right (w-80 plus margins). */
+const SIDE_PANEL_SPACE = 350;
+/** Narrow screens: the top bar, the summary pill and the banner stack at the top... */
+const NARROW_TOP_SPACE = 160;
+/** ...and the panel covers the bottom 60 % (max-h-[60%]). */
+const NARROW_PANEL_SHARE = 0.6;
+
+/** Room around a framed line, so the floating controls and the open panel hide none of it. */
+function lineFocusPadding() {
+  const edge = LINE_FOCUS_PADDING / 2;
+  if (window.matchMedia("(min-width: 640px)").matches) {
+    return { top: LINE_FOCUS_PADDING, bottom: LINE_FOCUS_PADDING, left: LINE_FOCUS_PADDING, right: SIDE_PANEL_SPACE };
+  }
+  return { top: NARROW_TOP_SPACE, bottom: window.innerHeight * NARROW_PANEL_SHARE + edge, left: edge, right: edge };
+}
 /**
  * Disrupted stretches: the line is cut into dashes (gaps in the map background color) and edged
  * with the severity color, readable whatever the line color (amber over yellow Chrono lines is not).
@@ -85,9 +104,15 @@ function setUpMap(ref: MapRef | null) {
   });
 }
 
-function networkBounds(stops: readonly Stop[]): [[number, number], [number, number]] {
-  const lons = stops.map((s) => s.lon);
-  const lats = stops.map((s) => s.lat);
+type Bounds = [[number, number], [number, number]];
+
+function networkBounds(stops: readonly Stop[]): Bounds {
+  return pointsBounds(stops.map((stop) => [stop.lon, stop.lat]));
+}
+
+function pointsBounds(points: readonly (readonly [number, number])[]): Bounds {
+  const lons = points.map(([lon]) => lon);
+  const lats = points.map(([, lat]) => lat);
   return [
     [Math.min(...lons), Math.min(...lats)],
     [Math.max(...lons), Math.max(...lats)],
@@ -155,10 +180,13 @@ function UserMarker({ lat, lon }: { lat: number; lon: number }) {
   );
 }
 
-/** Stops of the shown lines: tram stations (buttons) and stops served by buses only (map layer). */
-function useShownStops(network: TransitNetwork, networks: readonly NetworkId[]) {
+/**
+ * Stops of the shown lines: tram stations (buttons) and stops served by buses only (map layer).
+ * The line whose panel is open is shown even when its network is filtered out.
+ */
+function useShownStops(network: TransitNetwork, networks: readonly NetworkId[], selectedLineId: string | null) {
   return useMemo(() => {
-    const shownLines = network.lines.filter((line) => networks.includes(line.network));
+    const shownLines = network.lines.filter((line) => networks.includes(line.network) || line.id === selectedLineId);
     const tramLinesAt = new Map<string, number>();
     for (const line of shownLines) {
       if (line.mode !== "tram") continue;
@@ -171,7 +199,27 @@ function useShownStops(network: TransitNetwork, networks: readonly NetworkId[]) 
       transferIds: new Set([...tramLinesAt].filter(([, count]) => count > 1).map(([id]) => id)),
       busStops: network.stops.filter((stop) => busOnlyIds.has(stop.id)),
     };
-  }, [network, networks]);
+  }, [network, networks, selectedLineId]);
+}
+
+/** Line opacity: as given, unless a line is selected, then only that one stays opaque. */
+function emphasis(selectedLineId: string | null, opacity: number): ExpressionSpecification | number {
+  return selectedLineId ? ["case", ["==", ["get", "id"], selectedLineId], 1, FADED_OPACITY] : opacity;
+}
+
+/** Brings a stop or a line picked from a list into view. */
+function useFocus(mapRef: RefObject<MapRef | null>, network: TransitNetwork, focus: MapFocus | null) {
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !focus) return;
+    if (focus.kind === "line") {
+      const line = network.lines.find((l) => l.id === focus.id);
+      if (line) map.fitBounds(pointsBounds(line.shape.flat()), { padding: lineFocusPadding() });
+      return;
+    }
+    const stop = network.stops.find((s) => s.id === focus.id);
+    if (stop) map.flyTo({ center: [stop.lon, stop.lat], zoom: Math.max(map.getZoom(), SELECTED_STATION_ZOOM) });
+  }, [mapRef, focus, network]);
 }
 
 interface GeoMapProps {
@@ -180,15 +228,17 @@ interface GeoMapProps {
   networks: readonly NetworkId[];
   /** Ongoing disruptions to dash on the map: their stretch, or the whole line. */
   disrupted: readonly Disruption[];
-  /** A stop to center the map on, picked from a list; `at` tells two requests apart. */
-  focus: { stopId: string; at: number } | null;
+  /** A stop or a line to bring into view, picked from a list. */
+  focus: MapFocus | null;
   selectedId: string | null;
+  /** The line whose panel is open: highlighted, the others faded. */
+  selectedLineId: string | null;
   onSelect: (stopId: string) => void;
   userLocation: UserLocation | null;
 }
 
 /** Real geographic map: official shapes, moving vehicles and stops on an OpenStreetMap base. */
-export function GeoMap({ network, networks, disrupted, focus, selectedId, onSelect, userLocation }: GeoMapProps) {
+export function GeoMap({ network, networks, disrupted, focus, selectedId, selectedLineId, onSelect, userLocation }: GeoMapProps) {
   const mapRef = useRef<MapRef | null>(null);
   // Stable callback: React calls a new ref callback on every render otherwise.
   const attachMap = useCallback((ref: MapRef | null) => {
@@ -198,26 +248,21 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, onSele
   const theme = useTheme();
   const palette = palettes[theme];
   const nearbyIds = useMemo(() => new Set(userLocation?.nearby.map((n) => n.stop.id)), [userLocation]);
-  const { shownLines, tramStations, transferIds, busStops } = useShownStops(network, networks);
+  const { shownLines, tramStations, transferIds, busStops } = useShownStops(network, networks, selectedLineId);
   const [hoveringStop, setHoveringStop] = useState(false);
 
   useEffect(() => {
     if (userLocation) mapRef.current?.flyTo({ center: [userLocation.lon, userLocation.lat], zoom: LOCATED_ZOOM });
   }, [userLocation]);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    const stop = focus && network.stops.find((s) => s.id === focus.stopId);
-    if (!map || !stop) return;
-    map.flyTo({ center: [stop.lon, stop.lat], zoom: Math.max(map.getZoom(), SELECTED_STATION_ZOOM) });
-  }, [focus, network.stops]);
+  useFocus(mapRef, network, focus);
 
   const linesData = useMemo(
     () => ({
       type: "FeatureCollection" as const,
       features: shownLines.map((line) => ({
         type: "Feature" as const,
-        properties: { color: toCssColor(line.color), mode: line.mode, label: line.shortName },
+        properties: { id: line.id, color: toCssColor(line.color), mode: line.mode, label: line.shortName },
         geometry: { type: "MultiLineString" as const, coordinates: line.shape },
       })),
     }),
@@ -250,10 +295,12 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, onSele
   );
 
   // Computed once: the map then owns its camera (uncontrolled). An already selected station is
-  // centered on; otherwise the shown network is framed.
+  // centered on, an already selected line framed; otherwise the shown network is framed.
   const [initialViewState] = useState(() => {
     const selected = network.stops.find((s) => s.id === selectedId);
     if (selected) return { longitude: selected.lon, latitude: selected.lat, zoom: SELECTED_STATION_ZOOM };
+    const line = network.lines.find((l) => l.id === selectedLineId);
+    if (line) return { bounds: pointsBounds(line.shape.flat()), fitBoundsOptions: { padding: lineFocusPadding() } };
     return { bounds: networkBounds(tramStations.length > 0 ? tramStations : busStops), fitBoundsOptions: { padding: 40 } };
   });
 
@@ -285,21 +332,21 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, onSele
             type="line"
             filter={["==", ["get", "mode"], "bus"]}
             layout={{ "line-join": "round", "line-cap": "round" }}
-            paint={{ "line-color": ["get", "color"], "line-width": BUS_WIDTH, "line-opacity": BUS_OPACITY }}
+            paint={{ "line-color": ["get", "color"], "line-width": BUS_WIDTH, "line-opacity": emphasis(selectedLineId, BUS_OPACITY) }}
           />
           <Layer
             id="tram-casing"
             type="line"
             filter={["==", ["get", "mode"], "tram"]}
             layout={{ "line-join": "round", "line-cap": "round" }}
-            paint={{ "line-color": palette.background, "line-width": TRAM_CASING_WIDTH }}
+            paint={{ "line-color": palette.background, "line-width": TRAM_CASING_WIDTH, "line-opacity": emphasis(selectedLineId, 1) }}
           />
           <Layer
             id="tram-lines"
             type="line"
             filter={["==", ["get", "mode"], "tram"]}
             layout={{ "line-join": "round", "line-cap": "round" }}
-            paint={{ "line-color": ["get", "color"], "line-width": TRAM_WIDTH }}
+            paint={{ "line-color": ["get", "color"], "line-width": TRAM_WIDTH, "line-opacity": emphasis(selectedLineId, 1) }}
           />
           <Layer
             id="bus-line-labels"
