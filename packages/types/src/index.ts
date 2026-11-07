@@ -29,10 +29,19 @@ export interface Stop {
 /** A geographic position, GeoJSON order: longitude first, then latitude (degrees). */
 export type LonLat = [lon: number, lat: number];
 
+/** The stops of a line in one direction of travel, as numbered by the M API ("0", "1"). */
+export interface LineDirection {
+  id: string;
+  /** Stop ids in travel order. */
+  stopIds: string[];
+}
+
 /** A line together with the stops of its canonical path (occasional variants excluded). */
 export interface NetworkLine extends Line {
   /** Stop ids in travel order, from one terminus to the other. */
   stopIds: string[];
+  /** Stop order of each direction: tells which direction goes from one stop to another. */
+  directions: LineDirection[];
   /** Official track geometry: one polyline per part (a branch or a disconnected section). */
   shape: LonLat[][];
 }
@@ -114,6 +123,8 @@ export interface Weather {
 export interface Departure {
   lineId: string;
   stopId: string;
+  /** Direction of travel, as in NetworkLine.directions ("0", "1"). */
+  direction: string;
   headsign: string;
   /** ISO 8601 date-time. */
   departureTime: string;

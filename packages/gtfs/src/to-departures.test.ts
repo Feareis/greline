@@ -17,10 +17,11 @@ describe("toDepartures", () => {
     expect(departures).toHaveLength(5);
   });
 
-  it("uses the realtime estimate and the pattern headsign", () => {
+  it("uses the realtime estimate, the pattern direction and headsign", () => {
     expect(departures[0]).toEqual({
       lineId: "SEM:B",
       stopId: "SEM:GENGAR",
+      direction: "1",
       headsign: "Plaine des Sports",
       departureTime: "2026-11-06T09:06:48.000Z",
       realtime: true,

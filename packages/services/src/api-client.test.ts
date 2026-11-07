@@ -4,6 +4,7 @@ import { createApiClient, GrelineApiError } from "./api-client";
 const departure = {
   lineId: "SEM:A",
   stopId: "SEM:GENGAR",
+  direction: "1",
   headsign: "La Poya",
   departureTime: "2026-11-06T09:06:48.000Z",
   realtime: true,

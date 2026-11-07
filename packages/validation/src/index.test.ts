@@ -18,7 +18,7 @@ describe("departuresResponseSchema", () => {
   it("accepts our API departures payload", () => {
     const payload = {
       departures: [
-        { lineId: "SEM:A", stopId: "SEM:GENGAR", headsign: "La Poya", departureTime: "2026-11-06T09:06:48.000Z", realtime: true },
+        { lineId: "SEM:A", stopId: "SEM:GENGAR", direction: "1", headsign: "La Poya", departureTime: "2026-11-06T09:06:48.000Z", realtime: true },
       ],
     };
     expect(departuresResponseSchema.parse(payload).departures).toHaveLength(1);

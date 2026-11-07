@@ -46,6 +46,7 @@ describe("groupDepartures", () => {
   const departure = (lineId: string, headsign: string, time: string) => ({
     lineId,
     stopId: "SEM:GENGAR",
+    direction: "0",
     headsign,
     departureTime: `2026-11-06T${time}:00Z`,
     realtime: true,

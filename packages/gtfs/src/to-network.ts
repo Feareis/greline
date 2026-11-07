@@ -1,5 +1,5 @@
 import { distanceToPolylineMeters } from "@greline/services";
-import { type LonLat, NETWORK_IDS, type NetworkId, type NetworkLine, type Stop, type TransitNetwork } from "@greline/types";
+import { type LineDirection, type LonLat, NETWORK_IDS, type NetworkId, type NetworkLine, type Stop, type TransitNetwork } from "@greline/types";
 import type { MLineShapes, MRoute, MTimesheet } from "@greline/validation";
 import { simplifyPolyline } from "./shapes";
 
@@ -56,17 +56,32 @@ function shapeOf(route: MRoute, input: MTransitNetworkInput): LonLat[][] {
   return shape.geometry.coordinates.map((part) => simplifyPolyline(part, SHAPE_TOLERANCE_M));
 }
 
-function stopsOnShape(route: MRoute, parts: readonly LonLat[][], input: MTransitNetworkInput): TimesheetStop[] {
+function timesheetOf(route: MRoute, input: MTransitNetworkInput): MTimesheet {
   const timesheet = input.timesheets.get(route.id);
   if (!timesheet) throw new Error(`M API: no timesheet for route ${route.id}`);
-  return longestDirection(timesheet).filter((stop) => {
+  return timesheet;
+}
+
+function onShape(stops: readonly TimesheetStop[], parts: readonly LonLat[][]): TimesheetStop[] {
+  return stops.filter((stop) => {
     const distance = Math.min(...parts.map((part) => distanceToPolylineMeters([stop.lon, stop.lat], part)));
     return distance <= MAX_STOP_DISTANCE_TO_SHAPE_M;
   });
 }
 
-function toLine(route: MRoute, network: NetworkId, stops: readonly TimesheetStop[], shape: LonLat[][]): NetworkLine {
+/** Station codes in order; two platforms of one station can follow each other: kept once. */
+function stationCodes(stops: readonly TimesheetStop[]): string[] {
   const codes = stops.map((s) => s.parentStation.code);
+  return codes.filter((code, i) => code !== codes[i - 1]);
+}
+
+function toLine(
+  route: MRoute,
+  network: NetworkId,
+  stops: readonly TimesheetStop[],
+  directions: LineDirection[],
+  shape: LonLat[][],
+): NetworkLine {
   return {
     id: route.id,
     shortName: route.shortName,
@@ -75,8 +90,8 @@ function toLine(route: MRoute, network: NetworkId, stops: readonly TimesheetStop
     network,
     color: route.color.toUpperCase(),
     textColor: route.textColor.toUpperCase(),
-    // Two platforms of one station can follow each other in a timesheet: keep the station once.
-    stopIds: codes.filter((code, i) => code !== codes[i - 1]),
+    stopIds: stationCodes(stops),
+    directions,
     shape,
   };
 }
@@ -134,9 +149,11 @@ export function toTransitNetwork(input: MTransitNetworkInput): TransitNetwork {
     .sort(byNetworkThenName);
   const lines = routes.map(({ route, network }) => {
     const shape = shapeOf(route, input);
-    const lineStops = stopsOnShape(route, shape, input);
+    const timesheet = timesheetOf(route, input);
+    const lineStops = onShape(longestDirection(timesheet), shape);
     for (const { parentStation } of lineStops) stations.set(parentStation.code, parentStation);
-    return toLine(route, network, lineStops, shape);
+    const directions = Object.entries(timesheet).map(([id, { arrets }]) => ({ id, stopIds: stationCodes(onShape(arrets, shape)) }));
+    return toLine(route, network, lineStops, directions, shape);
   });
   const stops: Stop[] = [...stations].map(([code, { name, city }]) => {
     const serving = lines.filter((line) => line.stopIds.includes(code));

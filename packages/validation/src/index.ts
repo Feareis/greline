@@ -16,6 +16,7 @@ export const lineSchema = z.object({
 export const departureSchema = z.object({
   lineId: z.string().min(1),
   stopId: z.string().min(1),
+  direction: z.string(),
   headsign: z.string(),
   departureTime: z.iso.datetime({ offset: true }),
   realtime: z.boolean(),

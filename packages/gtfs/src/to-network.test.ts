@@ -25,6 +25,13 @@ describe("toTransitNetwork", () => {
     ]);
   });
 
+  it("keeps the stop order of each direction, as numbered by the M API", () => {
+    const lineA = network.lines.find((l) => l.id === "SEM:A")!;
+    expect(lineA.directions.map((d) => d.id)).toEqual(["0", "1"]);
+    const [outbound, inbound] = lineA.directions;
+    expect(inbound!.stopIds).toEqual([...outbound!.stopIds].reverse());
+  });
+
   it("orders stops along the line using the longest timesheet direction", () => {
     const lineA = network.lines.find((l) => l.id === "SEM:A")!;
     expect(lineA.stopIds).toHaveLength(31);
