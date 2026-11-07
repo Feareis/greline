@@ -1,6 +1,6 @@
 # Greline
 
-**Le réseau de transports de Grenoble en temps réel, sur une carte vivante.**
+Les trams et les bus de Grenoble en temps réel, sur une carte.
 
 [![Site](https://img.shields.io/badge/site-greline.app-2ea44f)](https://greline.app)
 ![Version](https://img.shields.io/badge/version-0.7.1-blue)
@@ -8,95 +8,39 @@
 ![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs)
 ![React](https://img.shields.io/badge/React-19-61dafb?logo=react&logoColor=black)
 ![MapLibre](https://img.shields.io/badge/MapLibre-GL-396cb2)
-![pnpm](https://img.shields.io/badge/pnpm-workspaces-f69220?logo=pnpm&logoColor=white)
-![Vercel](https://img.shields.io/badge/déployé%20sur-Vercel-000000?logo=vercel)
 
-Greline affiche les trams et les bus de la SEM (Grenoble) **qui roulent en direct** sur une carte, avec les prochains passages de chaque arrêt, les perturbations, la météo du jour et vos arrêts favoris.
+Ouvrez [greline.app](https://greline.app) : chaque tram et chaque bus de la SEM avance sur son vrai tracé. Cliquez sur un arrêt pour voir les prochains passages ; si une ligne est coupée, le tronçon s'affiche en pointillés.
 
-> ⚠️ **Projet indépendant et non officiel.** Sans lien avec la Métropole, M ou la SEMITAG, dont il n'utilise pas les logos. Données : « M – Mobilités de l'agglomération grenobloise », licence ODbL.
+> Greline est un projet personnel, sans lien avec la Métropole, M ou la SEMITAG. Les données viennent de « M – Mobilités de l'agglomération grenobloise », sous licence ODbL.
 
----
+## Pourquoi ce projet
 
-## Sommaire
+Les applications officielles disent bien quand passe le prochain tram. Elles ne donnent pas de vue d'ensemble : où sont les rames en ce moment, quelle ligne est en retard, qu'est-ce qui est coupé.
 
-- [Le projet](#le-projet) — qui, quoi, pourquoi
-- [Fonctionnalités](#fonctionnalités)
-- [Stack technique](#stack-technique)
-- [Architecture](#architecture)
-- [Comment ça marche](#comment-ça-marche) — flux de données, cache, positions des rames
-- [Démarrer en local](#démarrer-en-local)
-- [Contribuer](#contribuer)
-- [Feuille de route](#feuille-de-route)
-- [Crédits et licence](#crédits-et-licence)
+L'idée de départ venait des jeux de gestion de métro, où l'on voit tout le réseau vivre d'un coup d'œil. Je voulais la même chose avec de vraies données.
 
----
+C'est aussi un terrain de jeu technique. L'API open data de M est riche, mais pleine de pièges :
+- pas de position GPS des véhicules ;
+- des fiches horaires vides la nuit ;
+- un en-tête `origin` obligatoire, faute de quoi elle refuse de répondre.
 
-## Le projet
+Une bonne partie du travail a consisté à composer avec ces limites.
 
-### Quoi
+## Ce que fait Greline
 
-Une carte plein écran du réseau grenoblois où l'on voit :
+- Affiche les 5 lignes de tram, les Chrono et les Proximo sur une carte MapLibre, en thème clair ou sombre.
+- Anime chaque véhicule sur son tracé, orienté dans le sens de la marche, avec un contour rouge au-delà de 2 minutes de retard.
+- Donne les prochains passages de n'importe quel arrêt, par ligne et par direction, rafraîchis toutes les 15 secondes.
+- Montre les perturbations du jour dans un bandeau, et sur la carte quand le texte officiel permet de retrouver le tronçon.
+- Garde vos arrêts favoris et votre trajet habituel sur l'appareil, sans compte.
+- Trouve les arrêts autour de vous.
+- Résume la journée : heure, météo, soleil, lune et état général du trafic.
 
-- les **5 lignes de tram** (A à E), les **Chrono** et les **Proximo**, sur leur vrai tracé ;
-- chaque **rame et chaque bus en mouvement**, positionné à partir des horaires du jour et corrigé par le retard mesuré en temps réel ;
-- les **prochains départs** de n'importe quel arrêt, par ligne et par direction ;
-- les **perturbations** officielles, avec le tronçon coupé tracé sur la carte.
+## Comment ça marche
 
-### Pourquoi
+### Le principe
 
-Les applications officielles répondent à la question « quand passe mon prochain tram ? », mais pas à « que se passe-t-il sur le réseau, là, maintenant ? ». Greline part d'une idée simple : **rendre le réseau visible**, comme dans un jeu de gestion de métro, avec des lignes colorées et des véhicules qui bougent.
-
-C'est aussi un projet d'ingénierie assumé : prendre une API open data réelle (avec ses limites, ses trous et ses surprises) et en tirer un produit **fiable, typé, testé et documenté**, livré prototype par prototype.
-
-### Qui
-
-Conçu et développé par **[Feareis](https://github.com/Feareis)**.
-
-### Comment
-
-- **Une API open data, jamais appelée par le navigateur** : le serveur Next.js relaie l'API M, valide chaque réponse avec Zod et la met en cache. Le client ne parle qu'à notre propre API.
-- **La logique dans des packages partagés** (types, validation, calculs, hooks), testée avec Vitest et prête pour la future app mobile Expo.
-- **Des livraisons courtes** : un prototype utilisable par version, chaque choix important consigné dans [`docs/decisions/`](docs/decisions).
-
----
-
-## Fonctionnalités
-
-| | Fonctionnalité | Détail |
-|---|---|---|
-| 🗺️ | Carte réelle | MapLibre GL + fond OpenStreetMap (OpenFreeMap), thème clair ou sombre |
-| 🚋 | Véhicules animés | Trams et bus en SVG, orientés dans le sens de la marche, contour rouge au-delà de 2 min de retard |
-| ⏱️ | Prochains passages | Par ligne et par direction, temps réel ou théorique, rafraîchis toutes les 15 s |
-| 🚌 | Bus | Lignes Chrono et Proximo, filtres Tram / Chrono / Proximo / Tout |
-| ⚠️ | Perturbations | Bandeau du jour, tronçon coupé ou perturbé en pointillés sur la carte |
-| ⭐ | Favoris et trajet | Arrêts favoris et trajet habituel (lignes directes), enregistrés sur l'appareil, sans compte |
-| 📍 | Me localiser | Arrêts les plus proches de soi |
-| 🌤️ | Infos du jour | Heure de Grenoble, météo, lever et coucher du soleil, phase de lune, état global du trafic |
-
----
-
-## Stack technique
-
-| Couche | Choix | Pourquoi |
-|---|---|---|
-| Langage | **TypeScript** (strict) | Un seul langage du serveur au client, des contrats de données vérifiés à la compilation |
-| Monorepo | **pnpm workspaces** | Packages partagés consommés en source, sans étape de build |
-| Web + API | **Next.js 16** (App Router, Cache Components) | Pages et routes API dans la même app, cache serveur déclaratif (`"use cache"`) |
-| Interface | **React 19** + **Tailwind CSS 4** | Composants simples, styles utilitaires, thème par variables CSS |
-| Carte | **MapLibre GL** via `react-map-gl` | Moteur vectoriel open source, couches GPU pour les lignes et les véhicules |
-| Données client | **TanStack Query 5** | Cache, rafraîchissement périodique, pause quand l'onglet est caché |
-| Validation | **Zod 4** | Toute donnée externe est validée à l'entrée (API M, Open-Meteo, stockage local) |
-| Tests | **Vitest** | Logique métier testée sur des extraits réels de l'API M |
-| Mobile (à venir) | **Expo** (React Native) | Réutilise les packages partagés |
-| Hébergement | **Vercel** | Déploiement à chaque push sur `main`, domaine `greline.app` |
-
-**Sources de données** : API M (`data.mobilites-m.fr` : lignes, tracés, fiches horaires, GTFS, temps réel, événements), Open-Meteo (météo), OpenFreeMap (tuiles de carte).
-
----
-
-## Architecture
-
-### Vue d'ensemble
+Le navigateur ne parle jamais directement à l'API M. Il passe par les routes `/api/*` de Greline. Le serveur va chercher les données, les valide avec Zod et les garde en cache. Si M change un format demain, il n'y a qu'un seul endroit à corriger.
 
 ```mermaid
 flowchart LR
@@ -125,68 +69,22 @@ flowchart LR
     UI -. tuiles .-> Tiles
 ```
 
-Le navigateur ne contacte jamais l'API M : il ne parle qu'aux routes `/api/*` de Greline (et au serveur de tuiles pour le fond de carte). Si l'API M change de format, une seule couche est à corriger.
+Chaque route a son propre rythme, selon la vitesse à laquelle ses données changent :
 
-### Le monorepo
+| Route | Ce qu'elle renvoie | Cache serveur | Rafraîchissement côté client |
+|---|---|---|---|
+| `/api/network` | Lignes, arrêts, tracés, sens de circulation | 24 h | chargé avec la page |
+| `/api/network/schedule?network=` | Courses du jour d'un réseau, tirées du GTFS (~6,5 Mo) | 6 h | toutes les heures |
+| `/api/network/delays` | Retard mesuré de chaque course | 30 s | toutes les 30 s |
+| `/api/stops/[id]/departures` | Prochains passages d'un arrêt | 15 s | toutes les 15 s |
+| `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
+| `/api/weather` | Météo et soleil à Grenoble (Open-Meteo) | 15 min | toutes les 15 min |
 
-```
-greline/
-├── apps/
-│   ├── web/              Next.js : site + routes API (/api/*)
-│   └── mobile/           Expo : app iOS / Android (à venir)
-├── packages/
-│   ├── types/            Types métier : Line, Stop, Departure, Disruption…
-│   ├── validation/       Schémas Zod : réponses de l'API M et de notre API
-│   ├── gtfs/             Accès serveur à l'API M : réseau, GTFS, temps réel, perturbations
-│   ├── services/         Logique pure : géométrie, positions des véhicules, trafic, favoris…
-│   ├── hooks/            Hooks React partagés (TanStack Query)
-│   ├── theme/            Couleurs et tokens de design (valeurs, pas de composants)
-│   ├── i18n/             Textes de l'interface (français)
-│   └── tsconfig/         Configuration TypeScript commune
-├── docs/decisions/       Décisions d'architecture (ADR)
-└── scripts/guardrails/   Hooks git et vérifications de la CI
-```
+Quand l'API M flanche, les requêtes sont retentées deux fois. Si elle ne répond toujours pas, la page le dit et se recharge seule 30 secondes plus tard.
 
-```mermaid
-flowchart TD
-    web["apps/web"] --> hooks & gtfs & services & theme & i18n
-    mobile["apps/mobile (à venir)"] -.-> hooks & services & theme
-    hooks --> services
-    gtfs --> services & validation
-    services --> validation --> types
-    hooks --> types
-```
+### Faire rouler des trams sans GPS
 
-**On partage la logique, pas l'interface.** Types, validation, calculs et hooks sont écrits et testés une fois. Les composants visuels restent propres à chaque app, pour qu'elles soient pensées pour leur plateforme (souris et grand écran d'un côté, doigt et gestes natifs de l'autre).
-
-Règles d'architecture, vérifiées par les hooks git :
-
-- `packages/*` n'importe jamais `next`, `react-dom`, `react-native` ni `expo`.
-- Ce qui dépend de la plateforme (stockage, géolocalisation…) est **injecté**, jamais importé.
-- Une seule version de React dans tout le monorepo, alignée sur le SDK Expo.
-
----
-
-## Comment ça marche
-
-### Routes API et cache
-
-Chaque route relaie une source externe, valide la réponse avec Zod et la garde en cache serveur. Le client la rafraîchit à son propre rythme.
-
-| Route | Contenu | Source | Cache serveur | Rafraîchi par le client |
-|---|---|---|---|---|
-| `/api/network` | Lignes, arrêts, tracés, sens de circulation | API M (routes, tracés, fiches horaires) | 24 h | — (rendu avec la page) |
-| `/api/network/schedule?network=` | Courses du jour d'un réseau | GTFS de la SEM (~6,5 Mo) | 6 h | toutes les heures |
-| `/api/network/delays` | Retard mesuré de chaque course | Temps réel API M (stations sondes) | 30 s | toutes les 30 s |
-| `/api/stops/[id]/departures` | Prochains passages d'un arrêt | Temps réel API M | 15 s | toutes les 15 s |
-| `/api/disruptions` | Perturbations en cours et du jour | Événements API M | 2 min | toutes les 2 min |
-| `/api/weather` | Météo et soleil à Grenoble | Open-Meteo | 15 min | toutes les 15 min |
-
-Les appels à l'API M sont réessayés en cas d'échec passager (erreur réseau, 5xx, 429). Si elle reste muette, la page l'indique et se recharge d'elle-même.
-
-### Positionner les véhicules sans GPS
-
-L'API M ne publie pas la position GPS des véhicules. Greline la **reconstitue** :
+C'est le cœur du projet. L'API M ne donne pas la position des véhicules, seulement les prochains passages arrêt par arrêt. Greline reconstitue donc les positions :
 
 ```mermaid
 sequenceDiagram
@@ -207,104 +105,131 @@ sequenceDiagram
     end
 ```
 
-1. **Le GTFS** donne, pour chaque course du jour, l'heure de passage à chaque arrêt et la distance de cet arrêt le long du tracé (`shapes.txt`).
-2. **Le temps réel** n'existe que par arrêt. Greline interroge une trentaine de **stations sondes**, choisies de préférence parmi les pôles de correspondance, et en déduit le retard de chaque course.
-3. **Le navigateur interpole** la position entre deux arrêts (heure − retard → distance sur le tracé → coordonnées et cap). Tout se fait côté client : aucun recalcul serveur par véhicule.
+1. Le GTFS donne l'horaire théorique de chaque course à chaque arrêt, et la position de chaque arrêt le long du tracé.
+2. Toutes les 30 secondes, le serveur interroge une trentaine de stations choisies, de préférence des pôles de correspondance. Il en déduit le retard de chaque course.
+3. Le navigateur fait le reste : à partir de l'heure et du retard, il calcule la distance parcourue sur le tracé, puis la position et le cap du véhicule.
 
-Ces calculs sont dans `packages/services` (`vehicles.ts`, `geo.ts`) et testés unitairement.
+Ce n'est pas du GPS : entre deux mesures, un véhicule peut être un peu en avance ou en retard sur sa vraie position. Ce code vit dans `packages/services` (`vehicles.ts`, `geo.ts`) et il est testé.
 
-### Qualité
+## La stack
 
-- **TypeScript strict** partout, aucun `any` non justifié.
-- **Zod à chaque frontière** : une réponse inattendue de l'API M devient une erreur claire, jamais une donnée corrompue affichée.
-- **Tests Vitest** sur la logique métier, à partir d'extraits réels de l'API M (`packages/gtfs/src/__fixtures__`).
-- **CI GitHub Actions** : garde-fous, typecheck, tests et lint à chaque push et à chaque pull request.
+| Couche | Outil | Pourquoi ce choix |
+|---|---|---|
+| Langage | TypeScript, en mode strict | Un seul langage du serveur à l'interface |
+| Web et API | Next.js 16 (App Router, Cache Components) | Pages et routes API au même endroit, cache déclaratif avec `"use cache"` |
+| Interface | React 19, Tailwind CSS 4 | Simple, et le thème passe par des variables CSS |
+| Carte | MapLibre GL via `react-map-gl` | Open source, lignes et véhicules dessinés par le GPU |
+| Données côté client | TanStack Query 5 | Cache et rafraîchissement, en pause quand l'onglet est caché |
+| Validation | Zod 4 | Rien d'extérieur n'entre sans être vérifié |
+| Tests | Vitest | Sur des extraits réels de l'API M |
+| Monorepo | pnpm workspaces | Le code partagé est importé en source, sans étape de build |
+| Hébergement | Vercel | Un déploiement à chaque push sur `main` |
 
----
+Une app mobile Expo est prévue. Elle réutilisera les packages partagés.
 
-## Démarrer en local
+## L'organisation du code
 
-**Prérequis :** Node.js ≥ 20.19 (24 recommandé, voir `.nvmrc`) et pnpm ≥ 10 (`corepack enable pnpm`).
+```
+greline/
+├── apps/
+│   ├── web/              le site et les routes API (Next.js)
+│   └── mobile/           l'app iOS / Android (Expo), pas encore commencée
+├── packages/
+│   ├── types/            les types métier : Line, Stop, Departure, Disruption…
+│   ├── validation/       les schémas Zod
+│   ├── gtfs/             tout ce qui parle à l'API M, côté serveur
+│   ├── services/         la logique pure : géométrie, positions, trafic, favoris
+│   ├── hooks/            les hooks React partagés
+│   ├── theme/            couleurs et tailles
+│   ├── i18n/             les textes de l'interface
+│   └── tsconfig/         la config TypeScript commune
+├── docs/decisions/       les choix d'architecture, un fichier par décision
+└── scripts/guardrails/   les vérifications des hooks git et de la CI
+```
+
+```mermaid
+flowchart TD
+    web["apps/web"] --> hooks & gtfs & services & theme & i18n
+    mobile["apps/mobile (à venir)"] -.-> hooks & services & theme
+    hooks --> services
+    gtfs --> services & validation
+    services --> validation --> types
+    hooks --> types
+```
+
+La règle : on partage la logique, pas l'interface. Les calculs, les types et les hooks sont écrits une fois. Chaque app garde ses propres composants, pour être pensée pour sa plateforme. Pour que ça tienne, les packages n'importent jamais `next`, `react-dom`, `react-native` ni `expo`, et un hook git le vérifie.
+
+Les choix importants (fond de carte, bus, perturbations…) sont expliqués dans [`docs/decisions/`](docs/decisions).
+
+## Lancer le projet
+
+Il faut Node.js 20.19 ou plus récent (24 recommandé, voir `.nvmrc`) et pnpm 10 ou plus (`corepack enable pnpm`).
 
 ```bash
 git clone https://github.com/Feareis/greline.git
 cd greline
-pnpm install          # installe tout et active les hooks git
-pnpm dev:web          # site + API sur http://localhost:3000
+pnpm install      # installe tout et active les hooks git
+pnpm dev:web      # http://localhost:3000
 ```
 
-Aucune clé d'API n'est nécessaire : l'API M, Open-Meteo et OpenFreeMap sont publiques.
+Pas de clé d'API à configurer : l'API M, Open-Meteo et OpenFreeMap sont publiques.
 
-| Commande | Rôle |
-|---|---|
-| `pnpm dev:web` | Serveur de développement Next.js |
-| `pnpm build:web` | Build de production |
-| `pnpm check` | Garde-fous + typecheck + tests |
-| `pnpm lint` | ESLint (web et mobile) |
-| `pnpm test` | Tests Vitest seuls |
+Les autres commandes utiles :
 
----
+```bash
+pnpm check        # garde-fous, typecheck et tests
+pnpm lint         # ESLint
+pnpm build:web    # build de production
+```
 
 ## Contribuer
 
-Les contributions sont les bienvenues : bug, idée, correctif ou nouvelle fonctionnalité.
+Un bug, une idée, une ligne qui s'affiche mal ? Ouvrez une issue, même courte. Pour du code :
 
-1. **Ouvrir une issue** pour décrire le bug ou proposer l'idée avant de coder une grosse modification.
-2. **Créer une branche** nommée `type/description-courte` (par exemple `feat/night-mode`, `fix/departures-midnight`).
-3. **Coder** en respectant les règles ci-dessous, avec des tests pour toute logique métier.
-4. **Vérifier** avant de pousser :
-   ```bash
-   pnpm check && pnpm lint
-   ```
-5. **Ouvrir une pull request** vers `main`, avec une description de ce qui change et pourquoi.
+1. Pour un changement important, ouvrez d'abord une issue, qu'on en discute.
+2. Créez une branche `type/description` (par exemple `feat/night-mode` ou `fix/departures-midnight`).
+3. Ajoutez des tests si vous touchez à la logique dans `packages/`.
+4. Lancez `pnpm check && pnpm lint` avant de pousser.
+5. Ouvrez une pull request vers `main` en expliquant ce qui change et pourquoi.
 
-### Règles du projet
+Quelques conventions, vérifiées automatiquement par les hooks git et la CI :
 
-| Sujet | Règle |
-|---|---|
-| Langue | Code, commentaires, commits et docs techniques en **anglais**. Textes de l'interface en français, **uniquement** dans `packages/i18n/src/locales/`. Ce README est en français. |
-| Commits | [Conventional Commits](https://www.conventionalcommits.org/fr/) en anglais, à l'impératif, en-tête ≤ 72 caractères : `feat(web): add night mode`. |
-| Attribution | Aucune ligne `Co-authored-by` ni signature d'outil dans les commits et les PR. |
-| Données | Le client n'appelle jamais l'API M directement. Toute donnée externe passe par un schéma Zod de `@greline/validation`. |
-| Architecture | La logique métier va dans `packages/*`, avec ses tests. Les composants visuels restent dans `apps/*`. |
-| Décisions | Un choix structurant donne lieu à un court ADR dans `docs/decisions/`. |
-| Interdits | `--no-verify`, réécriture de l'historique de `main`, fichiers `.env` commités, logos M / TAG / SEMITAG. |
+- Le code, les commentaires et les messages de commit sont en anglais. Les textes de l'interface sont en français et vivent uniquement dans `packages/i18n/src/locales/`.
+- Les commits suivent [Conventional Commits](https://www.conventionalcommits.org/fr/), avec un titre de 72 caractères au plus : `feat(web): add night mode`.
+- Pas de ligne `Co-authored-by` ni de signature d'outil dans les commits.
+- Le navigateur n'appelle jamais l'API M directement, et toute donnée externe passe par un schéma Zod.
+- On ne commite pas de `.env`, on n'utilise pas `--no-verify`, et on ne réécrit pas l'historique de `main`.
+- Pas de logos M, TAG ou SEMITAG : le projet n'est pas officiel et ne doit pas en avoir l'air.
 
-Ces règles sont **appliquées automatiquement** :
+La version affichée sur le site vient de `apps/web/package.json`. Elle prend +0.1 à chaque nouvelle étape et +0.0.1 à chaque correctif.
 
-- hook `commit-msg` : format du message, absence d'attribution ;
-- hook `pre-commit` : pas de français dans le code hors `locales/`, pas d'import de plateforme dans `packages/*`, pas de `.env` ;
-- CI GitHub : revérifie tout, même si un hook a été contourné.
+## Où en est le projet
 
-### Versions
+Le projet avance par étapes. Chacune donne une version utilisable.
 
-Le numéro de version est celui de `apps/web/package.json`, affiché dans le badge du site : **+0.1** à chaque prototype livré, **+0.0.1** à chaque correctif publié.
-
----
-
-## Feuille de route
-
-| Version | Contenu | État |
+| Version | Contenu | |
 |---|---|---|
-| v0.1 | Lignes de tram et stations | ✅ |
-| v0.2 | Prochains passages en temps réel | ✅ |
-| v0.3 | Rames animées, carte géographique, géolocalisation | ✅ |
-| v0.4 | Design web, thème clair/sombre, infos du jour | ✅ |
-| v0.5 | Bus Chrono et Proximo, filtres | ✅ |
-| v0.6 | Perturbations sur la carte et en bandeau | ✅ |
-| v0.7 | Arrêts favoris et trajet habituel | ✅ |
-| v0.8 | Recherche d'itinéraire avec correspondances | 🔜 |
-| v1.0 | App mobile Expo sur les stores, notifications de perturbation | 🗓️ |
+| 0.1 | Les lignes de tram et leurs stations | fait |
+| 0.2 | Les prochains passages en temps réel | fait |
+| 0.3 | Les rames animées, la vraie carte, la géolocalisation | fait |
+| 0.4 | Le design, le thème clair/sombre, les infos du jour | fait |
+| 0.5 | Les bus Chrono et Proximo | fait |
+| 0.6 | Les perturbations | fait |
+| 0.7 | Les favoris et le trajet habituel | fait |
+| 0.8 | La recherche d'itinéraire avec correspondances | prochaine étape |
+| 1.0 | L'app mobile et les notifications de perturbation | plus tard |
 
-Idées en réserve : mode « fréquentation » (épaisseur des lignes selon le nombre de passages), replay d'une journée en accéléré, arrêts accessibles PMR, autres transporteurs du réseau M.
+Dans un coin de ma tête aussi :
+- épaissir les lignes selon leur fréquence ;
+- rejouer une journée en accéléré ;
+- signaler les arrêts accessibles en fauteuil ;
+- ajouter les autres transporteurs du réseau M.
 
----
+## Crédits
 
-## Crédits et licence
+- Données de transport : M – Mobilités de l'agglomération grenobloise, licence [ODbL](https://opendatacommons.org/licenses/odbl/).
+- Fond de carte : © contributeurs [OpenStreetMap](https://www.openstreetmap.org/copyright), tuiles [OpenFreeMap](https://openfreemap.org).
+- Météo : [Open-Meteo](https://open-meteo.com).
+- Licence du code : à définir.
 
-- **Données** : M – Mobilités de l'agglomération grenobloise, licence [ODbL](https://opendatacommons.org/licenses/odbl/).
-- **Fond de carte** : © contributeurs [OpenStreetMap](https://www.openstreetmap.org/copyright), tuiles [OpenFreeMap](https://openfreemap.org).
-- **Météo** : [Open-Meteo](https://open-meteo.com).
-- **Code** : licence à définir.
-
-Greline est un projet personnel, indépendant et non officiel.
+Fait par [Feareis](https://github.com/Feareis).
