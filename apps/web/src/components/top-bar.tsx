@@ -11,7 +11,10 @@ import { LocateButton, type UserLocation } from "./locate-button";
 // Inlined at build time from next.config.ts.
 const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 const ENVIRONMENT = process.env.NEXT_PUBLIC_APP_ENV === "prod" ? "prod" : "dev";
-const VERSION_TEXT = `${fr.topBar.environment[ENVIRONMENT]}@v${VERSION}`;
+// Production shows the version alone; elsewhere it is prefixed with the environment ("DEV@v0.7.0").
+const VERSION_TEXT = ENVIRONMENT === "prod" ? `v${VERSION}` : `${fr.topBar.environment.dev}@v${VERSION}`;
+/** Narrow screens: "v0.7.0" in production, "DEV" elsewhere (the full text is in Sources). */
+const SHORT_VERSION_TEXT = ENVIRONMENT === "prod" ? VERSION_TEXT : fr.topBar.environment.dev;
 
 function ThemeToggle() {
   const theme = useTheme();
@@ -30,7 +33,7 @@ function ThemeToggle() {
   );
 }
 
-/** "DEV@v0.4.0" in red, "PROD@v1.0.0" in green. */
+/** "DEV@v0.7.0" in red, or "v1.0.0" in green in production. */
 function VersionBadge() {
   return (
     <span
@@ -39,9 +42,8 @@ function VersionBadge() {
       style={{ background: ENVIRONMENT === "prod" ? colors.success : colors.danger }}
     >
       <span className="sr-only">{fr.topBar.versionLabel(fr.topBar.environment[ENVIRONMENT], VERSION)}</span>
-      {/* Small screens: the environment only; the version stays in the tooltip and in Sources. */}
       <span aria-hidden className="sm:hidden">
-        {fr.topBar.environment[ENVIRONMENT]}
+        {SHORT_VERSION_TEXT}
       </span>
       <span aria-hidden className="hidden sm:inline">
         {VERSION_TEXT}
