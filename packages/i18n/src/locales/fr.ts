@@ -26,6 +26,8 @@ export const fr = {
     transit: "Lignes, arrêts, horaires et temps réel : M – Mobilités de l'agglomération grenobloise, licence ODbL.",
     baseMap: "Fond de carte : © contributeurs OpenStreetMap (ODbL), tuiles OpenMapTiles servies par OpenFreeMap.",
     weather: "Météo : Open-Meteo (CC BY 4.0).",
+    airQuality:
+      "Qualité de l'air : Open-Meteo (CC BY 4.0), à partir des données du service Copernicus de surveillance de l'atmosphère (CAMS).",
     developmentTitle: "Développement",
     developedBy: "Développé par",
     developer: "Feareis",
@@ -94,6 +96,17 @@ export const fr = {
     feelsLike: (celsius: number) => `ressenti ${Math.round(celsius)} °C`,
     sun: (sunrise: string, sunset: string) => `Soleil ${sunrise} → ${sunset}`,
     weatherUnavailable: "Météo indisponible",
+    air: (level: string) => `Air : ${level}`,
+    airIndex: (index: number) => `Indice européen de qualité de l'air : ${index}`,
+    airLevels: {
+      good: "bon",
+      fair: "moyen",
+      moderate: "dégradé",
+      poor: "mauvais",
+      veryPoor: "très mauvais",
+      extremelyPoor: "extrêmement mauvais",
+    },
+    airUnavailable: "Qualité de l'air indisponible",
     conditions: {
       clear: "Ciel dégagé",
       mostlyClear: "Peu nuageux",

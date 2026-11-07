@@ -42,7 +42,7 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Cherche les itinéraires de ce trajet en partant maintenant, avec correspondances et marche à pied.
 - Cherche aussi un itinéraire entre deux arrêts quelconques, ou depuis votre position (arrondie à 100 m avant d'être envoyée).
 - Trouve les arrêts autour de vous.
-- Résume la journée : heure, météo, soleil, lune et état général du trafic.
+- Résume la journée : heure, météo, qualité de l'air, soleil, lune et état général du trafic.
 
 ## Comment ça marche
 
@@ -88,6 +88,7 @@ Chaque route a son propre rythme, selon la vitesse à laquelle ses données chan
 | `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts, ou depuis une position, en partant maintenant (calculateur de M) | 30 s | toutes les 30 s |
 | `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
 | `/api/weather` | Météo et soleil à Grenoble (Open-Meteo) | 15 min | toutes les 15 min |
+| `/api/air-quality` | Indice européen de qualité de l'air à Grenoble (Open-Meteo, données CAMS) | 30 min | toutes les 30 min |
 
 Quand l'API M flanche, les requêtes sont retentées deux fois. Si elle ne répond toujours pas, la page le dit et se recharge seule 30 secondes plus tard.
 
@@ -239,4 +240,5 @@ Dans un coin de ma tête aussi :
 - Données de transport : M – Mobilités de l'agglomération grenobloise, licence [ODbL](https://opendatacommons.org/licenses/odbl/).
 - Fond de carte : © contributeurs [OpenStreetMap](https://www.openstreetmap.org/copyright), tuiles [OpenFreeMap](https://openfreemap.org).
 - Météo : [Open-Meteo](https://open-meteo.com).
+- Qualité de l'air : [Open-Meteo](https://open-meteo.com/en/docs/air-quality-api), à partir des données du service Copernicus de surveillance de l'atmosphère (CAMS).
 - Code : licence [MIT](LICENSE). Les données restent sous leur propre licence (ODbL pour M et OpenStreetMap).

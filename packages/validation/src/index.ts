@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
+import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -46,6 +46,9 @@ export const itineraryEndParamSchema = z.union([
     .refine(([lat, lon]) => Math.abs(lat) <= 90 && Math.abs(lon) <= 180, "coordinates out of range")
     .transform(([lat, lon]): ItineraryEnd => ({ kind: "position", lat: roundToHundredMeters(lat), lon: roundToHundredMeters(lon) })),
 ]);
+
+/** Body of `GET /api/air-quality`. */
+export const airQualitySchema = z.object({ index: z.number().nonnegative() }) satisfies z.ZodType<AirQuality>;
 
 /** Body of `GET /api/stops/{id}/departures`. */
 export const departuresResponseSchema = z.object({ departures: z.array(departureSchema) });

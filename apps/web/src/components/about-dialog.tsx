@@ -10,6 +10,7 @@ export const LINKS = {
   transit: "https://data.mobilites-m.fr",
   osm: "https://www.openstreetmap.org/copyright",
   openMeteo: "https://open-meteo.com",
+  airQuality: "https://open-meteo.com/en/docs/air-quality-api",
   // The repository, where contributions go.
   developer: "https://github.com/Feareis/greline",
 } as const;
@@ -88,6 +89,11 @@ export function AboutDialog({ versionText }: { versionText: string }) {
             <p>
               <a href={LINKS.openMeteo} target="_blank" rel="noreferrer" style={linkStyle}>
                 {fr.about.weather}
+              </a>
+            </p>
+            <p>
+              <a href={LINKS.airQuality} target="_blank" rel="noreferrer" style={linkStyle}>
+                {fr.about.airQuality}
               </a>
             </p>
           </Section>

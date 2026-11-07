@@ -1,8 +1,8 @@
 "use client";
 
-import { useFleetSummary, useNow, useWeather } from "@greline/hooks";
+import { useAirQuality, useFleetSummary, useNow, useWeather } from "@greline/hooks";
 import { fr } from "@greline/i18n";
-import { moonState, type TrafficLevel, trafficLevel, weatherCondition } from "@greline/services";
+import { type AirQualityLevel, airQualityLevel, moonState, type TrafficLevel, trafficLevel, weatherCondition } from "@greline/services";
 import { radii } from "@greline/theme";
 import type { DisruptionSeverity, NetworkId } from "@greline/types";
 import { colors, glass } from "@/lib/theme-tokens";
@@ -39,6 +39,30 @@ function WeatherLines() {
   );
 }
 
+// The same scale as traffic: green while the air is fine, amber when degraded, red beyond.
+const AIR_COLOR: Record<AirQualityLevel, string> = {
+  good: colors.success,
+  fair: colors.success,
+  moderate: colors.warning,
+  poor: colors.danger,
+  veryPoor: colors.danger,
+  extremelyPoor: colors.danger,
+};
+
+function AirQualityLine() {
+  const { data, isError } = useAirQuality();
+  if (isError) return <p style={{ color: colors.textMuted }}>{fr.day.airUnavailable}</p>;
+  if (!data) return null;
+  const level = airQualityLevel(data.index);
+  return (
+    <p className="flex items-center gap-1.5" title={fr.day.airIndex(data.index)}>
+      <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: AIR_COLOR[level] }} />
+      {fr.day.air(fr.day.airLevels[level])}
+      <span className="sr-only"> ({fr.day.airIndex(data.index)})</span>
+    </p>
+  );
+}
+
 interface TrafficProps {
   networks: readonly NetworkId[];
   /** Severities of the official disruptions in effect on the shown networks. */
@@ -61,7 +85,7 @@ function TrafficLine({ networks, ongoingSeverities }: TrafficProps) {
   );
 }
 
-/** Bottom-left helper: today's date and time in Grenoble, weather, moon and traffic of the shown networks. */
+/** Bottom-left helper: today's date and time in Grenoble, weather, air, moon and traffic of the shown networks. */
 export function DayPanel({ networks, ongoingSeverities }: TrafficProps) {
   const now = useNow(1_000);
   const moon = moonState(now);
@@ -76,6 +100,7 @@ export function DayPanel({ networks, ongoingSeverities }: TrafficProps) {
         {PARIS_DAY.format(now)} · <time suppressHydrationWarning>{PARIS_TIME.format(now)}</time>
       </p>
       <WeatherLines />
+      <AirQualityLine />
       <p className="hidden sm:block" style={{ color: colors.textMuted }} suppressHydrationWarning>
         <span aria-hidden>{fr.day.moonIcon[moon.phase]} </span>
         {fr.day.moon[moon.phase]} · {fr.day.moonLit(Math.round(moon.illumination * 100))}
