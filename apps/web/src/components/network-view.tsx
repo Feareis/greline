@@ -127,7 +127,9 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         userLocation={userLocation}
       />
       <TopBar
+        network={network}
         stops={shownStops}
+        onSearchPick={(result) => (result.kind === "line" ? showLine(result.line.id) : showStop(result.stop.id))}
         onSelect={selectStop}
         onLocated={setUserLocation}
         mineOpen={mineOpen}
