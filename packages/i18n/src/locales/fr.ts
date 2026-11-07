@@ -32,6 +32,18 @@ export const fr = {
     repository: "code source et contributions sur GitHub",
     versionTitle: "Version",
   },
+  consoleGreeting: {
+    title: "🚋 Greline · tu regardes sous le capot ?",
+    lines: (dataUrl: string, codeUrl: string) => [
+      "Ici tout est ouvert : les données de M, le code de Greline… seules les portes du tram attendent l'arrêt.",
+      "Aucune donnée ne voyage sans titre : chaque réponse de l'API est validée avant de monter à bord (Zod fait le contrôleur).",
+      "Un tram en retard ? On se contente de le dire, promis, on n'y est pour rien.",
+      "Greline n'a rien d'officiel : juste un fan du réseau, un éditeur de code et beaucoup de café.",
+      "Merci à M – Mobilités de l'agglomération grenobloise d'avoir ouvert ses données (ODbL), aux équipes qui font rouler trams et bus chaque jour, et aux contributeurs OpenStreetMap.",
+      `Envie de jouer avec les données : ${dataUrl}`,
+      `Envie de lire le code ou de contribuer : ${codeUrl}`,
+    ],
+  },
   geoMap: {
     ariaLabel: "Carte des lignes de tram et de bus de Grenoble",
     loading: "Chargement de la carte…",

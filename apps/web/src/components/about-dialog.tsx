@@ -6,7 +6,7 @@ import { useRef } from "react";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { InfoIcon } from "./icons";
 
-const LINKS = {
+export const LINKS = {
   transit: "https://data.mobilites-m.fr",
   osm: "https://www.openstreetmap.org/copyright",
   openMeteo: "https://open-meteo.com",

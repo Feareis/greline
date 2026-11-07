@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { fr } from "@greline/i18n";
 import "./globals.css";
+import { ConsoleGreeting } from "@/components/console-greeting";
 import { themeCss, themeScript } from "@/lib/theme-tokens";
 import { Providers } from "./providers";
 
@@ -30,6 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
+        <ConsoleGreeting />
       </body>
     </html>
   );
