@@ -10,6 +10,8 @@ Les trams et les bus de Grenoble en temps réel, sur une carte.
 ![MapLibre](https://img.shields.io/badge/MapLibre-GL-396cb2)
 [![Licence](https://img.shields.io/badge/licence-MIT-yellow)](LICENSE)
 
+[![Greline : la carte de Grenoble avec les trams et les bus en circulation, le bandeau des perturbations et les infos du jour](docs/assets/Greline.png)](https://greline.app)
+
 Ouvrez [greline.app](https://greline.app) : chaque tram et chaque bus de la SEM avance sur son vrai tracé. Cliquez sur un arrêt pour voir les prochains passages ; si une ligne est coupée, le tronçon s'affiche en pointillés.
 
 > Greline est un projet personnel, sans lien avec la Métropole, M ou la SEMITAG. Les données viennent de « M – Mobilités de l'agglomération grenobloise », sous licence ODbL.
