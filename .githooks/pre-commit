@@ -1,2 +1,2 @@
 #!/bin/sh
-node scripts/guardrails/check-files.mjs --staged
+node scripts/guardrails/check-files.mjs --staged && node scripts/guardrails/bump-version.mjs
