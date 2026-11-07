@@ -2,7 +2,8 @@
 
 import { useDisruptions, useNow } from "@greline/hooks";
 import { fr } from "@greline/i18n";
-import { isOngoing, startsLaterToday } from "@greline/services";
+import { isOngoing, parseSharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
+import { useLinkSearch } from "@/lib/link-search";
 import { useNetworkFilter } from "@/lib/network-filter";
 import { useFavorites, useTrip } from "@/lib/personal";
 import { colors } from "@/lib/theme-tokens";
@@ -55,7 +56,13 @@ function useShownDisruptions(network: TransitNetwork, networks: readonly Network
 
 /** The map with its moving vehicles, the network filter and the panel of the selected stop. */
 export function NetworkView({ network }: { network: TransitNetwork }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  // The open stop lives in the address bar (`?stop=`): a copied URL opens the same stop.
+  const [linkSearch, setLinkSearch] = useLinkSearch();
+  const selectedId = useMemo(() => parseSharedSelection(linkSearch, network)?.id ?? null, [linkSearch, network]);
+  const setSelectedId = useCallback(
+    (stopId: string | null) => setLinkSearch(sharedSelectionSearch(stopId ? { kind: "stop", id: stopId } : null)),
+    [setLinkSearch],
+  );
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [networks, setNetworks] = useNetworkFilter();
   // "Locate me" only offers stops drawn on the map.
@@ -64,7 +71,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
     return network.stops.filter((stop) => ids.has(stop.id));
   }, [network, networks]);
   const { now, linesById, shown, ongoing, seriousOngoing, seriousUpcoming } = useShownDisruptions(network, networks);
-  const closePanel = useCallback(() => setSelectedId(null), []);
+  const closePanel = useCallback(() => setSelectedId(null), [setSelectedId]);
   // "My stops" opens on its own when there is something in it, until the user decides.
   const { favoriteIds } = useFavorites();
   const { trip } = useTrip();

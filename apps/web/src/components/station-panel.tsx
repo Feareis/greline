@@ -8,7 +8,9 @@ import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";
 import { DisruptionList } from "./disruption-list";
 import { StarIcon } from "./icons";
+import { ShareButton } from "./share-button";
 import { useFavorites, useTrip } from "@/lib/personal";
+import { sharedSelectionSearch } from "@greline/services";
 
 interface StationPanelProps {
   stop: Stop;
@@ -57,13 +59,16 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onClose
             {stop.city}
           </p>
         </div>
+        <div className="ml-auto">
+          <ShareButton name={stop.name} search={sharedSelectionSearch({ kind: "stop", id: stop.id })} />
+        </div>
         <button
           type="button"
           onClick={() => toggleFavorite(stop.id)}
           aria-pressed={favorite}
           aria-label={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
           title={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
-          className="-m-1 ml-auto rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
+          className="-m-1 rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
           style={{ color: favorite ? colors.warning : colors.textMuted }}
         >
           <StarIcon filled={favorite} />
