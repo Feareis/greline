@@ -189,6 +189,18 @@ export const fr = {
     tripTo: "Aller ici",
     line: (shortName: string) => `Ligne ${shortName}`,
   },
+  line: {
+    open: (shortName: string) => `Voir la fiche de la ligne ${shortName}`,
+    close: "Fermer la fiche ligne",
+    vehicles: (running: number, late: number) =>
+      running === 0
+        ? "Aucun véhicule en circulation"
+        : `${running} en circulation · ${late === 0 ? "aucun en retard" : `${late} en retard`}`,
+    vehiclesLoading: "Chargement des véhicules…",
+    vehiclesUnavailable: "Véhicules indisponibles pour le moment.",
+    disruptionsTitle: "Perturbations",
+    stopsTitle: (count: number) => `${count} arrêts`,
+  },
   share: {
     label: (name: string) => `Partager un lien vers ${name}`,
     copied: "Lien copié",
