@@ -80,6 +80,22 @@ describe("createApiClient() tram endpoints", () => {
     await expect(client.getTripDelays()).rejects.toMatchObject({ status: 502, code: "upstream_unavailable" });
   });
 
+  it("fetches the disruptions", async () => {
+    const disruption = {
+      id: "SMA_1",
+      lineId: "SEM:A",
+      severity: "interrupted",
+      title: "manifestation Grenoble",
+      description: "La ligne A ne circule pas.",
+      start: "2026-11-07T11:00:00.000Z",
+      end: "2026-11-07T18:00:00.000Z",
+      stretch: null,
+    };
+    const fetchSpy = answering(Response.json({ disruptions: [disruption] }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getDisruptions()).resolves.toEqual([disruption]);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/disruptions");
+  });
+
   it("fetches the weather and rejects a malformed one", async () => {
     const weather = { temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" };
     const fetchSpy = answering(Response.json(weather));
