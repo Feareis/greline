@@ -1,7 +1,4 @@
-# 0003 — Geographic map only, trams on their real track
-
-- Status: accepted
-- Date: 2026-11-06
+# 03 — Geographic map only, trams on their real track
 
 ## Decision
 

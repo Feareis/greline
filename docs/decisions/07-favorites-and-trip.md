@@ -1,7 +1,4 @@
-# 0007 — Favorite stops and the usual trip, on the device
-
-- Status: accepted
-- Date: 2026-11-07
+# 07 — Favorite stops and the usual trip, on the device
 
 ## Decision
 

@@ -25,7 +25,7 @@ import { addVehicleIcon, Vehicles } from "./vehicles";
 // new URL(..., import.meta.url) makes the bundler emit it and gives us its real URL.
 setWorkerUrl(new URL("maplibre-gl/dist/maplibre-gl-worker.mjs", import.meta.url).href);
 
-// OpenFreeMap: OpenStreetMap vector tiles, free, no API key (see docs/decisions/0002-map-tiles.md).
+// OpenFreeMap: OpenStreetMap vector tiles, free, no API key (see docs/decisions/02-map-tiles.md).
 const MAP_STYLES: Record<ThemeName, string> = {
   dark: "https://tiles.openfreemap.org/styles/dark",
   light: "https://tiles.openfreemap.org/styles/positron",

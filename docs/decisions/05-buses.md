@@ -1,7 +1,4 @@
-# 0005 — Buses: Chrono and Proximo, one schedule per network
-
-- Status: accepted
-- Date: 2026-11-06
+# 05 — Buses: Chrono and Proximo, one schedule per network
 
 ## Decision
 

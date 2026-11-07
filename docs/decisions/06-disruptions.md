@@ -1,7 +1,4 @@
-# 0006 — Disruptions from the M events feed
-
-- Status: accepted
-- Date: 2026-11-07
+# 06 — Disruptions from the M events feed
 
 ## Decision
 

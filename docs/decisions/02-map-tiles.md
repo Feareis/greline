@@ -1,7 +1,4 @@
-# 0002 — Base map tiles
-
-- Status: accepted
-- Date: 2026-11-06
+# 02 — Base map tiles
 
 ## Decision
 

@@ -1,7 +1,4 @@
-# 0001 — Monorepo stack
-
-- Status: accepted
-- Date: 2026-11-06
+# 01 — Monorepo stack
 
 ## Decision
 

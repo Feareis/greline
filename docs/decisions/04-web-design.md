@@ -1,7 +1,4 @@
-# 0004 — Web design: floating controls, credits in a modal, weather
-
-- Status: accepted
-- Date: 2026-11-06
+# 04 — Web design: floating controls, credits in a modal, weather
 
 ## Decision
 
