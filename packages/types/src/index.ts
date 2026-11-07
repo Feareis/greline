@@ -119,6 +119,12 @@ export interface Weather {
   sunset: string;
 }
 
+/** Current air quality in Grenoble, as exposed by our API. */
+export interface AirQuality {
+  /** European air quality index (0 = clean; above 100 = extremely poor). */
+  index: number;
+}
+
 /** A single upcoming departure at a stop. */
 export interface Departure {
   lineId: string;

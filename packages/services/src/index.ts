@@ -11,3 +11,4 @@ export * from "./personal";
 export * from "./share";
 export * from "./search";
 export * from "./itinerary-end";
+export * from "./air-quality";
