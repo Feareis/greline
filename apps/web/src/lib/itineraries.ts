@@ -2,11 +2,11 @@ import { fetchItineraries, type Place } from "@greline/gtfs";
 import type { Itinerary } from "@greline/types";
 import { cacheLife } from "next/cache";
 
-export const ITINERARIES_REFRESH_S = 60;
+export const ITINERARIES_REFRESH_S = 30;
 
 /**
  * Itineraries leaving now, cached per pair of places (the arguments are the cache key): the M
- * planner is asked at most once a minute per trip. Short expiry: an old answer may list a
+ * planner is asked at most every 30 s per trip. Short expiry: an old answer may list a
  * departure that is already gone.
  */
 export async function getItineraries(from: Place, to: Place): Promise<Itinerary[]> {

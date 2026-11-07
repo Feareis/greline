@@ -2,10 +2,10 @@ import { delayProbeStations, fetchTripDelays, type TripDelays } from "@greline/g
 import { cacheLife } from "next/cache";
 import { getTransitNetwork } from "@/lib/transit-network";
 
-export const TRIP_DELAYS_REFRESH_S = 30;
+export const TRIP_DELAYS_REFRESH_S = 15;
 
 /**
- * Realtime tram delays, cached 30 s: one batch of ~12 M API requests per window and per server
+ * Realtime tram delays, cached 15 s: one batch of ~12 M API requests per window and per server
  * instance, whatever the number of visitors.
  */
 export async function getTripDelays(): Promise<TripDelays> {

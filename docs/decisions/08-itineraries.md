@@ -7,7 +7,7 @@
   (no key, same `origin` header). It already knows walking paths, changes and every operator of
   the M network: no routing is computed on our side.
 - `/api/itineraries?from=<stop id>&to=<stop id>` places each stop at its position from our
-  network, asks for 3 itineraries leaving now, and is cached 1 minute per pair of stops.
+  network, asks for 3 itineraries leaving now, and is cached 30 s per pair of stops.
 - Only what is shown is kept (`toItineraries` in `@greline/gtfs`): start and end of the trip,
   total walking time, and each ride (line name and colors, headsign, stops, times). Stop names
   lose their "City, " prefix, as on the map.

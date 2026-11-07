@@ -12,10 +12,10 @@ describe("itinerariesQueryOptions", () => {
     expect(itinerariesQueryOptions(client, null, "SEM:GENGAR").queryFn).toBe(skipToken);
   });
 
-  it("keys the cache by trip and refreshes every minute while visible", () => {
+  it("keys the cache by trip and refreshes every 30 s while visible", () => {
     const options = itinerariesQueryOptions(client, "SEM:GENGAR", "SEM:GENCHAVANT");
     expect(options.queryKey).toEqual(["itineraries", "SEM:GENGAR", "SEM:GENCHAVANT"]);
-    expect(options.refetchInterval).toBe(60_000);
+    expect(options.refetchInterval).toBe(30_000);
     expect(options.refetchIntervalInBackground).toBe(false);
   });
 

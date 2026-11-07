@@ -21,4 +21,4 @@
 
 - Bus-only stops are not reachable with the keyboard yet (canvas layer); "Locate me" lists the
   nearest shown stops as buttons.
-- ~70 M API requests per minute per server instance for delays (35 probes every 30 s).
+- ~140 M API requests per minute per server instance for delays (35 probes every 15 s).
