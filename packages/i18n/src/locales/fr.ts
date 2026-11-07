@@ -189,6 +189,13 @@ export const fr = {
     tripTo: "Aller ici",
     line: (shortName: string) => `Ligne ${shortName}`,
   },
+  search: {
+    button: "Rechercher",
+    label: "Rechercher un arrêt ou une ligne",
+    placeholder: "Arrêt ou ligne…",
+    noResult: "Aucun arrêt ni ligne trouvé.",
+    close: "Fermer la recherche",
+  },
   line: {
     open: (shortName: string) => `Voir la fiche de la ligne ${shortName}`,
     close: "Fermer la fiche ligne",

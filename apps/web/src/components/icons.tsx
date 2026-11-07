@@ -40,6 +40,13 @@ export const InfoIcon = () => (
   </svg>
 );
 
+export const SearchIcon = () => (
+  <svg {...iconProps}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-4-4" />
+  </svg>
+);
+
 export const LinkIcon = () => (
   <svg {...iconProps}>
     <path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1" />

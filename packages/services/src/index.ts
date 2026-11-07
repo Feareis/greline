@@ -9,3 +9,4 @@ export * from "./weather";
 export * from "./disruptions";
 export * from "./personal";
 export * from "./share";
+export * from "./search";

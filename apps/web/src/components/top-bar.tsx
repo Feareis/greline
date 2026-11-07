@@ -1,12 +1,14 @@
 "use client";
 
 import { fr } from "@greline/i18n";
-import type { Stop } from "@greline/types";
+import type { SearchResult } from "@greline/services";
+import type { Stop, TransitNetwork } from "@greline/types";
 import { setTheme, useTheme } from "@/lib/theme";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { AboutDialog } from "./about-dialog";
 import { MoonIcon, StarIcon, SunIcon } from "./icons";
 import { LocateButton, type UserLocation } from "./locate-button";
+import { SearchBox } from "./search-box";
 
 // Inlined at build time from next.config.ts.
 const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
@@ -53,7 +55,10 @@ function VersionBadge() {
 }
 
 interface TopBarProps {
+  network: TransitNetwork;
+  /** Stops "locate me" may offer: those drawn on the map. */
   stops: readonly Stop[];
+  onSearchPick: (result: SearchResult) => void;
   onSelect: (stopId: string) => void;
   onLocated: (location: UserLocation | null) => void;
   mineOpen: boolean;
@@ -61,7 +66,7 @@ interface TopBarProps {
 }
 
 /** Transparent bar over the map: site name on the left, controls and version on the right. */
-export function TopBar({ stops, onSelect, onLocated, mineOpen, onToggleMine }: TopBarProps) {
+export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mineOpen, onToggleMine }: TopBarProps) {
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-3">
       {/* No logo yet: the name stands in for it. */}
@@ -72,6 +77,7 @@ export function TopBar({ stops, onSelect, onLocated, mineOpen, onToggleMine }: T
         {fr.app.name}
       </h1>
       <nav aria-label={fr.topBar.label} className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
+        <SearchBox network={network} onPick={onSearchPick} />
         <ThemeToggle />
         <LocateButton stops={stops} onSelect={onSelect} onLocated={onLocated} />
         <button
