@@ -3,19 +3,24 @@
 import { fr } from "@greline/i18n";
 import { radii, toCssColor } from "@greline/theme";
 import { colors } from "@/lib/theme-tokens";
-import type { Line, Stop } from "@greline/types";
+import type { Disruption, Line, Stop } from "@greline/types";
 import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";
+import { DisruptionList } from "./disruption-list";
 
 interface StationPanelProps {
   stop: Stop;
   /** Lines serving the station, in display order. */
   lines: readonly Line[];
+  /** Ongoing or later-today disruptions of those lines, information included. */
+  disruptions: readonly Disruption[];
+  linesById: ReadonlyMap<string, Line>;
+  now: Date;
   onClose: () => void;
 }
 
 /** Details of the selected station. Non-modal: the map stays usable behind it. */
-export function StationPanel({ stop, lines, onClose }: StationPanelProps) {
+export function StationPanel({ stop, lines, disruptions, linesById, now, onClose }: StationPanelProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
@@ -69,6 +74,14 @@ export function StationPanel({ stop, lines, onClose }: StationPanelProps) {
           </li>
         ))}
       </ul>
+      {disruptions.length > 0 && (
+        <>
+          <h3 className="mt-5 mb-2 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
+            {fr.disruptions.stationTitle}
+          </h3>
+          <DisruptionList disruptions={disruptions} linesById={linesById} now={now} />
+        </>
+      )}
       <h3 className="mt-5 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
         {fr.departures.title}
       </h3>

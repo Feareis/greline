@@ -3,7 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { fr } from "@greline/i18n";
 import { palettes, type ThemeName, toCssColor } from "@greline/theme";
-import type { NetworkId, Stop, TransitNetwork } from "@greline/types";
+import type { Disruption, NetworkId, Stop, TransitNetwork } from "@greline/types";
 import { type ExpressionSpecification, type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView, {
@@ -40,6 +40,19 @@ const TRAM_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"]
 const TRAM_CASING_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 4.5, 16, 12];
 const BUS_WIDTH: ExpressionSpecification = ["interpolate", ["linear"], ["zoom"], 11, 1, 16, 3];
 const BUS_OPACITY = 0.8;
+/**
+ * Disrupted stretches: the line is cut into dashes (gaps in the map background color) and edged
+ * with the severity color, readable whatever the line color (amber over yellow Chrono lines is not).
+ */
+const DISRUPTED_WIDTH: ExpressionSpecification = [
+  "interpolate",
+  ["linear"],
+  ["zoom"],
+  11,
+  ["case", ["==", ["get", "mode"], "tram"], 2.5, 1.5],
+  16,
+  ["case", ["==", ["get", "mode"], "tram"], 8, 4],
+];
 
 /** Aligns the dark base map with our design tokens (the light one is used as is). */
 function applyBaseColors(map: MapLibreMap) {
@@ -165,13 +178,15 @@ interface GeoMapProps {
   network: TransitNetwork;
   /** Networks shown on the map (lines, stops, vehicles). */
   networks: readonly NetworkId[];
+  /** Ongoing disruptions to dash on the map: their stretch, or the whole line. */
+  disrupted: readonly Disruption[];
   selectedId: string | null;
   onSelect: (stopId: string) => void;
   userLocation: UserLocation | null;
 }
 
 /** Real geographic map: official shapes, moving vehicles and stops on an OpenStreetMap base. */
-export function GeoMap({ network, networks, selectedId, onSelect, userLocation }: GeoMapProps) {
+export function GeoMap({ network, networks, disrupted, selectedId, onSelect, userLocation }: GeoMapProps) {
   const mapRef = useRef<MapRef | null>(null);
   // Stable callback: React calls a new ref callback on every render otherwise.
   const attachMap = useCallback((ref: MapRef | null) => {
@@ -199,6 +214,20 @@ export function GeoMap({ network, networks, selectedId, onSelect, userLocation }
     }),
     [shownLines],
   );
+  const disruptedData = useMemo(() => {
+    const linesById = new Map(network.lines.map((line) => [line.id, line]));
+    return {
+      type: "FeatureCollection" as const,
+      features: disrupted.flatMap((disruption) => {
+        const line = linesById.get(disruption.lineId);
+        if (!line) return [];
+        const geometry = disruption.stretch
+          ? { type: "LineString" as const, coordinates: disruption.stretch }
+          : { type: "MultiLineString" as const, coordinates: line.shape };
+        return [{ type: "Feature" as const, properties: { severity: disruption.severity, mode: line.mode }, geometry }];
+      }),
+    };
+  }, [disrupted, network.lines]);
   const busStopsData = useMemo(
     () => ({
       type: "FeatureCollection" as const,
@@ -276,6 +305,25 @@ export function GeoMap({ network, networks, selectedId, onSelect, userLocation }
               "text-size": 11,
             }}
             paint={{ "text-color": palette.text, "text-halo-color": palette.background, "text-halo-width": 1.5 }}
+          />
+        </Source>
+        {/* Above the lines, below the stops. */}
+        <Source id="disrupted" type="geojson" data={disruptedData}>
+          <Layer
+            id="disrupted-edges"
+            type="line"
+            layout={{ "line-join": "round" }}
+            paint={{
+              "line-color": ["case", ["==", ["get", "severity"], "interrupted"], palette.danger, palette.warning],
+              "line-width": 2,
+              "line-gap-width": DISRUPTED_WIDTH,
+            }}
+          />
+          <Layer
+            id="disrupted-gaps"
+            type="line"
+            layout={{ "line-cap": "butt", "line-join": "round" }}
+            paint={{ "line-color": palette.background, "line-width": DISRUPTED_WIDTH, "line-dasharray": [1, 1] }}
           />
         </Source>
         <Source id={BUS_STOPS_LAYER} type="geojson" data={busStopsData}>

@@ -6,3 +6,4 @@ export * from "./vehicles";
 export * from "./moon";
 export * from "./traffic";
 export * from "./weather";
+export * from "./disruptions";

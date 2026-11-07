@@ -23,6 +23,17 @@ function VehicleGlyph({ bus = false, late = false }: { bus?: boolean; late?: boo
   );
 }
 
+/** A disrupted stretch, as drawn on the map: dashed line edged with the severity color. */
+function DashGlyph({ color }: { color: string }) {
+  return (
+    <svg width="30" height="12" viewBox="0 0 30 12" aria-hidden className="shrink-0">
+      <path d="M2 6h26" stroke={color} strokeWidth="8" />
+      <path d="M2 6h26" stroke={colors.background} strokeWidth="5" />
+      <path d="M2 6h26" stroke={colors.textMuted} strokeWidth="5" strokeDasharray="4 4" />
+    </svg>
+  );
+}
+
 /** The map's line styles: thick outlined tram, thin faded bus. */
 function LineGlyph({ bus = false }: { bus?: boolean }) {
   return (
@@ -159,6 +170,14 @@ export function NetworkSummary({ lines, networks, onChange }: NetworkSummaryProp
           <li className="flex items-center gap-2">
             <LineGlyph bus />
             {fr.fleet.busLine}
+          </li>
+          <li className="flex items-center gap-2">
+            <DashGlyph color={colors.danger} />
+            {fr.disruptions.legendInterrupted}
+          </li>
+          <li className="flex items-center gap-2">
+            <DashGlyph color={colors.warning} />
+            {fr.disruptions.legendDisrupted}
           </li>
           <li className="flex items-center gap-2">
             <VehicleGlyph />

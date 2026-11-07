@@ -2,9 +2,9 @@
 
 import { useFleetSummary, useNow, useWeather } from "@greline/hooks";
 import { fr } from "@greline/i18n";
-import { moonState, type TrafficLevel, weatherCondition } from "@greline/services";
+import { moonState, type TrafficLevel, trafficLevel, weatherCondition } from "@greline/services";
 import { radii } from "@greline/theme";
-import type { NetworkId } from "@greline/types";
+import type { DisruptionSeverity, NetworkId } from "@greline/types";
 import { colors, glass } from "@/lib/theme-tokens";
 
 const PARIS_DAY = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" });
@@ -39,19 +39,30 @@ function WeatherLines() {
   );
 }
 
-function TrafficLine({ networks }: { networks: readonly NetworkId[] }) {
+interface TrafficProps {
+  networks: readonly NetworkId[];
+  /** Severities of the official disruptions in effect on the shown networks. */
+  ongoingSeverities: readonly DisruptionSeverity[];
+}
+
+/** Delays measured on the vehicles, worsened by official disruptions (a cut line is "disrupted"). */
+function TrafficLine({ networks, ongoingSeverities }: TrafficProps) {
   const { summary, delaysAvailable } = useFleetSummary(networks);
-  if (!summary || !delaysAvailable) return <p style={{ color: colors.textMuted }}>{fr.day.trafficUnknown}</p>;
+  const measured = summary && delaysAvailable ? summary.level : undefined;
+  if (measured === undefined && ongoingSeverities.length === 0) {
+    return <p style={{ color: colors.textMuted }}>{fr.day.trafficUnknown}</p>;
+  }
+  const level = trafficLevel(measured ?? "smooth", ongoingSeverities);
   return (
     <p className="flex items-center gap-1.5 font-medium">
-      <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: TRAFFIC_COLOR[summary.level] }} />
-      {fr.day.traffic[summary.level]}
+      <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: TRAFFIC_COLOR[level] }} />
+      {fr.day.traffic[level]}
     </p>
   );
 }
 
 /** Bottom-left helper: today's date and time in Grenoble, weather, moon and traffic of the shown networks. */
-export function DayPanel({ networks }: { networks: readonly NetworkId[] }) {
+export function DayPanel({ networks, ongoingSeverities }: TrafficProps) {
   const now = useNow(1_000);
   const moon = moonState(now);
   return (
@@ -69,7 +80,7 @@ export function DayPanel({ networks }: { networks: readonly NetworkId[] }) {
         <span aria-hidden>{fr.day.moonIcon[moon.phase]} </span>
         {fr.day.moon[moon.phase]} · {fr.day.moonLit(Math.round(moon.illumination * 100))}
       </p>
-      <TrafficLine networks={networks} />
+      <TrafficLine networks={networks} ongoingSeverities={ongoingSeverities} />
     </section>
   );
 }

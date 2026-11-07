@@ -61,6 +61,21 @@ export const fr = {
     tramLine: "Ligne de tram : trait épais bordé",
     busLine: "Ligne de bus : trait fin",
   },
+  disruptions: {
+    label: "Perturbations",
+    ongoing: (count: number) => (count === 1 ? "1 perturbation en cours" : `${count} perturbations en cours`),
+    upcomingOnly: (count: number) =>
+      count === 1 ? "1 perturbation prévue aujourd'hui" : `${count} perturbations prévues aujourd'hui`,
+    upcomingTitle: "Prévues aujourd'hui",
+    severity: { interrupted: "Interrompue", disrupted: "Perturbée", info: "Info" },
+    untilTime: (time: string) => `jusqu'à ${time}`,
+    untilDate: (date: string) => `jusqu'au ${date}`,
+    fromTo: (start: string, end: string) => `de ${start} à ${end}`,
+    fromDate: (date: string) => `à partir du ${date}`,
+    stationTitle: "Perturbations sur ces lignes",
+    legendInterrupted: "Pointillés bordés de rouge : ligne interrompue",
+    legendDisrupted: "Pointillés bordés d'ambre : ligne perturbée",
+  },
   day: {
     label: "Grenoble aujourd'hui",
     temperature: (celsius: number) => `${Math.round(celsius)} °C`,
