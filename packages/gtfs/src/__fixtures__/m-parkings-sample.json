@@ -1,0 +1,172 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "38185-P-011",
+        "nom": "VALLIER-CATANE",
+        "insee": 38185,
+        "adresse": "50 rue ampère, 38000, Grenoble",
+        "type_usagers": "tous",
+        "gratuit": false,
+        "nb_places": 492,
+        "nb_pr": 492,
+        "hauteur_max": 205,
+        "num_siret": "30150323100039",
+        "tarif_pmr": "normal_payant",
+        "type_ouvrage": "ouvrage",
+        "codes": [
+          "SPR_PAR_12"
+        ],
+        "code": "38185-P-011",
+        "type": "parking",
+        "commune": "Grenoble",
+        "epci": "LaMetro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          5.70503,
+          45.181035
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "38158-P-001",
+        "nom": "EYBENS - LE VERDERET",
+        "insee": 38158,
+        "adresse": "Avenue des Maquis de l’Oisans, 38320, Eybens",
+        "type_usagers": "tous",
+        "gratuit": false,
+        "nb_places": 43,
+        "nb_pr": 43,
+        "hauteur_max": 210,
+        "num_siret": "30150323100039",
+        "tarif_pmr": "normal_payant",
+        "type_ouvrage": "enclos_en_surface",
+        "nb_pmr": 3,
+        "nb_velo": 15,
+        "codes": [
+          "SPR_PAR_9"
+        ],
+        "code": "38158-P-001",
+        "type": "parking",
+        "commune": "Eybens",
+        "epci": "LaMetro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          5.754957,
+          45.147116
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "38563-P-003",
+        "nom": "POLE D'ECHANGE VOIRON",
+        "insee": 38563,
+        "adresse": "Place Pierre Sémard, 38500, Voiron",
+        "type_usagers": "tous",
+        "gratuit": false,
+        "nb_places": 472,
+        "nb_pr": 472,
+        "hauteur_max": 210,
+        "num_siret": "24380098400029",
+        "tarif_pmr": "gratuit",
+        "tarif_1h": 0,
+        "tarif_3h": 0,
+        "tarif_4h": 0,
+        "tarif_24h": 0,
+        "abo_resident": 0,
+        "abo_non_resident": 0,
+        "type_ouvrage": "enclos_en_surface",
+        "nb_pmr": 4,
+        "nb_velo": 12,
+        "code": "38563-P-003",
+        "type": "parking",
+        "commune": "Voiron",
+        "epci": "PaysVoironnais"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          5.594703,
+          45.364417
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "38006-P-001",
+        "nom": "ALLEVARD PLACE DE VERDUN",
+        "insee": 38006,
+        "adresse": "Place de Verdun, 38580, Allevard",
+        "type_usagers": "tous",
+        "gratuit": true,
+        "nb_places": 12,
+        "nb_pr": 0,
+        "hauteur_max": 190,
+        "num_siret": "20001816600245",
+        "tarif_pmr": "gratuit",
+        "tarif_1h": 0,
+        "tarif_3h": 0,
+        "tarif_4h": 0,
+        "tarif_24h": 0,
+        "abo_resident": 0,
+        "abo_non_resident": 0,
+        "type_ouvrage": "enclos_en_surface",
+        "code": "38006-P-001",
+        "type": "parking",
+        "commune": "Allevard",
+        "epci": "LeGresivaudan"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          6.075166,
+          45.394138
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "38185-P-009",
+        "nom": "CHAVANT",
+        "insee": 38185,
+        "adresse": "19 Bd Maréchal Lyautey, 38000, Grenoble",
+        "type_usagers": "tous",
+        "gratuit": false,
+        "nb_places": 394,
+        "hauteur_max": 190,
+        "num_siret": "37882179700032",
+        "tarif_pmr": "normal_payant",
+        "tarif_1h": 1.7,
+        "tarif_24h": 18,
+        "type_ouvrage": "ouvrage",
+        "codes": [
+          "CHAVANT"
+        ],
+        "url": "https://www.q-park-resa.fr/fr/parking/grenoble/chavant-25.html",
+        "code": "38185-P-009",
+        "type": "parking",
+        "commune": "Grenoble",
+        "epci": "LaMetro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          5.731463,
+          45.185612
+        ]
+      }
+    }
+  ]
+}

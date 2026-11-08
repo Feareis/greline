@@ -6,6 +6,8 @@ import { radii, toCssColor } from "@greline/theme";
 import { type Line, NETWORK_IDS, type NetworkId } from "@greline/types";
 import { useEffect, useRef } from "react";
 import { CHIP, chip, colors, glass } from "@/lib/theme-tokens";
+import { ChevronIcon } from "./icons";
+import { PARK_AND_RIDE_COLOR } from "./park-and-ride-markers";
 import { SECTION_TITLE, SectionTitle } from "./panel-ui";
 
 const SECONDS_PER_MINUTE = 60;
@@ -41,14 +43,6 @@ function LineGlyph({ bus = false }: { bus?: boolean }) {
     <svg width="30" height="12" viewBox="0 0 30 12" aria-hidden className="shrink-0">
       {!bus && <path d="M2 6h26" stroke={colors.background} strokeWidth="8" strokeLinecap="round" />}
       <path d="M2 6h26" stroke={colors.textMuted} strokeWidth={bus ? 2 : 5} strokeOpacity={bus ? 0.8 : 1} strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
-      <path d="m6 9 6 6 6-6" />
     </svg>
   );
 }
@@ -131,10 +125,23 @@ interface NetworkSummaryProps extends NetworkFilterProps {
   onShowLine: (lineId: string) => void;
 }
 
+/** The map's P+R badge, small, for the legend. */
+function ParkAndRideGlyph() {
+  return (
+    <span
+      aria-hidden
+      className="flex w-[30px] shrink-0 justify-center rounded border px-0.5 text-[9px] leading-tight font-bold text-white"
+      style={{ background: PARK_AND_RIDE_COLOR.available, borderColor: colors.station }}
+    >
+      {fr.parkAndRide.toggle}
+    </span>
+  );
+}
+
 /**
  * Top-left helper: which networks are shown, how many vehicles run per line, how many are late,
- * and how to read the icons. Folded into a pill on small screens so the map stays visible. Its
- * height stops above the day panel (taller on wide screens) and scrolls beyond.
+ * and how to read the icons. Folded into a pill on small screens so the map stays visible. It
+ * scrolls when the left column (see NetworkView) runs out of height.
  */
 export function NetworkSummary({ lines, networks, onChange, onShowLine }: NetworkSummaryProps) {
   const { summary, isLoading, isError, delaysAvailable } = useFleetSummary(networks);
@@ -149,7 +156,7 @@ export function NetworkSummary({ lines, networks, onChange, onShowLine }: Networ
   return (
     <details
       ref={detailsRef}
-      className="group absolute top-16 left-3 z-10 open:z-20 max-h-[calc(100dvh-17rem)] w-[19rem] sm:max-h-[calc(100dvh-20rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto text-sm shadow-xl backdrop-blur"
+      className="group min-h-0 shrink overflow-y-auto text-sm shadow-xl backdrop-blur"
       style={{ ...glass, borderRadius: radii.md }}
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3.5 py-2.5 font-semibold focus-visible:outline-2">
@@ -208,6 +215,10 @@ export function NetworkSummary({ lines, networks, onChange, onShowLine }: Networ
             <li className="flex items-center gap-2">
               <VehicleGlyph late />
               {fr.fleet.late}
+            </li>
+            <li className="flex items-center gap-2">
+              <ParkAndRideGlyph />
+              {fr.parkAndRide.legend}
             </li>
           </ul>
         </details>

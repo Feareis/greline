@@ -140,3 +140,31 @@ export const mPlanSchema = z.object({
   error: z.object({ message: z.string() }).optional(),
 });
 export type MPlan = z.infer<typeof mPlanSchema>;
+
+/** `GET /api/findType/json?types=parking`: car parks around Grenoble, P+R ones included. */
+export const mParkingsSchema = z.object({
+  type: z.literal("FeatureCollection"),
+  features: z.array(
+    z.object({
+      properties: z.object({
+        id: z.string().min(1),
+        nom: z.string().min(1),
+        commune: z.string(),
+        /** P+R spaces; absent or 0 for a car park that is not a P+R. */
+        nb_pr: z.number().int().nonnegative().optional(),
+      }),
+      geometry: z.object({ type: z.literal("Point"), coordinates: lonLatSchema }),
+    }),
+  ),
+});
+export type MParkings = z.infer<typeof mParkingsSchema>;
+
+/**
+ * `GET /api/dyn/parking/json`: live counts by car park id. `nb_pr_libres` is null for a car park
+ * without sensors; `time` (Unix ms) is then the time of the answer, not of a count.
+ */
+export const mParkingCountsSchema = z.record(
+  z.string(),
+  z.object({ time: z.number().int().positive(), nb_pr_libres: z.number().int().nullable().optional() }),
+);
+export type MParkingCounts = z.infer<typeof mParkingCountsSchema>;

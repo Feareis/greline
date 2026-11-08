@@ -20,3 +20,10 @@ const networks = storedValue<readonly NetworkId[]>(
 export function useNetworkFilter(): [readonly NetworkId[], (networks: readonly NetworkId[]) => void] {
   return [useStoredValue(networks), networks.set];
 }
+
+const parkAndRides = storedValue<boolean>("greline-park-and-rides", (raw) => (typeof raw === "boolean" ? raw : null), false);
+
+/** Whether the P+R car parks are on the map, remembered across visits; hidden by default. */
+export function useParkAndRidesShown(): [boolean, (shown: boolean) => void] {
+  return [useStoredValue(parkAndRides), parkAndRides.set];
+}

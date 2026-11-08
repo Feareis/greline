@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality } from "@greline/types";
+import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality, type ParkAndRide } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -49,6 +49,22 @@ export const itineraryEndParamSchema = z.union([
 
 /** Body of `GET /api/air-quality`. */
 export const airQualitySchema = z.object({ index: z.number().nonnegative() }) satisfies z.ZodType<AirQuality>;
+
+/** Body of `GET /api/park-and-rides`. */
+export const parkAndRidesResponseSchema = z.object({
+  parkAndRides: z.array(
+    z.object({
+      id: z.string().min(1),
+      name: z.string().min(1),
+      city: z.string(),
+      lat: z.number().min(-90).max(90),
+      lon: z.number().min(-180).max(180),
+      capacity: z.number().int().positive(),
+      free: z.number().int().nonnegative().nullable(),
+      updatedAt: z.iso.datetime().nullable(),
+    }) satisfies z.ZodType<ParkAndRide>,
+  ),
+});
 
 /** Body of `GET /api/stops/{id}/departures`. */
 export const departuresResponseSchema = z.object({ departures: z.array(departureSchema) });

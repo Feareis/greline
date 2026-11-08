@@ -51,6 +51,10 @@ export const M_API = {
   lineShapes: (shapeIds: readonly string[]) =>
     `${M_API_BASE}/lines/json?types=ligne&codes=${shapeIds.map(encodeURIComponent).join(",")}`,
   events: `${M_API_BASE}/dyn/evtTC/json`,
+  /** Car parks with their capacity (P+R spaces in `nb_pr`). */
+  parkings: `${M_API_BASE}/findType/json?types=parking`,
+  /** Live free spaces of the car parks that have sensors, refreshed about every minute. */
+  parkingCounts: `${M_API_BASE}/dyn/parking/json`,
   /** Best itineraries leaving now (OpenTripPlanner), walks and changes included. */
   plan: (from: Place, to: Place) =>
     `${M_API_BASE}/routers/default/plan?fromPlace=${from.lat},${from.lon}&toPlace=${to.lat},${to.lon}&mode=WALK,TRANSIT&numItineraries=${ITINERARY_COUNT}`,

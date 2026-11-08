@@ -1,0 +1,37 @@
+{
+  "38185-P-011": {
+    "time": 1794103500000,
+    "nb_places_libres": 290,
+    "nb_parking_libres": 0,
+    "nb_pr_libres": 290,
+    "nsv_id": 1
+  },
+  "38158-P-001": {
+    "time": 1794103500000,
+    "nb_places_libres": 44,
+    "nb_parking_libres": 0,
+    "nb_pr_libres": 44,
+    "nsv_id": 1
+  },
+  "38563-P-003": {
+    "time": 1794103615016,
+    "nb_places_libres": null,
+    "nb_parking_libres": null,
+    "nb_pr_libres": null,
+    "nsv_id": 0
+  },
+  "38006-P-001": {
+    "time": 1794103615016,
+    "nb_places_libres": null,
+    "nb_parking_libres": null,
+    "nb_pr_libres": null,
+    "nsv_id": 0
+  },
+  "38185-P-009": {
+    "time": 1794103581000,
+    "nb_places_libres": 244,
+    "nb_parking_libres": 244,
+    "nb_pr_libres": 0,
+    "nsv_id": 1
+  }
+}

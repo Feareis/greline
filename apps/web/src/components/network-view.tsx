@@ -4,7 +4,7 @@ import { useDisruptions, useNow } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { isOngoing, parseSharedSelection, type SharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
 import { useLinkSearch } from "@/lib/link-search";
-import { useNetworkFilter } from "@/lib/network-filter";
+import { useNetworkFilter, useParkAndRidesShown } from "@/lib/network-filter";
 import { useFavorites, useTrip } from "@/lib/personal";
 import { colors } from "@/lib/theme-tokens";
 import type { Disruption, NetworkId, TransitNetwork } from "@greline/types";
@@ -18,6 +18,7 @@ import { LinePanel } from "./line-panel";
 import { MyStopsPanel } from "./my-stops-panel";
 import { TopBar } from "./top-bar";
 import { NetworkSummary } from "./network-summary";
+import { ParkAndRidePanel } from "./park-and-ride-panel";
 
 // MapLibre is heavy and needs the browser: it is loaded on the client only.
 const GeoMap = dynamic(() => import("./geo-map").then((m) => m.GeoMap), {
@@ -88,6 +89,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
   const closePanel = useCallback(() => select(null), [select]);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [networks, setNetworks] = useNetworkFilter();
+  const [parkAndRidesShown, setParkAndRidesShown] = useParkAndRidesShown();
   // "Locate me" only offers stops drawn on the map.
   const shownStops = useMemo(() => {
     const ids = new Set(network.lines.filter((line) => networks.includes(line.network)).flatMap((line) => line.stopIds));
@@ -125,6 +127,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         selectedLineId={selectedLine?.id ?? null}
         onSelect={selectStop}
         userLocation={userLocation}
+        showParkAndRides={parkAndRidesShown}
       />
       <TopBar
         network={network}
@@ -135,7 +138,12 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         mineOpen={mineOpen}
         onToggleMine={toggleMine}
       />
-      <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} onShowLine={showLine} />
+      {/* Left column: the network panel, the P+R one right under it. Both shrink and scroll so the
+          column stops above the day panel; above the disruption banner when unfolded on phones. */}
+      <div className="absolute top-16 left-3 z-20 flex max-h-[calc(100dvh-17rem)] w-[19rem] max-w-[calc(100vw-1.5rem)] flex-col gap-2 sm:max-h-[calc(100dvh-20rem)]">
+        <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} onShowLine={showLine} />
+        <ParkAndRidePanel shown={parkAndRidesShown} onShownChange={setParkAndRidesShown} />
+      </div>
       <DisruptionBanner ongoing={seriousOngoing} upcoming={seriousUpcoming} linesById={linesById} now={now} />
       <DayPanel networks={networks} ongoingSeverities={ongoing.map((d) => d.severity)} />
       {mineOpen && <MyStopsPanel network={network} onShowStop={showStop} onClose={() => setMineChoice(false)} />}
