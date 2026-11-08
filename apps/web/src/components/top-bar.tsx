@@ -3,6 +3,10 @@
 import { fr } from "@greline/i18n";
 import type { SearchResult } from "@greline/services";
 import type { Stop, TransitNetwork } from "@greline/types";
+import Image from "next/image";
+import logoDark from "../../../../assets/logo/svg/greline-logo-dark.svg";
+import logoLight from "../../../../assets/logo/svg/greline-logo-light.svg";
+import symbol from "../../../../assets/logo/svg/greline-symbol.svg";
 import { setTheme, useTheme } from "@/lib/theme";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { AboutDialog } from "./about-dialog";
