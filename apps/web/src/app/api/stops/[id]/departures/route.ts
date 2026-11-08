@@ -1,6 +1,7 @@
 import { stopIdSchema } from "@greline/validation";
 import { connection } from "next/server";
-import { getStopDepartures } from "@/lib/stop-departures";
+import { cachedJson } from "@/lib/cached-json";
+import { getStopDepartures, STOP_DEPARTURES_REFRESH_S } from "@/lib/stop-departures";
 import { getTransitNetwork } from "@/lib/transit-network";
 
 const errorResponse = (status: number, error: string): Response => Response.json({ error }, { status });
@@ -16,7 +17,7 @@ export async function GET(_request: Request, context: RouteContext<"/api/stops/[
     const network = await getTransitNetwork();
     if (!network.stops.some((stop) => stop.id === id)) return errorResponse(404, "unknown_stop");
     const departures = await getStopDepartures(id, network.lines.map((line) => line.id));
-    return Response.json({ departures });
+    return cachedJson({ departures }, STOP_DEPARTURES_REFRESH_S);
   } catch (error) {
     console.error(`GET /api/stops/${id}/departures: M API unavailable`, error);
     return errorResponse(502, "upstream_unavailable");

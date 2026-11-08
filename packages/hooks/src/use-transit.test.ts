@@ -7,6 +7,7 @@ const client: GrelineApiClient = {
   getSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", shapes: [], patterns: [], trips: [] })),
   getTripDelays: vi.fn(async () => ({ "SEM:1": 90 })),
   getWeather: vi.fn(async () => ({ temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" })),
+  getAirQuality: vi.fn(async () => ({ index: 52 })),
   getDisruptions: vi.fn(async () => []),
   getItineraries: vi.fn(async () => []),
 };
@@ -24,9 +25,9 @@ describe("scheduleQueryOptions", () => {
 });
 
 describe("tripDelaysQueryOptions", () => {
-  it("refreshes every 30 s by default, and only while the page is visible", () => {
+  it("refreshes every 15 s by default, and only while the page is visible", () => {
     const options = tripDelaysQueryOptions(client);
-    expect(options.refetchInterval).toBe(30_000);
+    expect(options.refetchInterval).toBe(15_000);
     expect(options.refetchIntervalInBackground).toBe(false);
   });
 

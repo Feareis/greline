@@ -26,6 +26,8 @@ export const fr = {
     transit: "Lignes, arrêts, horaires et temps réel : M – Mobilités de l'agglomération grenobloise, licence ODbL.",
     baseMap: "Fond de carte : © contributeurs OpenStreetMap (ODbL), tuiles OpenMapTiles servies par OpenFreeMap.",
     weather: "Météo : Open-Meteo (CC BY 4.0).",
+    airQuality:
+      "Qualité de l'air : Open-Meteo (CC BY 4.0), à partir des données du service Copernicus de surveillance de l'atmosphère (CAMS).",
     developmentTitle: "Développement",
     developedBy: "Développé par",
     developer: "Feareis",
@@ -94,6 +96,17 @@ export const fr = {
     feelsLike: (celsius: number) => `ressenti ${Math.round(celsius)} °C`,
     sun: (sunrise: string, sunset: string) => `Soleil ${sunrise} → ${sunset}`,
     weatherUnavailable: "Météo indisponible",
+    air: (level: string) => `Air : ${level}`,
+    airIndex: (index: number) => `Indice européen de qualité de l'air : ${index}`,
+    airLevels: {
+      good: "bon",
+      fair: "moyen",
+      moderate: "dégradé",
+      poor: "mauvais",
+      veryPoor: "très mauvais",
+      extremelyPoor: "extrêmement mauvais",
+    },
+    airUnavailable: "Qualité de l'air indisponible",
     conditions: {
       clear: "Ciel dégagé",
       mostlyClear: "Peu nuageux",
@@ -188,6 +201,45 @@ export const fr = {
     tripFrom: "Partir d'ici",
     tripTo: "Aller ici",
     line: (shortName: string) => `Ligne ${shortName}`,
+  },
+  search: {
+    button: "Rechercher",
+    label: "Rechercher un arrêt ou une ligne",
+    placeholder: "Arrêt ou ligne…",
+    noResult: "Aucun arrêt ni ligne trouvé.",
+    close: "Fermer la recherche",
+  },
+  itinerary: {
+    tab: "Itinéraire",
+    searchTab: "Arrêt ou ligne",
+    modes: "Que chercher",
+    from: "Départ",
+    to: "Arrivée",
+    fromPlaceholder: "Arrêt de départ…",
+    toPlaceholder: "Arrêt d'arrivée…",
+    myPosition: "Ma position",
+    locating: "Localisation…",
+    clear: (end: string, name: string) => `Effacer ${end.toLowerCase()} : ${name}`,
+    swap: "Inverser départ et arrivée",
+    farFromNetwork: "Vous êtes à plus de 2 km du réseau : pas d'itinéraire depuis ici.",
+    pickBoth: "Choisissez un départ et une arrivée pour voir les itinéraires en partant maintenant.",
+  },
+  line: {
+    open: (shortName: string) => `Voir la fiche de la ligne ${shortName}`,
+    close: "Fermer la fiche ligne",
+    vehicles: (running: number, late: number) =>
+      running === 0
+        ? "Aucun véhicule en circulation"
+        : `${running} en circulation · ${late === 0 ? "aucun en retard" : `${late} en retard`}`,
+    vehiclesLoading: "Chargement des véhicules…",
+    vehiclesUnavailable: "Véhicules indisponibles pour le moment.",
+    disruptionsTitle: "Perturbations",
+    stopsTitle: (count: number) => `${count} arrêts`,
+  },
+  share: {
+    label: (name: string) => `Partager un lien vers ${name}`,
+    copied: "Lien copié",
+    failed: "Copie impossible",
   },
   departures: {
     title: "Prochains passages",

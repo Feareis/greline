@@ -19,3 +19,9 @@ export const openMeteoForecastSchema = z.object({
   }),
 });
 export type OpenMeteoForecast = z.infer<typeof openMeteoForecastSchema>;
+
+/** Schema of the Open-Meteo air quality API (air-quality-api.open-meteo.com/v1/air-quality), current European index only. */
+export const openMeteoAirQualitySchema = z.object({
+  current: z.object({ european_aqi: z.number().nonnegative() }),
+});
+export type OpenMeteoAirQuality = z.infer<typeof openMeteoAirQualitySchema>;

@@ -17,6 +17,11 @@ describe("fleetSummary", () => {
     expect(summary).toMatchObject({ running: 4, byLine: { "SEM:A": 2, "SEM:B": 2 }, late: 2, averageLateSeconds: 240 });
   });
 
+  it("counts the late trams of each line", () => {
+    const summary = fleetSummary([tram("SEM:A", 0), tram("SEM:A", 300), tram("SEM:A", 400), tram("SEM:B", 30)]);
+    expect(summary.lateByLine).toEqual({ "SEM:A": 2 });
+  });
+
   it("rates the network by the share of late trams", () => {
     const onTime = Array.from({ length: 9 }, () => tram("SEM:A", 30));
     expect(fleetSummary([...onTime, tram("SEM:A", 30)]).level).toBe("smooth");
@@ -25,7 +30,7 @@ describe("fleetSummary", () => {
   });
 
   it("is smooth with no tram running (night)", () => {
-    expect(fleetSummary([])).toEqual({ running: 0, byLine: {}, late: 0, averageLateSeconds: 0, level: "smooth" });
+    expect(fleetSummary([])).toEqual({ running: 0, byLine: {}, lateByLine: {}, late: 0, averageLateSeconds: 0, level: "smooth" });
   });
 });
 

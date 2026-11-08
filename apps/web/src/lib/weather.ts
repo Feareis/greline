@@ -5,7 +5,7 @@ import { cacheLife } from "next/cache";
 
 /** Grenoble city centre (Victor Hugo square). */
 const GRENOBLE = { latitude: 45.1885, longitude: 5.7245 };
-const REFRESH_S = 15 * 60;
+export const WEATHER_REFRESH_S = 15 * 60;
 const TIMEOUT_MS = 10_000;
 
 const FORECAST_URL =
@@ -20,7 +20,7 @@ const FORECAST_URL =
  */
 export async function getWeather(): Promise<Weather> {
   "use cache";
-  cacheLife({ stale: REFRESH_S, revalidate: REFRESH_S, expire: 4 * REFRESH_S });
+  cacheLife({ stale: WEATHER_REFRESH_S, revalidate: WEATHER_REFRESH_S, expire: 4 * WEATHER_REFRESH_S });
   const response = await fetch(FORECAST_URL, { signal: AbortSignal.timeout(TIMEOUT_MS) });
   if (!response.ok) throw new Error(`Open-Meteo answered ${response.status}`);
   return toWeather(openMeteoForecastSchema.parse(await response.json()));

@@ -119,6 +119,12 @@ export interface Weather {
   sunset: string;
 }
 
+/** Current air quality in Grenoble, as exposed by our API. */
+export interface AirQuality {
+  /** European air quality index (0 = clean; above 100 = extremely poor). */
+  index: number;
+}
+
 /** A single upcoming departure at a stop. */
 export interface Departure {
   lineId: string;
@@ -130,6 +136,9 @@ export interface Departure {
   departureTime: string;
   realtime: boolean;
 }
+
+/** One end of an itinerary search: a stop, or a position (the user's). */
+export type ItineraryEnd = { kind: "stop"; stopId: string } | { kind: "position"; lat: number; lon: number };
 
 /** One ride of an itinerary, on one line without changing vehicle. */
 export interface ItineraryRide {

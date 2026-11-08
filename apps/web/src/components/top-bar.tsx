@@ -1,16 +1,14 @@
 "use client";
 
 import { fr } from "@greline/i18n";
-import type { Stop } from "@greline/types";
-import Image from "next/image";
-import logoDark from "../../../../assets/logo/svg/greline-logo-dark.svg";
-import logoLight from "../../../../assets/logo/svg/greline-logo-light.svg";
-import symbol from "../../../../assets/logo/svg/greline-symbol.svg";
+import type { SearchResult } from "@greline/services";
+import type { Stop, TransitNetwork } from "@greline/types";
 import { setTheme, useTheme } from "@/lib/theme";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { AboutDialog } from "./about-dialog";
 import { MoonIcon, StarIcon, SunIcon } from "./icons";
 import { LocateButton, type UserLocation } from "./locate-button";
+import { SearchBox } from "./search-box";
 
 // Inlined at build time from next.config.ts.
 const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
@@ -59,7 +57,10 @@ function VersionBadge() {
 }
 
 interface TopBarProps {
+  network: TransitNetwork;
+  /** Stops "locate me" may offer: those drawn on the map. */
   stops: readonly Stop[];
+  onSearchPick: (result: SearchResult) => void;
   onSelect: (stopId: string) => void;
   onLocated: (location: UserLocation | null) => void;
   mineOpen: boolean;
@@ -67,7 +68,7 @@ interface TopBarProps {
 }
 
 /** Transparent bar over the map: site name on the left, controls and version on the right. */
-export function TopBar({ stops, onSelect, onLocated, mineOpen, onToggleMine }: TopBarProps) {
+export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mineOpen, onToggleMine }: TopBarProps) {
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-3">
       {/* Phones and small tablets show the symbol alone, wider screens the logo of the theme. Every image is in the page and CSS
@@ -79,6 +80,7 @@ export function TopBar({ stops, onSelect, onLocated, mineOpen, onToggleMine }: T
         <Image src={logoLight} alt={fr.app.name} priority className={`hidden ${LOGO_SIZE} md:in-data-[theme=light]:block`} />
       </h1>
       <nav aria-label={fr.topBar.label} className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
+        <SearchBox network={network} onPick={onSearchPick} />
         <ThemeToggle />
         <LocateButton stops={stops} onSelect={onSelect} onLocated={onLocated} />
         <button

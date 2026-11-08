@@ -96,24 +96,34 @@ function NetworkFilter({ networks, onChange }: NetworkFilterProps) {
   );
 }
 
-function LineCounts({ lines, byLine }: { lines: readonly Line[]; byLine: Readonly<Record<string, number>> }) {
+interface LineCountsProps {
+  lines: readonly Line[];
+  byLine: Readonly<Record<string, number>>;
+  onShowLine: (lineId: string) => void;
+}
+
+function LineCounts({ lines, byLine, onShowLine }: LineCountsProps) {
   return (
     <ul className="mt-2 flex flex-wrap gap-1.5">
       {lines.map((line) => (
-        <li
-          key={line.id}
-          aria-label={fr.fleet.lineCount(line.shortName, byLine[line.id] ?? 0)}
-          className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 text-xs font-medium"
-          style={{ background: `color-mix(in srgb, ${toCssColor(line.color)} 18%, transparent)` }}
-        >
-          <span
-            aria-hidden
-            className="flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold"
-            style={{ background: toCssColor(line.color), color: toCssColor(line.textColor) }}
+        <li key={line.id}>
+          <button
+            type="button"
+            onClick={() => onShowLine(line.id)}
+            aria-label={`${fr.fleet.lineCount(line.shortName, byLine[line.id] ?? 0)}. ${fr.line.open(line.shortName)}`}
+            title={fr.line.open(line.shortName)}
+            className="flex items-center gap-1 rounded-full py-0.5 pr-2 pl-0.5 text-xs font-medium hover:opacity-80 focus-visible:outline-2"
+            style={{ background: `color-mix(in srgb, ${toCssColor(line.color)} 18%, transparent)` }}
           >
-            {line.shortName}
-          </span>
-          <span aria-hidden>{byLine[line.id] ?? 0}</span>
+            <span
+              aria-hidden
+              className="flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-bold"
+              style={{ background: toCssColor(line.color), color: toCssColor(line.textColor) }}
+            >
+              {line.shortName}
+            </span>
+            <span aria-hidden>{byLine[line.id] ?? 0}</span>
+          </button>
         </li>
       ))}
     </ul>
@@ -122,13 +132,14 @@ function LineCounts({ lines, byLine }: { lines: readonly Line[]; byLine: Readonl
 
 interface NetworkSummaryProps extends NetworkFilterProps {
   lines: readonly Line[];
+  onShowLine: (lineId: string) => void;
 }
 
 /**
  * Top-left helper: which networks are shown, how many vehicles run per line, how many are late,
  * and how to read the icons. Folded into a pill on small screens so the map stays visible.
  */
-export function NetworkSummary({ lines, networks, onChange }: NetworkSummaryProps) {
+export function NetworkSummary({ lines, networks, onChange, onShowLine }: NetworkSummaryProps) {
   const { summary, isLoading, isError, delaysAvailable } = useFleetSummary(networks);
   const detailsRef = useRef<HTMLDetailsElement>(null);
   const shownLines = lines.filter((line) => networks.includes(line.network));
@@ -154,7 +165,7 @@ export function NetworkSummary({ lines, networks, onChange }: NetworkSummaryProp
         <NetworkFilter networks={networks} onChange={onChange} />
         {summary && (
           <>
-            <LineCounts lines={shownLines} byLine={summary.byLine} />
+            <LineCounts lines={shownLines} byLine={summary.byLine} onShowLine={onShowLine} />
             <p className="mt-2 text-xs" style={{ color: summary.late > 0 ? colors.late : colors.textMuted }}>
               {delaysAvailable
                 ? fr.fleet.lateSummary(summary.late, Math.round(summary.averageLateSeconds / SECONDS_PER_MINUTE))

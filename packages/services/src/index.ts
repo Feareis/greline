@@ -8,3 +8,7 @@ export * from "./traffic";
 export * from "./weather";
 export * from "./disruptions";
 export * from "./personal";
+export * from "./share";
+export * from "./search";
+export * from "./itinerary-end";
+export * from "./air-quality";

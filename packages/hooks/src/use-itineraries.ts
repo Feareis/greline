@@ -2,8 +2,8 @@ import type { GrelineApiClient } from "@greline/services";
 import { queryOptions, skipToken, useQuery } from "@tanstack/react-query";
 import { retryServerErrors, useApiConfig } from "./api-config";
 
-/** Itineraries leave "now": refreshed every minute, as often as our API asks the M planner. */
-const ITINERARIES_REFRESH_MS = 60_000;
+/** Itineraries leave "now": refreshed every 30 s, as often as our API asks the M planner. */
+const ITINERARIES_REFRESH_MS = 30_000;
 
 export function itinerariesQueryOptions(client: GrelineApiClient, from: string | null, to: string | null) {
   return queryOptions({
@@ -16,7 +16,10 @@ export function itinerariesQueryOptions(client: GrelineApiClient, from: string |
   });
 }
 
-/** Best itineraries leaving now between two stops (null = an end is missing, no request). */
+/**
+ * Best itineraries leaving now between two places, each a stop id or "lat,lon" from
+ * itineraryEndParam (null = an end is missing, no request).
+ */
 export function useItineraries(from: string | null, to: string | null) {
   return useQuery(itinerariesQueryOptions(useApiConfig().client, from, to));
 }

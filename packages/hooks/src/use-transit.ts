@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { retryServerErrors, useApiConfig } from "./api-config";
 import { useNow } from "./use-now";
 
-export const DEFAULT_DELAYS_REFRESH_MS = 30_000;
+export const DEFAULT_DELAYS_REFRESH_MS = 15_000;
 /** The schedule only changes with the service day: an hourly check catches midnight. */
 const SCHEDULE_REFRESH_MS = 3_600_000;
 
@@ -64,7 +64,7 @@ export function useSchedules(networks: readonly NetworkId[]): Schedules {
   return useQueries({ queries: networks.map((network) => scheduleQueryOptions(client, network)), combine: combineSchedules });
 }
 
-/** Realtime delays of running trams, refreshed every 30 s while the page is visible. */
+/** Realtime delays of running trams, refreshed every 15 s while the page is visible. */
 export function useTripDelays() {
   const { client, delaysRefreshMs } = useApiConfig();
   return useQuery(tripDelaysQueryOptions(client, delaysRefreshMs));

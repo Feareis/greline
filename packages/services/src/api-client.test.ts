@@ -97,6 +97,14 @@ describe("createApiClient() tram endpoints", () => {
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/disruptions");
   });
 
+  it("fetches the air quality and rejects a malformed one", async () => {
+    const fetchSpy = answering(Response.json({ index: 52 }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getAirQuality()).resolves.toEqual({ index: 52 });
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/air-quality");
+    const broken = createApiClient({ baseUrl: "", fetch: answering(Response.json({ index: "bad" })) });
+    await expect(broken.getAirQuality()).rejects.toMatchObject({ code: "invalid_response" });
+  });
+
   it("fetches the weather and rejects a malformed one", async () => {
     const weather = { temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" };
     const fetchSpy = answering(Response.json(weather));

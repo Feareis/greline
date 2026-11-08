@@ -8,7 +8,9 @@ import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";
 import { DisruptionList } from "./disruption-list";
 import { StarIcon } from "./icons";
+import { ShareButton } from "./share-button";
 import { useFavorites, useTrip } from "@/lib/personal";
+import { sharedSelectionSearch } from "@greline/services";
 
 interface StationPanelProps {
   stop: Stop;
@@ -18,11 +20,12 @@ interface StationPanelProps {
   disruptions: readonly Disruption[];
   linesById: ReadonlyMap<string, Line>;
   now: Date;
+  onShowLine: (lineId: string) => void;
   onClose: () => void;
 }
 
 /** Details of the selected station. Non-modal: the map stays usable behind it. */
-export function StationPanel({ stop, lines, disruptions, linesById, now, onClose }: StationPanelProps) {
+export function StationPanel({ stop, lines, disruptions, linesById, now, onShowLine, onClose }: StationPanelProps) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const { favoriteIds, toggleFavorite } = useFavorites();
   const { trip, setTrip } = useTrip();
@@ -36,7 +39,7 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onClose
   useEffect(() => {
     closeButtonRef.current?.focus();
     const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !event.defaultPrevented) onClose();
     };
     document.addEventListener("keydown", closeOnEscape);
     return () => document.removeEventListener("keydown", closeOnEscape);
@@ -57,13 +60,16 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onClose
             {stop.city}
           </p>
         </div>
+        <div className="ml-auto">
+          <ShareButton name={stop.name} search={sharedSelectionSearch({ kind: "stop", id: stop.id })} />
+        </div>
         <button
           type="button"
           onClick={() => toggleFavorite(stop.id)}
           aria-pressed={favorite}
           aria-label={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
           title={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
-          className="-m-1 ml-auto rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
+          className="-m-1 rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
           style={{ color: favorite ? colors.warning : colors.textMuted }}
         >
           <StarIcon filled={favorite} />
@@ -85,13 +91,16 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onClose
       <ul className="mt-2 flex flex-wrap gap-2">
         {lines.map((line) => (
           <li key={line.id}>
-            <span
-              aria-label={fr.station.line(line.shortName)}
-              className="inline-flex h-7 min-w-7 items-center justify-center px-2 text-sm font-bold"
+            <button
+              type="button"
+              onClick={() => onShowLine(line.id)}
+              aria-label={fr.line.open(line.shortName)}
+              title={fr.line.open(line.shortName)}
+              className="inline-flex h-7 min-w-7 items-center justify-center px-2 text-sm font-bold hover:opacity-80 focus-visible:outline-2"
               style={{ background: toCssColor(line.color), color: toCssColor(line.textColor), borderRadius: radii.pill }}
             >
               {line.shortName}
-            </span>
+            </button>
           </li>
         ))}
       </ul>

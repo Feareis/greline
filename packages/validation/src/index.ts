@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Disruption, type Itinerary, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather } from "@greline/types";
+import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -27,6 +27,28 @@ export const departureSchema = z.object({
  * M API enforces, which also keeps path separators and spaces out of upstream URLs.
  */
 export const stopIdSchema = z.string().regex(/^[A-Z0-9]{3}:[0-9a-zA-Z-]{1,128}$/, "expected a cluster code like SEM:GENGAR");
+
+/**
+ * Rounds a coordinate to 3 decimals, about 100 m: close positions share one cached itinerary,
+ * and a user's exact position never leaves the browser.
+ */
+export const roundToHundredMeters = (degrees: number): number => Math.round(degrees * 1000) / 1000;
+
+const COORDINATES = /^(-?\d{1,3}(?:\.\d{1,8})?),(-?\d{1,3}(?:\.\d{1,8})?)$/;
+
+/** One end of `GET /api/itineraries`: a stop id, or "lat,lon" in decimal degrees. */
+export const itineraryEndParamSchema = z.union([
+  stopIdSchema.transform((stopId): ItineraryEnd => ({ kind: "stop", stopId })),
+  z
+    .string()
+    .regex(COORDINATES, "expected a stop id or lat,lon")
+    .transform((value) => value.split(",").map(Number) as [number, number])
+    .refine(([lat, lon]) => Math.abs(lat) <= 90 && Math.abs(lon) <= 180, "coordinates out of range")
+    .transform(([lat, lon]): ItineraryEnd => ({ kind: "position", lat: roundToHundredMeters(lat), lon: roundToHundredMeters(lon) })),
+]);
+
+/** Body of `GET /api/air-quality`. */
+export const airQualitySchema = z.object({ index: z.number().nonnegative() }) satisfies z.ZodType<AirQuality>;
 
 /** Body of `GET /api/stops/{id}/departures`. */
 export const departuresResponseSchema = z.object({ departures: z.array(departureSchema) });

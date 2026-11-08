@@ -37,10 +37,14 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Anime chaque véhicule sur son tracé, orienté dans le sens de la marche, avec un contour rouge au-delà de 2 minutes de retard.
 - Donne les prochains passages de n'importe quel arrêt, par ligne et par direction, rafraîchis toutes les 15 secondes.
 - Montre les perturbations du jour dans un bandeau, et sur la carte quand le texte officiel permet de retrouver le tronçon.
+- Cherche un arrêt ou une ligne par son nom (touche « / »), sans tenir compte des accents ni de l'ordre des mots.
+- Ouvre la fiche d'une ligne : véhicules en circulation et en retard, perturbations, tous ses arrêts, et son tracé mis en avant sur la carte.
+- Met l'arrêt ou la ligne ouverte dans l'adresse de la page : un lien copié ou partagé ouvre la même fiche.
 - Garde vos arrêts favoris et votre trajet habituel sur l'appareil, sans compte.
 - Cherche les itinéraires de ce trajet en partant maintenant, avec correspondances et marche à pied.
+- Cherche aussi un itinéraire entre deux arrêts quelconques, ou depuis votre position (arrondie à 100 m avant d'être envoyée).
 - Trouve les arrêts autour de vous.
-- Résume la journée : heure, météo, soleil, lune et état général du trafic.
+- Résume la journée : heure, météo, qualité de l'air, soleil, lune et état général du trafic.
 
 ## Comment ça marche
 
@@ -81,11 +85,12 @@ Chaque route a son propre rythme, selon la vitesse à laquelle ses données chan
 |---|---|---|---|
 | `/api/network` | Lignes, arrêts, tracés, sens de circulation | 24 h | chargé avec la page |
 | `/api/network/schedule?network=` | Courses du jour d'un réseau, tirées du GTFS (~6,5 Mo) | 6 h | toutes les heures |
-| `/api/network/delays` | Retard mesuré de chaque course | 30 s | toutes les 30 s |
+| `/api/network/delays` | Retard mesuré de chaque course | 15 s | toutes les 15 s |
 | `/api/stops/[id]/departures` | Prochains passages d'un arrêt | 15 s | toutes les 15 s |
-| `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts en partant maintenant (calculateur de M) | 1 min | toutes les minutes |
+| `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts, ou depuis une position, en partant maintenant (calculateur de M) | 30 s | toutes les 30 s |
 | `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
 | `/api/weather` | Météo et soleil à Grenoble (Open-Meteo) | 15 min | toutes les 15 min |
+| `/api/air-quality` | Indice européen de qualité de l'air à Grenoble (Open-Meteo, données CAMS) | 30 min | toutes les 30 min |
 
 Quand l'API M flanche, les requêtes sont retentées deux fois. Si elle ne répond toujours pas, la page le dit et se recharge seule 30 secondes plus tard.
 
@@ -102,7 +107,7 @@ sequenceDiagram
     C->>S: GET /api/network/schedule (1×/h)
     S->>M: GTFS de la SEM
     S-->>C: courses du jour + distance de chaque arrêt le long du tracé
-    loop toutes les 30 s
+    loop toutes les 15 s
         C->>S: GET /api/network/delays
         S->>M: prochains passages de ~35 stations sondes
         S-->>C: retard par course
@@ -113,7 +118,7 @@ sequenceDiagram
 ```
 
 1. Le GTFS donne l'horaire théorique de chaque course à chaque arrêt, et la position de chaque arrêt le long du tracé.
-2. Toutes les 30 secondes, le serveur interroge une trentaine de stations choisies, de préférence des pôles de correspondance. Il en déduit le retard de chaque course.
+2. Toutes les 15 secondes, le serveur interroge une trentaine de stations choisies, de préférence des pôles de correspondance. Il en déduit le retard de chaque course.
 3. Le navigateur fait le reste : à partir de l'heure et du retard, il calcule la distance parcourue sur le tracé, puis la position et le cap du véhicule.
 
 Ce n'est pas du GPS : entre deux mesures, un véhicule peut être un peu en avance ou en retard sur sa vraie position. Ce code vit dans `packages/services` (`vehicles.ts`, `geo.ts`) et il est testé.
@@ -237,4 +242,5 @@ Dans un coin de ma tête aussi :
 - Données de transport : M – Mobilités de l'agglomération grenobloise, licence [ODbL](https://opendatacommons.org/licenses/odbl/).
 - Fond de carte : © contributeurs [OpenStreetMap](https://www.openstreetmap.org/copyright), tuiles [OpenFreeMap](https://openfreemap.org).
 - Météo : [Open-Meteo](https://open-meteo.com).
+- Qualité de l'air : [Open-Meteo](https://open-meteo.com/en/docs/air-quality-api), à partir des données du service Copernicus de surveillance de l'atmosphère (CAMS).
 - Code : licence [MIT](LICENSE). Les données restent sous leur propre licence (ODbL pour M et OpenStreetMap).
