@@ -19,6 +19,7 @@ import { useTheme } from "@/lib/theme";
 import { colors } from "@/lib/theme-tokens";
 import type { UserLocation } from "./locate-button";
 import type { MapFocus } from "./network-view";
+import { ParkAndRideMarkers } from "./park-and-ride-markers";
 import { addVehicleIcon, Vehicles } from "./vehicles";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
@@ -235,10 +236,12 @@ interface GeoMapProps {
   selectedLineId: string | null;
   onSelect: (stopId: string) => void;
   userLocation: UserLocation | null;
+  /** P+R car parks on the map, with their free spaces. */
+  showParkAndRides: boolean;
 }
 
 /** Real geographic map: official shapes, moving vehicles and stops on an OpenStreetMap base. */
-export function GeoMap({ network, networks, disrupted, focus, selectedId, selectedLineId, onSelect, userLocation }: GeoMapProps) {
+export function GeoMap({ network, networks, disrupted, focus, selectedId, selectedLineId, onSelect, userLocation, showParkAndRides }: GeoMapProps) {
   const mapRef = useRef<MapRef | null>(null);
   // Stable callback: React calls a new ref callback on every render otherwise.
   const attachMap = useCallback((ref: MapRef | null) => {
@@ -406,6 +409,7 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, select
             onSelect={onSelect}
           />
         ))}
+        {showParkAndRides && <ParkAndRideMarkers />}
         {userLocation && <UserMarker lat={userLocation.lat} lon={userLocation.lon} />}
         <NavigationControl position="bottom-right" showCompass={false} />
         {/* Licences (OSM, ODbL) require credits on the map: a folded "i" here, details in Sources. */}

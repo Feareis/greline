@@ -44,6 +44,7 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Cherche les itinéraires de ce trajet en partant maintenant, avec correspondances et marche à pied.
 - Cherche aussi un itinéraire entre deux arrêts quelconques, ou depuis votre position (arrondie à 100 m avant d'être envoyée).
 - Trouve les arrêts autour de vous.
+- Montre les parkings relais (P+R) proches des lignes et, pour ceux du tram, leurs places libres en temps réel.
 - Résume la journée : heure, météo, qualité de l'air, soleil, lune et état général du trafic.
 - S'installe sur l'écran d'accueil du téléphone ou de l'ordinateur et s'ouvre alors comme une app, sans la barre du navigateur.
 
@@ -92,6 +93,7 @@ Chaque route a son propre rythme, selon la vitesse à laquelle ses données chan
 | `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
 | `/api/weather` | Météo et soleil à Grenoble (Open-Meteo) | 15 min | toutes les 15 min |
 | `/api/air-quality` | Indice européen de qualité de l'air à Grenoble (Open-Meteo, données CAMS) | 30 min | toutes les 30 min |
+| `/api/park-and-rides` | Parkings relais (P+R) et leurs places libres quand elles sont comptées | 1 min | toutes les minutes |
 
 Quand l'API M flanche, les requêtes sont retentées deux fois. Si elle ne répond toujours pas, la page le dit et se recharge seule 30 secondes plus tard.
 

@@ -11,3 +11,17 @@ body {
   color: var(--g-text);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Map popups (P+R cards) in the colors of the theme, not MapLibre's white box. MapLibre's own
+   stylesheet loads after this one with the map: the selectors are doubled to win over it. */
+.maplibregl-popup .maplibregl-popup-content {
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--g-text) 14%, transparent);
+  border-radius: 0.75rem;
+  background: var(--g-surface);
+  color: var(--g-text);
+  box-shadow: 0 10px 25px rgb(0 0 0 / 0.3);
+}
+.maplibregl-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
+  border-top-color: var(--g-surface);
+}
