@@ -24,7 +24,7 @@ export interface ItineraryEnds {
 
 export const NO_ENDS: ItineraryEnds = { from: null, to: null };
 
-const smallButton = "flex items-center gap-1 rounded px-2 py-1 text-xs font-medium hover:opacity-80 focus-visible:outline-2 disabled:opacity-60";
+const smallButton = "flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium hover:opacity-80 focus-visible:outline-2 disabled:opacity-60";
 
 /** "Ma position" for the start: asks for the position on click, refused far from the network. */
 function MyPositionButton({ network, onPick }: { network: TransitNetwork; onPick: (choice: ItineraryEndChoice) => void }) {
@@ -71,7 +71,7 @@ interface EndFieldProps {
 function EndField({ label, placeholder, network, value, onChange, withPosition }: EndFieldProps) {
   return (
     <div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
+      <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: colors.textMuted }}>
         {label}
       </p>
       {value ? (
@@ -141,7 +141,7 @@ export function ItinerarySearch({ network, ends, onChange }: ItinerarySearchProp
       {from && to ? (
         <ItineraryList from={itineraryEndParam(from.end)} to={itineraryEndParam(to.end)} />
       ) : (
-        <p className="text-xs" style={{ color: colors.textMuted }}>
+        <p className="text-sm" style={{ color: colors.textMuted }}>
           {fr.itinerary.pickBoth}
         </p>
       )}

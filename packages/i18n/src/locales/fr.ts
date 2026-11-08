@@ -74,6 +74,8 @@ export const fr = {
     delaysUnavailable: "Retards temps réel indisponibles",
     tramLine: "Ligne de tram : trait épais bordé",
     busLine: "Ligne de bus : trait fin",
+    byLineTitle: "Véhicules par ligne",
+    legendTitle: "Légende de la carte",
   },
   disruptions: {
     label: "Perturbations",
@@ -95,6 +97,9 @@ export const fr = {
     temperature: (celsius: number) => `${Math.round(celsius)} °C`,
     feelsLike: (celsius: number) => `ressenti ${Math.round(celsius)} °C`,
     sun: (sunrise: string, sunset: string) => `Soleil ${sunrise} → ${sunset}`,
+    /** Labels of the rows of the web day panel. */
+    rows: { weather: "Météo", sun: "Soleil", air: "Air", moon: "Lune", traffic: "Trafic" },
+    sunTimes: (sunrise: string, sunset: string) => `${sunrise} → ${sunset}`,
     weatherUnavailable: "Météo indisponible",
     air: (level: string) => `Air : ${level}`,
     airIndex: (index: number) => `Indice européen de qualité de l'air : ${index}`,
@@ -150,6 +155,7 @@ export const fr = {
     locating: "Localisation…",
     youAreHere: "Vous êtes ici",
     nearestTitle: "Arrêts les plus proches",
+    close: "Fermer le message",
     denied: "Localisation refusée. Autorisez-la dans les réglages du navigateur pour voir les arrêts proches.",
     unavailable: "Position introuvable pour le moment. Réessayez dans un instant.",
     timeout: "La localisation a pris trop de temps. Réessayez.",

@@ -8,6 +8,7 @@ import { useState } from "react";
 import { currentPosition } from "@/lib/geolocation";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { LocateIcon } from "./icons";
+import { CloseButton } from "./panel-ui";
 
 const NEARBY_COUNT = 3;
 
@@ -63,9 +64,10 @@ export function LocateButton({ stops, onSelect, onLocated }: LocateButtonProps) 
       </button>
       <div className="absolute top-full right-0 mt-2 w-64 max-w-[calc(100vw-1.5rem)]">
         {state.status === "failed" && (
-          <p role="alert" className="p-3 text-sm shadow-lg" style={{ ...glass, borderRadius: radii.md }}>
-            {state.message}
-          </p>
+          <div role="alert" className="flex items-start gap-1 py-2 pr-1.5 pl-3 text-sm shadow-lg" style={{ ...glass, borderRadius: radii.md }}>
+            <p className="py-1.5">{state.message}</p>
+            <CloseButton label={fr.locate.close} onClick={() => setState({ status: "idle" })} />
+          </div>
         )}
         {state.status === "located" && (
           <section aria-live="polite" className="p-3 shadow-lg backdrop-blur" style={{ ...glass, borderRadius: radii.md }}>
