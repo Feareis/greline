@@ -8,6 +8,7 @@ import type { DisruptionSeverity, NetworkId } from "@greline/types";
 import { type ReactNode, useState } from "react";
 import { colors, glass, ICON_BUTTON } from "@/lib/theme-tokens";
 import { ChevronIcon } from "./icons";
+import { fleetLateText } from "./network-summary";
 
 const PARIS_DAY = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" });
 const PARIS_TIME = new Intl.DateTimeFormat("fr-FR", {
@@ -102,24 +103,35 @@ interface TrafficProps {
   ongoingSeverities: readonly DisruptionSeverity[];
 }
 
-/** Delays measured on the vehicles, worsened by official disruptions (a cut line is "disrupted"). */
+/**
+ * Two facts, each with its own dot: the delays measured on the vehicles, worded as in the network
+ * panel, then the official disruptions, worded as in the banner (works on a line are not delays;
+ * a cut line is red).
+ */
 function TrafficRow({ networks, ongoingSeverities }: TrafficProps) {
   const { summary, delaysAvailable } = useFleetSummary(networks);
-  const measured = summary && delaysAvailable ? summary.level : undefined;
-  if (measured === undefined && ongoingSeverities.length === 0) {
+  const disruptions = ongoingSeverities.filter((severity) => severity !== "info").length;
+  if (!summary && disruptions === 0) {
     return (
       <Row label={fr.day.rows.traffic}>
         <span style={muted}>{fr.day.trafficUnknown}</span>
       </Row>
     );
   }
-  const level = trafficLevel(measured ?? "smooth", ongoingSeverities);
   return (
     <Row label={fr.day.rows.traffic}>
-      <span className="font-semibold">
-        <Dot color={TRAFFIC_COLOR[level]} />
-        {fr.day.traffic[level]}
-      </span>
+      {summary && (
+        <span className="block font-semibold">
+          <Dot color={delaysAvailable ? TRAFFIC_COLOR[summary.level] : colors.textMuted} />
+          {fleetLateText(summary, delaysAvailable)}
+        </span>
+      )}
+      {disruptions > 0 && (
+        <span className="block">
+          <Dot color={TRAFFIC_COLOR[trafficLevel("smooth", ongoingSeverities)]} />
+          {fr.disruptions.ongoing(disruptions)}
+        </span>
+      )}
     </Row>
   );
 }

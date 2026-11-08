@@ -171,7 +171,6 @@ export const fr = {
       lastQuarter: "🌗",
       waningCrescent: "🌘",
     },
-    traffic: { smooth: "Trafic fluide", someDelays: "Quelques retards", disrupted: "Trafic perturbé" },
     trafficUnknown: "Trafic : données indisponibles",
     moonLit: (percent: number) => `${percent} % éclairée`,
   },
