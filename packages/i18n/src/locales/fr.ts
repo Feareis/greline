@@ -155,6 +155,7 @@ export const fr = {
     locating: "Localisation…",
     youAreHere: "Vous êtes ici",
     nearestTitle: "Arrêts les plus proches",
+    close: "Fermer le message",
     denied: "Localisation refusée. Autorisez-la dans les réglages du navigateur pour voir les arrêts proches.",
     unavailable: "Position introuvable pour le moment. Réessayez dans un instant.",
     timeout: "La localisation a pris trop de temps. Réessayez.",
