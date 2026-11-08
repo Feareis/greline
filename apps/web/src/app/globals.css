@@ -12,6 +12,42 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+/* Thin scrollbars in the colors of the theme, everywhere: a faint thumb on a clear track, a bit
+   stronger while the pointer is over the scrolling box. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--g-text) 22%, transparent) transparent;
+}
+*:hover {
+  scrollbar-color: color-mix(in srgb, var(--g-text) 40%, transparent) transparent;
+}
+
+/* Safari ignores the standard properties above: the same look, the WebKit way. */
+@supports not (scrollbar-color: auto) {
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--g-text) 22%, transparent) padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--g-text) 40%, transparent);
+  }
+}
+
+/* Lists brought into view (search results, panels) glide there, unless motion is to be reduced. */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    scroll-behavior: smooth;
+  }
+}
+
 /* Map popups (P+R cards) in the colors of the theme, not MapLibre's white box. MapLibre's own
    stylesheet loads after this one with the map: the selectors are doubled to win over it. */
 .maplibregl-popup .maplibregl-popup-content {
