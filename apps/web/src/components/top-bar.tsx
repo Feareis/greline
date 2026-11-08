@@ -17,6 +17,8 @@ const ENVIRONMENT = process.env.NEXT_PUBLIC_APP_ENV === "prod" ? "prod" : "dev";
 const VERSION_TEXT = ENVIRONMENT === "prod" ? `v${VERSION}` : `${fr.topBar.environment.dev}@v${VERSION}`;
 /** Narrow screens: "v1.7.5" in production, "DEV" elsewhere (the full text is in Sources). */
 const SHORT_VERSION_TEXT = ENVIRONMENT === "prod" ? VERSION_TEXT : fr.topBar.environment.dev;
+// The heading spans the free width of the bar: only the logo itself catches the pointer, not the map around it.
+const LOGO_SIZE = "pointer-events-auto h-auto max-h-10 w-auto max-w-full";
 
 function ThemeToggle() {
   const theme = useTheme();
@@ -69,12 +71,13 @@ interface TopBarProps {
 export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mineOpen, onToggleMine }: TopBarProps) {
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-start justify-between gap-2 p-3">
-      {/* No logo yet: the name stands in for it. */}
-      <h1
-        className="pointer-events-auto text-xl font-bold tracking-tight sm:text-2xl"
-        style={{ color: colors.text, textShadow: `0 0 6px ${colors.background}, 0 0 2px ${colors.background}` }}
-      >
-        {fr.app.name}
+      {/* Phones and small tablets show the symbol alone, wider screens the logo of the theme. Every image is in the page and CSS
+          picks one: the theme is only known in the browser. The logo shrinks, keeping its proportions, when
+          the buttons need the room. */}
+      <h1 className="min-w-0 flex-1" style={{ filter: `drop-shadow(0 0 3px ${colors.background})` }}>
+        <Image src={symbol} alt={fr.app.name} priority className="pointer-events-auto h-8 w-auto md:hidden" />
+        <Image src={logoDark} alt={fr.app.name} priority className={`hidden ${LOGO_SIZE} md:block md:in-data-[theme=light]:hidden`} />
+        <Image src={logoLight} alt={fr.app.name} priority className={`hidden ${LOGO_SIZE} md:in-data-[theme=light]:block`} />
       </h1>
       <nav aria-label={fr.topBar.label} className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
         <SearchBox network={network} onPick={onSearchPick} />
