@@ -45,6 +45,7 @@ Une bonne partie du travail a consisté à composer avec ces limites.
 - Cherche aussi un itinéraire entre deux arrêts quelconques, ou depuis votre position (arrondie à 100 m avant d'être envoyée).
 - Trouve les arrêts autour de vous.
 - Résume la journée : heure, météo, qualité de l'air, soleil, lune et état général du trafic.
+- S'installe sur l'écran d'accueil du téléphone ou de l'ordinateur et s'ouvre alors comme une app, sans la barre du navigateur.
 
 ## Comment ça marche
 
