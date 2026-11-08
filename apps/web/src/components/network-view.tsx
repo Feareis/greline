@@ -133,6 +133,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         onLocated={setUserLocation}
         mineOpen={mineOpen}
         onToggleMine={toggleMine}
+        center={<DisruptionBanner ongoing={seriousOngoing} upcoming={seriousUpcoming} linesById={linesById} now={now} />}
       />
       {/* Left column: the network panel, the P+R one right under it. Both shrink and scroll so the
           column stops above the day panel; above the disruption banner when unfolded on phones. */}
@@ -140,7 +141,6 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} onShowLine={showLine} />
         <ParkAndRidePanel shown={parkAndRidesShown} onShownChange={setParkAndRidesShown} />
       </div>
-      <DisruptionBanner ongoing={seriousOngoing} upcoming={seriousUpcoming} linesById={linesById} now={now} />
       <DayPanel networks={networks} ongoingSeverities={ongoing.map((d) => d.severity)} />
       {mineOpen && <MyStopsPanel network={network} onShowStop={showStop} onClose={() => setMineChoice(false)} />}
       {selectedStop && (
