@@ -143,7 +143,8 @@ function TrafficRow({ networks, ongoingSeverities }: TrafficProps) {
 export function DayPanel({ networks, ongoingSeverities }: TrafficProps) {
   const now = useNow(1_000);
   const moon = moonState(now);
-  const [expanded, setExpanded] = useState(true);
+  // Folded at first: the date and time; the rest one click away.
+  const [expanded, setExpanded] = useState(false);
   return (
     <section
       aria-label={fr.day.label}

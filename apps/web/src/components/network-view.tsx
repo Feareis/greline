@@ -5,7 +5,6 @@ import { fr } from "@greline/i18n";
 import { isOngoing, parseSharedSelection, type SharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
 import { useLinkSearch } from "@/lib/link-search";
 import { useNetworkFilter, useParkAndRidesShown } from "@/lib/network-filter";
-import { useFavorites, useTrip } from "@/lib/personal";
 import { colors } from "@/lib/theme-tokens";
 import type { Disruption, NetworkId, TransitNetwork } from "@greline/types";
 import dynamic from "next/dynamic";
@@ -99,12 +98,9 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
   const { now, linesById, all, ongoing, seriousOngoing, seriousUpcoming } = useShownDisruptions(network, networks);
   const relevantTo = (lineIds: readonly string[]) =>
     all.filter((d) => lineIds.includes(d.lineId) && (isOngoing(d, now) || startsLaterToday(d, now)));
-  // "My stops" opens on its own when there is something in it, until the user decides.
-  const { favoriteIds } = useFavorites();
-  const { trip } = useTrip();
-  const hasPersonal = favoriteIds.length > 0 || trip.from !== null || trip.to !== null;
-  const [mineChoice, setMineChoice] = useState<boolean | null>(null);
-  const mineOpen = selection === null && (mineChoice ?? hasPersonal);
+  // "My stops", like every top bar button, stays closed until asked for: the map comes first.
+  const [mineChoice, setMineChoice] = useState(false);
+  const mineOpen = selection === null && mineChoice;
   const toggleMine = () => {
     select(null);
     setMineChoice(!mineOpen);
