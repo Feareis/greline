@@ -61,3 +61,31 @@ body {
 .maplibregl-popup.maplibregl-popup-anchor-bottom .maplibregl-popup-tip {
   border-top-color: var(--g-surface);
 }
+
+/* Ring and bars of the refresh indicator: empty when data comes in, full when the next update is due. */
+.refresh-countdown {
+  animation-name: refresh-countdown;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes refresh-countdown {
+  from {
+    stroke-dashoffset: 100;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.refresh-fill {
+  animation-name: refresh-fill;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+@keyframes refresh-fill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

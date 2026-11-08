@@ -13,6 +13,7 @@ import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { AboutDialog } from "./about-dialog";
 import { MoonIcon, StarIcon, SunIcon } from "./icons";
 import { LocateButton, type UserLocation } from "./locate-button";
+import { RefreshIndicator } from "./refresh-indicator";
 import { SearchBox } from "./search-box";
 
 // Inlined at build time from next.config.ts.
@@ -117,7 +118,7 @@ export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mine
           picks one: the theme is only known in the browser. The logo shrinks, keeping its proportions, when
           the buttons need the room. */}
       <h1 ref={logoRef} className="min-w-0 flex-1" style={{ filter: `drop-shadow(0 0 3px ${colors.background})` }}>
-        <Image src={symbol} alt={fr.app.name} priority className="pointer-events-auto h-8 w-auto md:hidden" />
+        <Image src={symbol} alt={fr.app.name} priority className="pointer-events-auto h-auto max-h-8 w-auto max-w-full md:hidden" />
         <Image src={logoDark} alt={fr.app.name} priority className={`hidden ${LOGO_SIZE} md:block md:in-data-[theme=light]:hidden`} />
         <Image src={logoLight} alt={fr.app.name} priority className={`hidden ${LOGO_SIZE} md:in-data-[theme=light]:block`} />
       </h1>
@@ -139,6 +140,7 @@ export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mine
           <span className="hidden sm:inline">{fr.mine.button}</span>
         </button>
         <AboutDialog versionText={VERSION_TEXT} />
+        <RefreshIndicator />
         <VersionBadge />
       </nav>
     </header>
