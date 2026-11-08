@@ -3,7 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { retryServerErrors, useApiConfig } from "./api-config";
 
 /** The index is computed hourly; our API caches it 30 min. */
-const AIR_QUALITY_REFRESH_MS = 30 * 60_000;
+export const AIR_QUALITY_REFRESH_MS = 30 * 60_000;
 
 export function airQualityQueryOptions(client: GrelineApiClient) {
   return queryOptions({

@@ -36,9 +36,10 @@ async function TramMapSection() {
 }
 
 export default function HomePage() {
-  // Full-screen map; the top bar and the helpers float over it (credits live in "Sources").
+  // Full-screen map; the top bar and the helpers float over it (credits live in "Sources"). The page
+  // itself never scrolls: whatever sticks out of the screen is cut, panels scroll on their own.
   return (
-    <main className="relative flex h-dvh" style={{ background: colors.background, color: colors.text }}>
+    <main className="relative flex h-dvh overflow-hidden" style={{ background: colors.background, color: colors.text }}>
       <Suspense
         fallback={
           <p className="m-auto" style={{ color: colors.textMuted }}>

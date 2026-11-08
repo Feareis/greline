@@ -3,7 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { retryServerErrors, useApiConfig } from "./api-config";
 
 /** The car parks count their free spaces about every minute; our API caches them as long. */
-const PARK_AND_RIDES_REFRESH_MS = 60_000;
+export const PARK_AND_RIDES_REFRESH_MS = 60_000;
 
 export function parkAndRidesQueryOptions(client: GrelineApiClient) {
   return queryOptions({

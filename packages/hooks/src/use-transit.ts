@@ -7,7 +7,7 @@ import { useNow } from "./use-now";
 
 export const DEFAULT_DELAYS_REFRESH_MS = 15_000;
 /** The schedule only changes with the service day: an hourly check catches midnight. */
-const SCHEDULE_REFRESH_MS = 3_600_000;
+export const SCHEDULE_REFRESH_MS = 3_600_000;
 
 type Delays = Record<string, number>;
 

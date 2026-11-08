@@ -3,7 +3,7 @@ import { queryOptions, skipToken, useQuery } from "@tanstack/react-query";
 import { retryServerErrors, useApiConfig } from "./api-config";
 
 /** Itineraries leave "now": refreshed every 30 s, as often as our API asks the M planner. */
-const ITINERARIES_REFRESH_MS = 30_000;
+export const ITINERARIES_REFRESH_MS = 30_000;
 
 export function itinerariesQueryOptions(client: GrelineApiClient, from: string | null, to: string | null) {
   return queryOptions({

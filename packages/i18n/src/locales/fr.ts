@@ -14,6 +14,35 @@ export const fr = {
     environment: { dev: "DEV", prod: "PROD" },
     versionLabel: (environment: string, version: string) => `Environnement ${environment}, version ${version}`,
   },
+  refresh: {
+    button: "Mises à jour des données",
+    title: "Mises à jour des données",
+    intro: "Tout se met à jour tout seul. La barre de chaque donnée se remplit jusqu'à sa prochaine mise à jour.",
+    sources: {
+      vehicles: "Véhicules et retards",
+      departures: "Prochains passages",
+      itineraries: "Itinéraires",
+      parkAndRides: "Parkings relais",
+      disruptions: "Perturbations",
+      weather: "Météo",
+      airQuality: "Qualité de l'air",
+      schedule: "Horaires du jour",
+    },
+    every: (seconds: number) =>
+      seconds < 60
+        ? `toutes les ${seconds} s`
+        : seconds === 60
+          ? "toutes les minutes"
+          : seconds < 3600
+            ? `toutes les ${Math.round(seconds / 60)} min`
+            : seconds === 3600
+              ? "toutes les heures"
+              : `toutes les ${Math.round(seconds / 3600)} h`,
+    updatedAt: (time: string) => `Mise à jour à ${time}`,
+    paused: "En pause : rien d'affiché ne s'en sert",
+    notLoaded: "Pas encore chargé",
+    close: "Fermer les mises à jour",
+  },
   about: {
     title: "À propos de Greline",
     close: "Fermer",
@@ -117,6 +146,8 @@ export const fr = {
   },
   day: {
     label: "Grenoble aujourd'hui",
+    collapse: "Réduire : la date et l'heure seulement",
+    expand: "Déplier : météo, air, lune et trafic",
     temperature: (celsius: number) => `${Math.round(celsius)} °C`,
     feelsLike: (celsius: number) => `ressenti ${Math.round(celsius)} °C`,
     sun: (sunrise: string, sunset: string) => `Soleil ${sunrise} → ${sunset}`,
@@ -169,7 +200,6 @@ export const fr = {
       lastQuarter: "🌗",
       waningCrescent: "🌘",
     },
-    traffic: { smooth: "Trafic fluide", someDelays: "Quelques retards", disrupted: "Trafic perturbé" },
     trafficUnknown: "Trafic : données indisponibles",
     moonLit: (percent: number) => `${percent} % éclairée`,
   },

@@ -3,7 +3,7 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { retryServerErrors, useApiConfig } from "./api-config";
 
 /** Our API caches the weather 15 min, matching the model's update rate. */
-const WEATHER_REFRESH_MS = 15 * 60_000;
+export const WEATHER_REFRESH_MS = 15 * 60_000;
 
 export function weatherQueryOptions(client: GrelineApiClient) {
   return queryOptions({

@@ -3,14 +3,20 @@
 import { useFleetSummary } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { radii, toCssColor } from "@greline/theme";
+import type { FleetSummary } from "@greline/services";
 import { type Line, NETWORK_IDS, type NetworkId } from "@greline/types";
-import { useEffect, useRef } from "react";
 import { CHIP, chip, colors, glass } from "@/lib/theme-tokens";
 import { ChevronIcon } from "./icons";
 import { PARK_AND_RIDE_COLOR } from "./park-and-ride-markers";
 import { SECTION_TITLE, SectionTitle } from "./panel-ui";
 
 const SECONDS_PER_MINUTE = 60;
+
+/** "Aucun en retard", "2 en retard · moy. +3 min": the one wording of delays, shared by every panel. */
+export function fleetLateText(summary: FleetSummary, delaysAvailable: boolean): string {
+  if (!delaysAvailable) return fr.fleet.delaysUnavailable;
+  return fr.fleet.lateSummary(summary.late, Math.round(summary.averageLateSeconds / SECONDS_PER_MINUTE));
+}
 
 /** The map's vehicle icons, small, for the legend. */
 function VehicleGlyph({ bus = false, late = false }: { bus?: boolean; late?: boolean }) {
@@ -140,22 +146,18 @@ function ParkAndRideGlyph() {
 
 /**
  * Top-left helper: which networks are shown, how many vehicles run per line, how many are late,
- * and how to read the icons. Folded into a pill on small screens so the map stays visible. It
- * scrolls when the left column (see NetworkView) runs out of height.
+ * and how to read the icons. Unfolded at first on every screen, its legend folded. It scrolls
+ * when the left column (see NetworkView) runs out of height.
  */
 export function NetworkSummary({ lines, networks, onChange, onShowLine }: NetworkSummaryProps) {
   const { summary, isLoading, isError, delaysAvailable } = useFleetSummary(networks);
-  const detailsRef = useRef<HTMLDetailsElement>(null);
   const shownLines = lines.filter((line) => networks.includes(line.network));
-
-  useEffect(() => {
-    if (detailsRef.current && window.matchMedia("(min-width: 640px)").matches) detailsRef.current.open = true;
-  }, []);
 
   const heading = isError ? fr.fleet.unavailable : isLoading ? fr.fleet.loading : fr.fleet.running(summary?.running ?? 0);
   return (
+    // Open from the server render on: no jump once the page is live. The user folds it at will.
     <details
-      ref={detailsRef}
+      open
       className="group min-h-0 shrink overflow-y-auto text-sm shadow-xl backdrop-blur"
       style={{ ...glass, borderRadius: radii.md }}
     >
@@ -173,9 +175,7 @@ export function NetworkSummary({ lines, networks, onChange, onShowLine }: Networ
             <SectionTitle>{fr.fleet.byLineTitle}</SectionTitle>
             <LineCounts lines={shownLines} byLine={summary.byLine} onShowLine={onShowLine} />
             <p className="mt-2 text-sm font-medium" style={{ color: summary.late > 0 ? colors.late : colors.textMuted }}>
-              {delaysAvailable
-                ? fr.fleet.lateSummary(summary.late, Math.round(summary.averageLateSeconds / SECONDS_PER_MINUTE))
-                : fr.fleet.delaysUnavailable}
+              {fleetLateText(summary, delaysAvailable)}
             </p>
           </>
         )}

@@ -70,3 +70,11 @@ export function ChevronIcon() {
     </svg>
   );
 }
+
+/** Two arrows chasing each other: reload. */
+export const RefreshIcon = () => (
+  <svg {...iconProps} width={16} height={16}>
+    <path d="M21 12a9 9 0 0 1-15.5 6.2M3 12A9 9 0 0 1 18.5 5.8" />
+    <path d="M21 4v5h-5M3 20v-5h5" />
+  </svg>
+);
