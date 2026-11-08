@@ -117,6 +117,8 @@ export const fr = {
   },
   day: {
     label: "Grenoble aujourd'hui",
+    collapse: "Réduire : la date et l'heure seulement",
+    expand: "Déplier : météo, air, lune et trafic",
     temperature: (celsius: number) => `${Math.round(celsius)} °C`,
     feelsLike: (celsius: number) => `ressenti ${Math.round(celsius)} °C`,
     sun: (sunrise: string, sunset: string) => `Soleil ${sunrise} → ${sunset}`,
