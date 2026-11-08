@@ -1,4 +1,6 @@
-# Greline
+<h1 align="center">
+  <img src="assets/logo/svg/greline-logo-light.svg" alt="Greline" width="420">
+</h1>
 
 Les trams et les bus de Grenoble en temps réel, sur une carte.
 
