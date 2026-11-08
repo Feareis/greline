@@ -5,6 +5,7 @@ import { fr } from "@greline/i18n";
 import { type AirQualityLevel, airQualityLevel, moonState, type TrafficLevel, trafficLevel, weatherCondition } from "@greline/services";
 import { radii } from "@greline/theme";
 import type { DisruptionSeverity, NetworkId } from "@greline/types";
+import type { ReactNode } from "react";
 import { colors, glass } from "@/lib/theme-tokens";
 
 const PARIS_DAY = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" });
@@ -22,23 +23,6 @@ const TRAFFIC_COLOR: Record<TrafficLevel, string> = {
   disrupted: colors.danger,
 };
 
-function WeatherLines() {
-  const { data: weather, isError } = useWeather();
-  if (isError) return <p style={{ color: colors.textMuted }}>{fr.day.weatherUnavailable}</p>;
-  if (!weather) return null;
-  return (
-    <>
-      <p>
-        {fr.day.conditions[weatherCondition(weather.weatherCode)]} · {fr.day.temperature(weather.temperature)}{" "}
-        <span style={{ color: colors.textMuted }}>({fr.day.feelsLike(weather.apparentTemperature)})</span>
-      </p>
-      <p className="hidden sm:block" style={{ color: colors.textMuted }}>
-        {fr.day.sun(weather.sunrise, weather.sunset)}
-      </p>
-    </>
-  );
-}
-
 // The same scale as traffic: green while the air is fine, amber when degraded, red beyond.
 const AIR_COLOR: Record<AirQualityLevel, string> = {
   good: colors.success,
@@ -49,17 +33,65 @@ const AIR_COLOR: Record<AirQualityLevel, string> = {
   extremelyPoor: colors.danger,
 };
 
-function AirQualityLine() {
+const muted = { color: colors.textMuted };
+
+/** One labeled row. `wideOnly` rows are left out on phones, where the panel must stay small. */
+function Row({ label, wideOnly = false, children }: { label: string; wideOnly?: boolean; children: ReactNode }) {
+  return (
+    <div className={wideOnly ? "hidden sm:contents" : "contents"}>
+      <dt style={muted}>{label}</dt>
+      <dd className="min-w-0">{children}</dd>
+    </div>
+  );
+}
+
+function Dot({ color }: { color: string }) {
+  return <span aria-hidden className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full align-[-1px]" style={{ background: color }} />;
+}
+
+function WeatherRows() {
+  const { data: weather, isError } = useWeather();
+  if (isError) {
+    return (
+      <Row label={fr.day.rows.weather}>
+        <span style={muted}>{fr.day.weatherUnavailable}</span>
+      </Row>
+    );
+  }
+  if (!weather) return null;
+  return (
+    <>
+      <Row label={fr.day.rows.weather}>
+        {fr.day.conditions[weatherCondition(weather.weatherCode)]} ·{" "}
+        <strong className="font-semibold">{fr.day.temperature(weather.temperature)}</strong>{" "}
+        <span style={muted}>({fr.day.feelsLike(weather.apparentTemperature)})</span>
+      </Row>
+      <Row label={fr.day.rows.sun} wideOnly>
+        {fr.day.sunTimes(weather.sunrise, weather.sunset)}
+      </Row>
+    </>
+  );
+}
+
+function AirQualityRow() {
   const { data, isError } = useAirQuality();
-  if (isError) return <p style={{ color: colors.textMuted }}>{fr.day.airUnavailable}</p>;
+  if (isError) {
+    return (
+      <Row label={fr.day.rows.air}>
+        <span style={muted}>{fr.day.airUnavailable}</span>
+      </Row>
+    );
+  }
   if (!data) return null;
   const level = airQualityLevel(data.index);
   return (
-    <p className="flex items-center gap-1.5" title={fr.day.airIndex(data.index)}>
-      <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: AIR_COLOR[level] }} />
-      {fr.day.air(fr.day.airLevels[level])}
-      <span className="sr-only"> ({fr.day.airIndex(data.index)})</span>
-    </p>
+    <Row label={fr.day.rows.air}>
+      <span title={fr.day.airIndex(data.index)}>
+        <Dot color={AIR_COLOR[level]} />
+        <span className="inline-block first-letter:uppercase">{fr.day.airLevels[level]}</span>
+        <span className="sr-only"> ({fr.day.airIndex(data.index)})</span>
+      </span>
+    </Row>
   );
 }
 
@@ -70,42 +102,58 @@ interface TrafficProps {
 }
 
 /** Delays measured on the vehicles, worsened by official disruptions (a cut line is "disrupted"). */
-function TrafficLine({ networks, ongoingSeverities }: TrafficProps) {
+function TrafficRow({ networks, ongoingSeverities }: TrafficProps) {
   const { summary, delaysAvailable } = useFleetSummary(networks);
   const measured = summary && delaysAvailable ? summary.level : undefined;
   if (measured === undefined && ongoingSeverities.length === 0) {
-    return <p style={{ color: colors.textMuted }}>{fr.day.trafficUnknown}</p>;
+    return (
+      <Row label={fr.day.rows.traffic}>
+        <span style={muted}>{fr.day.trafficUnknown}</span>
+      </Row>
+    );
   }
   const level = trafficLevel(measured ?? "smooth", ongoingSeverities);
   return (
-    <p className="flex items-center gap-1.5 font-medium">
-      <span aria-hidden className="h-2 w-2 rounded-full" style={{ background: TRAFFIC_COLOR[level] }} />
-      {fr.day.traffic[level]}
-    </p>
+    <Row label={fr.day.rows.traffic}>
+      <span className="font-semibold">
+        <Dot color={TRAFFIC_COLOR[level]} />
+        {fr.day.traffic[level]}
+      </span>
+    </Row>
   );
 }
 
-/** Bottom-left helper: today's date and time in Grenoble, weather, air, moon and traffic of the shown networks. */
+/**
+ * Bottom-left helper: the time in Grenoble in large, then labeled rows for the weather, sun, air,
+ * moon and traffic of the shown networks.
+ */
 export function DayPanel({ networks, ongoingSeverities }: TrafficProps) {
   const now = useNow(1_000);
   const moon = moonState(now);
   return (
     <section
       aria-label={fr.day.label}
-      className="absolute bottom-3 left-3 z-10 w-64 max-w-[calc(100vw-5rem)] space-y-0.5 px-3 py-2 text-xs shadow-lg backdrop-blur"
+      className="absolute bottom-3 left-3 z-10 w-72 max-w-[calc(100vw-5rem)] p-3 shadow-xl backdrop-blur sm:w-[19rem] sm:p-3.5"
       style={{ ...glass, borderRadius: radii.md }}
     >
       {/* Server and browser clocks differ by a few seconds: the text is expected to change. */}
-      <p className="text-sm font-medium first-letter:uppercase" suppressHydrationWarning>
-        {PARIS_DAY.format(now)} · <time suppressHydrationWarning>{PARIS_TIME.format(now)}</time>
+      <p className="text-sm font-medium first-letter:uppercase" style={muted} suppressHydrationWarning>
+        {PARIS_DAY.format(now)}
       </p>
-      <WeatherLines />
-      <AirQualityLine />
-      <p className="hidden sm:block" style={{ color: colors.textMuted }} suppressHydrationWarning>
-        <span aria-hidden>{fr.day.moonIcon[moon.phase]} </span>
-        {fr.day.moon[moon.phase]} · {fr.day.moonLit(Math.round(moon.illumination * 100))}
-      </p>
-      <TrafficLine networks={networks} ongoingSeverities={ongoingSeverities} />
+      <time className="block text-xl font-semibold leading-tight tabular-nums sm:text-2xl" suppressHydrationWarning>
+        {PARIS_TIME.format(now)}
+      </time>
+      <dl className="mt-2 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
+        <WeatherRows />
+        <AirQualityRow />
+        <Row label={fr.day.rows.moon} wideOnly>
+          <span suppressHydrationWarning>
+            <span aria-hidden>{fr.day.moonIcon[moon.phase]} </span>
+            {fr.day.moon[moon.phase]} · {fr.day.moonLit(Math.round(moon.illumination * 100))}
+          </span>
+        </Row>
+        <TrafficRow networks={networks} ongoingSeverities={ongoingSeverities} />
+      </dl>
     </section>
   );
 }

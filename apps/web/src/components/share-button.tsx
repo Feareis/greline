@@ -2,7 +2,7 @@
 
 import { fr } from "@greline/i18n";
 import { useEffect, useState } from "react";
-import { colors } from "@/lib/theme-tokens";
+import { colors, ICON_BUTTON } from "@/lib/theme-tokens";
 import { LinkIcon } from "./icons";
 
 const FEEDBACK_MS = 2_000;
@@ -45,7 +45,7 @@ export function ShareButton({ name, search }: { name: string; search: string }) 
       onClick={share}
       aria-label={fr.share.label(name)}
       title={fr.share.label(name)}
-      className="-m-1 flex items-center gap-1 rounded p-1 text-xs leading-none hover:opacity-80 focus-visible:outline-2"
+      className={`${ICON_BUTTON} text-xs`}
       style={{ color: status === "failed" ? colors.danger : colors.textMuted }}
     >
       <LinkIcon />

@@ -6,11 +6,10 @@ import { sharedSelectionSearch } from "@greline/services";
 import { radii, toCssColor } from "@greline/theme";
 import type { Disruption, Line, NetworkLine, Stop } from "@greline/types";
 import { useEffect, useMemo, useRef } from "react";
-import { colors } from "@/lib/theme-tokens";
+import { colors, panel, SIDE_PANEL } from "@/lib/theme-tokens";
 import { DisruptionList } from "./disruption-list";
+import { CloseButton, SectionTitle } from "./panel-ui";
 import { ShareButton } from "./share-button";
-
-const sectionTitle = "mt-5 mb-2 text-xs font-medium uppercase tracking-wide";
 
 /** Vehicles of this line running now, and how many are late. */
 function LineFleet({ line }: { line: NetworkLine }) {
@@ -33,9 +32,7 @@ function StopRail({ line, stopsById, onShowStop }: { line: NetworkLine; stopsByI
   const stops = line.stopIds.flatMap((id) => stopsById.get(id) ?? []);
   return (
     <>
-      <h3 className={sectionTitle} style={{ color: colors.textMuted }}>
-        {fr.line.stopsTitle(stops.length)}
-      </h3>
+      <SectionTitle>{fr.line.stopsTitle(stops.length)}</SectionTitle>
       <ol className="border-l-4 pl-3" style={{ borderColor: toCssColor(line.color) }}>
         {stops.map((stop) => (
           <li key={stop.id}>
@@ -43,7 +40,7 @@ function StopRail({ line, stopsById, onShowStop }: { line: NetworkLine; stopsByI
               type="button"
               onClick={() => onShowStop(stop.id)}
               aria-label={fr.mine.showOnMap(stop.name)}
-              className="w-full rounded px-1 py-0.5 text-left text-sm hover:underline focus-visible:outline-2"
+              className="w-full rounded px-2 py-0.5 text-left text-sm hover:bg-[color-mix(in_srgb,var(--g-text)_8%,transparent)] focus-visible:outline-2"
             >
               {stop.name}
               {stop.city !== "Grenoble" && <span style={{ color: colors.textMuted }}> · {stop.city}</span>}
@@ -83,41 +80,30 @@ export function LinePanel({ line, stopsById, disruptions, linesById, now, onShow
   return (
     <aside
       aria-labelledby="line-panel-title"
-      className="absolute inset-x-3 bottom-3 z-10 max-h-[60%] overflow-y-auto p-4 shadow-2xl sm:inset-x-auto sm:right-3 sm:top-16 sm:bottom-auto sm:max-h-[calc(100dvh-5rem)] sm:w-80"
-      style={{ background: colors.surface, color: colors.text, borderRadius: radii.md }}
+      className={SIDE_PANEL}
+      style={panel}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-2">
         <span
           aria-hidden
-          className="inline-flex h-8 min-w-8 shrink-0 items-center justify-center px-2 font-bold"
+          className="inline-flex h-8 min-w-8 shrink-0 items-center justify-center px-2 text-base font-bold"
           style={{ background: toCssColor(line.color), color: toCssColor(line.textColor), borderRadius: radii.pill }}
         >
           {line.shortName}
         </span>
-        <h2 id="line-panel-title" className="min-w-0 flex-1 text-base font-semibold leading-tight">
+        <h2 id="line-panel-title" className="min-w-0 flex-1 pt-1 text-base font-semibold leading-tight">
           <span className="sr-only">{name} : </span>
           {line.longName}
         </h2>
         <ShareButton name={name} search={sharedSelectionSearch({ kind: "line", id: line.id })} />
-        <button
-          ref={closeButtonRef}
-          type="button"
-          onClick={onClose}
-          aria-label={fr.line.close}
-          className="-m-1 rounded p-1 text-xl leading-none hover:opacity-80 focus-visible:outline-2"
-          style={{ color: colors.textMuted }}
-        >
-          ×
-        </button>
+        <CloseButton ref={closeButtonRef} label={fr.line.close} onClick={onClose} />
       </div>
       <div className="mt-3">
         <LineFleet line={line} />
       </div>
       {disruptions.length > 0 && (
         <>
-          <h3 className={sectionTitle} style={{ color: colors.textMuted }}>
-            {fr.line.disruptionsTitle}
-          </h3>
+          <SectionTitle>{fr.line.disruptionsTitle}</SectionTitle>
           <DisruptionList disruptions={disruptions} linesById={linesById} now={now} />
         </>
       )}

@@ -30,7 +30,9 @@ function DepartureTime({ departure, now }: { departure: Departure; now: Date }) 
       ) : (
         <span aria-hidden className="h-1.5 w-1.5 rounded-full border" style={{ borderColor: colors.textMuted }} />
       )}
-      <span style={{ color: departure.realtime ? colors.text : colors.textMuted }}>{countdownLabel(departure, now)}</span>
+      <span className={departure.realtime ? "font-semibold" : undefined} style={{ color: departure.realtime ? colors.text : colors.textMuted }}>
+        {countdownLabel(departure, now)}
+      </span>
       <span className="sr-only">({sourceLabel})</span>
     </span>
   );
@@ -75,9 +77,10 @@ export function DepartureList({ stopId, lines }: { stopId: string; lines: readon
   return (
     <div>
       {groups.length === 0 && <StatusMessage>{fr.departures.empty}</StatusMessage>}
-      <ul className="mt-2 space-y-3">
+      {/* One block per line, separated by a rule: which time belongs to which line stays clear. */}
+      <ul className="divide-y">
         {groups.map(({ line, directions }) => (
-          <li key={line.id} className="flex gap-3">
+          <li key={line.id} className="flex gap-3 py-2.5 first:pt-0" style={{ borderColor: `color-mix(in srgb, ${colors.text} 12%, transparent)` }}>
             <span
               aria-label={fr.station.line(line.shortName)}
               className="inline-flex h-6 min-w-6 shrink-0 items-center justify-center px-1.5 text-xs font-bold"
@@ -100,7 +103,7 @@ export function DepartureList({ stopId, lines }: { stopId: string; lines: readon
           </li>
         ))}
       </ul>
-      <p aria-live="polite" className="mt-3 text-xs" style={{ color: colors.textMuted }}>
+      <p aria-live="polite" className="mt-2 text-xs" style={{ color: colors.textMuted }}>
         {error && updatedAt ? fr.departures.staleWarning(updatedAt) : updatedAt && fr.departures.updatedAt(updatedAt)}
       </p>
     </div>
@@ -118,7 +121,7 @@ export function CompactDepartures({ stopId, lines }: { stopId: string; lines: re
   return (
     <ul className="mt-1.5 space-y-1">
       {rows.map(({ line, headsign, departures }) => (
-        <li key={`${line.id}-${headsign}`} className="flex items-center gap-2 text-xs">
+        <li key={`${line.id}-${headsign}`} className="flex items-center gap-2 text-sm">
           <LineChip line={line} />
           <span className="min-w-0 flex-1 truncate">{fr.departures.direction(headsign)}</span>
           {departures.slice(0, COMPACT_PER_DIRECTION).map((departure, i) => (
@@ -144,7 +147,7 @@ export function TripDepartureList({ stopId, legs, lines }: { stopId: string; leg
       {departures.map((departure, i) => {
         const line = linesById.get(departure.lineId);
         return (
-          <li key={`${departure.lineId}-${departure.departureTime}-${i}`} className="flex items-center gap-2 text-xs">
+          <li key={`${departure.lineId}-${departure.departureTime}-${i}`} className="flex items-center gap-2 text-sm">
             {line && <LineChip line={line} />}
             <span className="min-w-0 flex-1 truncate">{fr.departures.direction(departure.headsign)}</span>
             <DepartureTime departure={departure} now={now} />

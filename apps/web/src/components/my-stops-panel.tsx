@@ -2,17 +2,16 @@
 
 import { fr } from "@greline/i18n";
 import { directTripLegs, NO_TRIP } from "@greline/services";
-import { radii } from "@greline/theme";
 import type { TransitNetwork } from "@greline/types";
 import { useMemo } from "react";
 import { useFavorites, useTrip } from "@/lib/personal";
-import { colors } from "@/lib/theme-tokens";
+import { colors, ICON_BUTTON, panel, SIDE_PANEL } from "@/lib/theme-tokens";
 import { CompactDepartures, TripDepartureList } from "./departure-list";
 import { StarIcon } from "./icons";
 import { ItineraryList } from "./itinerary-list";
+import { CloseButton, SectionTitle } from "./panel-ui";
 
-const sectionTitle = "mt-5 mb-2 text-xs font-medium uppercase tracking-wide";
-const smallButton = "rounded px-2 py-1 text-xs font-medium hover:opacity-80 focus-visible:outline-2";
+const smallButton = "rounded-full px-3 py-1 text-sm font-medium hover:opacity-80 focus-visible:outline-2";
 
 interface MyStopsPanelProps {
   network: TransitNetwork;
@@ -53,7 +52,7 @@ function TripSection({ network, onShowStop }: Omit<MyStopsPanelProps, "onClose">
       ) : (
         <p className="text-sm" style={muted}>{fr.mine.noDirectLine}</p>
       )}
-      <h4 className="pt-2 text-xs font-medium" style={muted}>
+      <h4 className="pt-2 text-sm font-medium" style={muted}>
         {fr.mine.itinerariesTitle}
       </h4>
       <ItineraryList from={from} to={trip.to} />
@@ -91,7 +90,7 @@ function FavoritesSection({ network, onShowStop }: Omit<MyStopsPanelProps, "onCl
               onClick={() => toggleFavorite(stop.id)}
               aria-label={fr.mine.removeFavorite(stop.name)}
               title={fr.mine.removeFavorite(stop.name)}
-              className="-m-1 rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
+              className={ICON_BUTTON}
               style={{ color: colors.warning }}
             >
               <StarIcon filled />
@@ -109,30 +108,18 @@ export function MyStopsPanel({ network, onShowStop, onClose }: MyStopsPanelProps
   return (
     <aside
       aria-labelledby="my-stops-title"
-      className="absolute inset-x-3 bottom-3 z-10 max-h-[60%] overflow-y-auto p-4 shadow-2xl sm:inset-x-auto sm:right-3 sm:top-16 sm:bottom-auto sm:max-h-[calc(100dvh-5rem)] sm:w-80"
-      style={{ background: colors.surface, color: colors.text, borderRadius: radii.md }}
+      className={SIDE_PANEL}
+      style={panel}
     >
       <div className="flex items-start justify-between gap-3">
         <h2 id="my-stops-title" className="text-lg font-semibold leading-tight">
           {fr.mine.button}
         </h2>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={fr.mine.close}
-          className="-m-1 rounded p-1 text-xl leading-none hover:opacity-80 focus-visible:outline-2"
-          style={{ color: colors.textMuted }}
-        >
-          ×
-        </button>
+        <CloseButton label={fr.mine.close} onClick={onClose} />
       </div>
-      <h3 className={sectionTitle} style={{ color: colors.textMuted }}>
-        {fr.mine.tripTitle}
-      </h3>
+      <SectionTitle>{fr.mine.tripTitle}</SectionTitle>
       <TripSection network={network} onShowStop={onShowStop} />
-      <h3 className={sectionTitle} style={{ color: colors.textMuted }}>
-        {fr.mine.favoritesTitle}
-      </h3>
+      <SectionTitle>{fr.mine.favoritesTitle}</SectionTitle>
       <FavoritesSection network={network} onShowStop={onShowStop} />
     </aside>
   );

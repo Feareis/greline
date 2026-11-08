@@ -5,7 +5,7 @@ import type { SearchResult } from "@greline/services";
 import { radii } from "@greline/theme";
 import type { TransitNetwork } from "@greline/types";
 import { useEffect, useState } from "react";
-import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
+import { CHIP, chip, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { SearchIcon } from "./icons";
 import { type ItineraryEnds, ItinerarySearch, NO_ENDS } from "./itinerary-search";
 import { NetworkCombobox } from "./network-combobox";
@@ -25,11 +25,6 @@ interface SearchBoxProps {
 }
 
 function ModeSwitch({ mode, onChange }: { mode: SearchMode; onChange: (mode: SearchMode) => void }) {
-  const chip = (pressed: boolean) => ({
-    background: pressed ? colors.accent : "transparent",
-    color: pressed ? colors.background : colors.text,
-    borderColor: pressed ? colors.accent : colors.textMuted,
-  });
   const modes: [SearchMode, string][] = [
     ["place", fr.itinerary.searchTab],
     ["itinerary", fr.itinerary.tab],
@@ -42,7 +37,7 @@ function ModeSwitch({ mode, onChange }: { mode: SearchMode; onChange: (mode: Sea
           type="button"
           aria-pressed={mode === id}
           onClick={() => onChange(id)}
-          className="rounded-full border px-2.5 py-0.5 text-xs font-medium focus-visible:outline-2"
+          className={CHIP}
           style={chip(mode === id)}
         >
           {label}

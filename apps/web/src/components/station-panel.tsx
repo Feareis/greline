@@ -2,12 +2,13 @@
 
 import { fr } from "@greline/i18n";
 import { radii, toCssColor } from "@greline/theme";
-import { colors } from "@/lib/theme-tokens";
+import { CHIP, chip, colors, ICON_BUTTON, panel, SIDE_PANEL } from "@/lib/theme-tokens";
 import type { Disruption, Line, Stop } from "@greline/types";
 import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";
 import { DisruptionList } from "./disruption-list";
 import { StarIcon } from "./icons";
+import { CloseButton, SectionTitle } from "./panel-ui";
 import { ShareButton } from "./share-button";
 import { useFavorites, useTrip } from "@/lib/personal";
 import { sharedSelectionSearch } from "@greline/services";
@@ -30,11 +31,6 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onShowL
   const { favoriteIds, toggleFavorite } = useFavorites();
   const { trip, setTrip } = useTrip();
   const favorite = favoriteIds.includes(stop.id);
-  const tripChip = (pressed: boolean) => ({
-    background: pressed ? colors.accent : "transparent",
-    color: pressed ? colors.background : colors.text,
-    borderColor: pressed ? colors.accent : colors.textMuted,
-  });
 
   useEffect(() => {
     closeButtonRef.current?.focus();
@@ -48,47 +44,34 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onShowL
   return (
     <aside
       aria-labelledby="station-panel-title"
-      className="absolute inset-x-3 bottom-3 z-10 max-h-[60%] overflow-y-auto p-4 shadow-2xl sm:inset-x-auto sm:right-3 sm:top-16 sm:bottom-auto sm:w-80"
-      style={{ background: colors.surface, color: colors.text, borderRadius: radii.md }}
+      className={SIDE_PANEL}
+      style={panel}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div>
+      <div className="flex items-start gap-1">
+        <div className="mr-auto min-w-0">
           <h2 id="station-panel-title" className="text-lg font-semibold leading-tight">
             {stop.name}
           </h2>
-          <p className="text-sm" style={{ color: colors.textMuted }}>
+          <p className="mt-0.5 text-sm" style={{ color: colors.textMuted }}>
             {stop.city}
           </p>
         </div>
-        <div className="ml-auto">
-          <ShareButton name={stop.name} search={sharedSelectionSearch({ kind: "stop", id: stop.id })} />
-        </div>
+        <ShareButton name={stop.name} search={sharedSelectionSearch({ kind: "stop", id: stop.id })} />
         <button
           type="button"
           onClick={() => toggleFavorite(stop.id)}
           aria-pressed={favorite}
           aria-label={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
           title={favorite ? fr.station.removeFavorite : fr.station.addFavorite}
-          className="-m-1 rounded p-1 leading-none hover:opacity-80 focus-visible:outline-2"
+          className={ICON_BUTTON}
           style={{ color: favorite ? colors.warning : colors.textMuted }}
         >
           <StarIcon filled={favorite} />
         </button>
-        <button
-          ref={closeButtonRef}
-          type="button"
-          onClick={onClose}
-          aria-label={fr.station.close}
-          className="-m-1 rounded p-1 text-xl leading-none hover:opacity-80 focus-visible:outline-2"
-          style={{ color: colors.textMuted }}
-        >
-          ×
-        </button>
+        <CloseButton ref={closeButtonRef} label={fr.station.close} onClick={onClose} />
       </div>
-      <h3 className="mt-4 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
-        {fr.station.lines}
-      </h3>
-      <ul className="mt-2 flex flex-wrap gap-2">
+      <SectionTitle>{fr.station.lines}</SectionTitle>
+      <ul className="flex flex-wrap gap-2">
         {lines.map((line) => (
           <li key={line.id}>
             <button
@@ -96,7 +79,7 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onShowL
               onClick={() => onShowLine(line.id)}
               aria-label={fr.line.open(line.shortName)}
               title={fr.line.open(line.shortName)}
-              className="inline-flex h-7 min-w-7 items-center justify-center px-2 text-sm font-bold hover:opacity-80 focus-visible:outline-2"
+              className="inline-flex h-7 min-w-7 items-center justify-center px-2 text-sm font-bold hover:brightness-110 focus-visible:outline-2"
               style={{ background: toCssColor(line.color), color: toCssColor(line.textColor), borderRadius: radii.pill }}
             >
               {line.shortName}
@@ -109,8 +92,8 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onShowL
           type="button"
           aria-pressed={trip.from === stop.id}
           onClick={() => setTrip({ from: stop.id, to: trip.to === stop.id ? null : trip.to })}
-          className="rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-2"
-          style={tripChip(trip.from === stop.id)}
+          className={CHIP}
+          style={chip(trip.from === stop.id)}
         >
           {fr.station.tripFrom}
         </button>
@@ -118,23 +101,19 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onShowL
           type="button"
           aria-pressed={trip.to === stop.id}
           onClick={() => setTrip({ from: trip.from === stop.id ? null : trip.from, to: stop.id })}
-          className="rounded-full border px-3 py-1 text-xs font-medium focus-visible:outline-2"
-          style={tripChip(trip.to === stop.id)}
+          className={CHIP}
+          style={chip(trip.to === stop.id)}
         >
           {fr.station.tripTo}
         </button>
       </div>
       {disruptions.length > 0 && (
         <>
-          <h3 className="mt-5 mb-2 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
-            {fr.disruptions.stationTitle}
-          </h3>
+          <SectionTitle>{fr.disruptions.stationTitle}</SectionTitle>
           <DisruptionList disruptions={disruptions} linesById={linesById} now={now} />
         </>
       )}
-      <h3 className="mt-5 text-xs font-medium uppercase tracking-wide" style={{ color: colors.textMuted }}>
-        {fr.departures.title}
-      </h3>
+      <SectionTitle>{fr.departures.title}</SectionTitle>
       <DepartureList stopId={stop.id} lines={lines} />
     </aside>
   );
