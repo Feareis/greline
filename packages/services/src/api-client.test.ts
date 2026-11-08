@@ -105,6 +105,15 @@ describe("createApiClient() tram endpoints", () => {
     await expect(broken.getAirQuality()).rejects.toMatchObject({ code: "invalid_response" });
   });
 
+  it("fetches the P+R car parks and rejects a malformed one", async () => {
+    const parkAndRide = { id: "38185-P-011", name: "Vallier-Catane", city: "Grenoble", lat: 45.18, lon: 5.7, capacity: 492, free: 290, updatedAt: "2026-11-08T02:05:00.000Z" };
+    const fetchSpy = answering(Response.json({ parkAndRides: [parkAndRide] }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getParkAndRides()).resolves.toEqual([parkAndRide]);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/park-and-rides");
+    const broken = createApiClient({ baseUrl: "", fetch: answering(Response.json({ parkAndRides: [{ ...parkAndRide, free: -1 }] })) });
+    await expect(broken.getParkAndRides()).rejects.toMatchObject({ code: "invalid_response" });
+  });
+
   it("fetches the weather and rejects a malformed one", async () => {
     const weather = { temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" };
     const fetchSpy = answering(Response.json(weather));

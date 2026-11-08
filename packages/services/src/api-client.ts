@@ -1,5 +1,5 @@
-import type { AirQuality, Departure, Disruption, Itinerary, NetworkId, TransitSchedule, Weather } from "@greline/types";
-import { airQualitySchema, departuresResponseSchema, disruptionsResponseSchema, itinerariesResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
+import type { AirQuality, Departure, Disruption, Itinerary, NetworkId, ParkAndRide, TransitSchedule, Weather } from "@greline/types";
+import { airQualitySchema, departuresResponseSchema, disruptionsResponseSchema, itinerariesResponseSchema, parkAndRidesResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
 
 /** Our API answered with an error status, or with a body we cannot trust. */
 export class GrelineApiError extends Error {
@@ -32,6 +32,8 @@ export interface GrelineApiClient {
   getWeather(signal?: AbortSignal): Promise<Weather>;
   /** Current air quality in Grenoble. */
   getAirQuality(signal?: AbortSignal): Promise<AirQuality>;
+  /** P+R car parks with their live free spaces when counted. */
+  getParkAndRides(signal?: AbortSignal): Promise<ParkAndRide[]>;
   /** Ongoing and upcoming official disruptions of our lines. */
   getDisruptions(signal?: AbortSignal): Promise<Disruption[]>;
   /**
@@ -76,6 +78,9 @@ export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOp
     },
     getWeather: (signal) => getJson("/api/weather", weatherSchema, signal),
     getAirQuality: (signal) => getJson("/api/air-quality", airQualitySchema, signal),
+    async getParkAndRides(signal) {
+      return (await getJson("/api/park-and-rides", parkAndRidesResponseSchema, signal)).parkAndRides;
+    },
     async getDisruptions(signal) {
       return (await getJson("/api/disruptions", disruptionsResponseSchema, signal)).disruptions;
     },

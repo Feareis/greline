@@ -119,6 +119,21 @@ export interface Weather {
   sunset: string;
 }
 
+/** A park and ride car park (P+R), with its free spaces when its sensors report them. */
+export interface ParkAndRide {
+  id: string;
+  name: string;
+  city: string;
+  lat: number;
+  lon: number;
+  /** P+R spaces. */
+  capacity: number;
+  /** Free P+R spaces now, at most `capacity`; null for a car park without live count. */
+  free: number | null;
+  /** When `free` was counted (ISO 8601); null without live count. */
+  updatedAt: string | null;
+}
+
 /** Current air quality in Grenoble, as exposed by our API. */
 export interface AirQuality {
   /** European air quality index (0 = clean; above 100 = extremely poor). */
