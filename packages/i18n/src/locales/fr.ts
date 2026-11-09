@@ -165,6 +165,7 @@ export const fr = {
     rows: { weather: "Météo", sun: "Soleil", air: "Air", moon: "Lune", traffic: "Trafic" },
     sunTimes: (sunrise: string, sunset: string) => `${sunrise} → ${sunset}`,
     weatherUnavailable: "Météo indisponible",
+    weatherLoading: "Chargement de la météo…",
     air: (level: string) => `Air : ${level}`,
     airIndex: (index: number) => `Indice européen de qualité de l'air : ${index}`,
     airLevels: {
@@ -176,6 +177,7 @@ export const fr = {
       extremelyPoor: "extrêmement mauvais",
     },
     airUnavailable: "Qualité de l'air indisponible",
+    airLoading: "Chargement de la qualité de l'air…",
     conditions: {
       clear: "Ciel dégagé",
       mostlyClear: "Peu nuageux",

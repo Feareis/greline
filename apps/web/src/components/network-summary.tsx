@@ -9,7 +9,7 @@ import { useLayoutEffect, useRef } from "react";
 import { CHIP, chip, colors, glass } from "@/lib/theme-tokens";
 import { ChevronIcon } from "./icons";
 import { PARK_AND_RIDE_COLOR } from "./park-and-ride-markers";
-import { SECTION_TITLE, SectionTitle } from "./panel-ui";
+import { SECTION_TITLE, SectionTitle, Skeleton } from "./panel-ui";
 
 const SECONDS_PER_MINUTE = 60;
 
@@ -95,7 +95,8 @@ function NetworkFilter({ networks, onChange }: NetworkFilterProps) {
 
 interface LineCountsProps {
   lines: readonly Line[];
-  byLine: Readonly<Record<string, number>>;
+  /** Vehicles per line; undefined while the first realtime data is on its way. */
+  byLine: Readonly<Record<string, number>> | undefined;
   onShowLine: (lineId: string) => void;
 }
 
@@ -107,7 +108,7 @@ function LineCounts({ lines, byLine, onShowLine }: LineCountsProps) {
           <button
             type="button"
             onClick={() => onShowLine(line.id)}
-            aria-label={`${fr.fleet.lineCount(line.shortName, byLine[line.id] ?? 0)}. ${fr.line.open(line.shortName)}`}
+            aria-label={byLine ? `${fr.fleet.lineCount(line.shortName, byLine[line.id] ?? 0)}. ${fr.line.open(line.shortName)}` : fr.line.open(line.shortName)}
             title={fr.line.open(line.shortName)}
             className="flex items-center gap-1.5 rounded-full py-0.5 pr-2.5 pl-0.5 text-sm font-semibold hover:brightness-110 focus-visible:outline-2"
             style={{ background: `color-mix(in srgb, ${toCssColor(line.color)} 18%, transparent)` }}
@@ -119,7 +120,7 @@ function LineCounts({ lines, byLine, onShowLine }: LineCountsProps) {
             >
               {line.shortName}
             </span>
-            <span aria-hidden>{byLine[line.id] ?? 0}</span>
+            {byLine ? <span aria-hidden>{byLine[line.id] ?? 0}</span> : <Skeleton className="h-3.5 w-4" />}
           </button>
         </li>
       ))}
@@ -162,7 +163,7 @@ export function NetworkSummary({ lines, networks, onChange, onShowLine }: Networ
     if (detailsRef.current && window.matchMedia(NARROW_SCREEN).matches) detailsRef.current.open = false;
   }, []);
 
-  const heading = isError ? fr.fleet.unavailable : isLoading ? fr.fleet.loading : fr.fleet.running(summary?.running ?? 0);
+  const heading = isError ? fr.fleet.unavailable : fr.fleet.running(summary?.running ?? 0);
   return (
     // The user folds and unfolds it at will.
     <details
@@ -172,7 +173,14 @@ export function NetworkSummary({ lines, networks, onChange, onShowLine }: Networ
       style={{ ...glass, borderRadius: radii.md }}
     >
       <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3.5 py-2.5 font-semibold focus-visible:outline-2">
-        <span>{heading}</span>
+        {isLoading ? (
+          <span role="status" className="flex-1">
+            <span className="sr-only">{fr.fleet.loading}</span>
+            <Skeleton className="h-4 w-44" />
+          </span>
+        ) : (
+          <span>{heading}</span>
+        )}
         <span className="transition-transform group-open:rotate-180" style={{ color: colors.textMuted }}>
           <ChevronIcon />
         </span>
@@ -180,13 +188,18 @@ export function NetworkSummary({ lines, networks, onChange, onShowLine }: Networ
       <div className="px-3.5 pb-3.5">
         <SectionTitle>{fr.networks.label}</SectionTitle>
         <NetworkFilter networks={networks} onChange={onChange} />
-        {summary && (
+        {/* The lines are known from the start: only their counts wait for the realtime data. */}
+        {(summary || isLoading) && (
           <>
             <SectionTitle>{fr.fleet.byLineTitle}</SectionTitle>
-            <LineCounts lines={shownLines} byLine={summary.byLine} onShowLine={onShowLine} />
-            <p className="mt-2 text-sm font-medium" style={{ color: summary.late > 0 ? colors.late : colors.textMuted }}>
-              {fleetLateText(summary, delaysAvailable)}
-            </p>
+            <LineCounts lines={shownLines} byLine={summary?.byLine} onShowLine={onShowLine} />
+            {summary ? (
+              <p className="mt-2 text-sm font-medium" style={{ color: summary.late > 0 ? colors.late : colors.textMuted }}>
+                {fleetLateText(summary, delaysAvailable)}
+              </p>
+            ) : (
+              <Skeleton className="mt-2 h-4 w-36" />
+            )}
           </>
         )}
         {/* Read once, then in the way: folded by default. */}

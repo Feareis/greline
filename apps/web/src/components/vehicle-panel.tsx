@@ -8,7 +8,7 @@ import type { Line, Occupancy, Stop, TransitPattern, TransitTrip } from "@grelin
 import { type ReactNode, type Ref, useEffect, useRef } from "react";
 import { CHIP, chip, colors, panel, SIDE_PANEL } from "@/lib/theme-tokens";
 import { OccupancyGauge } from "./occupancy-gauge";
-import { CloseButton, SectionTitle } from "./panel-ui";
+import { CloseButton, SectionTitle, SkeletonRows } from "./panel-ui";
 import { ShareButton } from "./share-button";
 
 /** Upcoming stops move on as the vehicle does: a few seconds is enough between two looks. */
@@ -160,7 +160,7 @@ export function VehiclePanel({ vehicleKey, followed, isPending, stopsById, follo
           <UpcomingStopList followed={followed} delaySeconds={delaySeconds ?? 0} stopsById={stopsById} onShowStop={onShowStop} />
         </>
       ) : (
-        <Message>{isPending ? fr.vehicle.loading : fr.vehicle.gone}</Message>
+        isPending ? <SkeletonRows label={fr.vehicle.loading} rows={4} /> : <Message>{fr.vehicle.gone}</Message>
       )}
     </aside>
   );

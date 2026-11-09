@@ -9,7 +9,7 @@ import { useId, useState } from "react";
 import { colors, glass } from "@/lib/theme-tokens";
 import { ChevronIcon } from "./icons";
 import { PARK_AND_RIDE_COLOR } from "./park-and-ride-markers";
-import { SectionTitle } from "./panel-ui";
+import { SectionTitle, SkeletonRows } from "./panel-ui";
 
 const byName = (a: ParkAndRide, b: ParkAndRide) => a.name.localeCompare(b.name, "fr");
 const muted = { color: colors.textMuted };
@@ -128,7 +128,7 @@ export function ParkAndRidePanel({ shown, onShownChange }: ParkAndRidePanelProps
           ) : parkAndRides ? (
             <ParkAndRideList parkAndRides={parkAndRides} />
           ) : (
-            <p style={muted}>{fr.parkAndRide.loading}</p>
+            <SkeletonRows label={fr.parkAndRide.loading} rows={4} />
           )}
         </div>
       )}

@@ -8,6 +8,7 @@ import type { DisruptionSeverity, NetworkId } from "@greline/types";
 import { type ReactNode, useState } from "react";
 import { colors, glass, ICON_BUTTON } from "@/lib/theme-tokens";
 import { ChevronIcon } from "./icons";
+import { Skeleton } from "./panel-ui";
 import { fleetLateText } from "./network-summary";
 
 const PARIS_DAY = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" });
@@ -37,6 +38,16 @@ const AIR_COLOR: Record<AirQualityLevel, string> = {
 
 const muted = { color: colors.textMuted };
 
+/** A value still on its way: its row keeps its place, screen readers hear `label`. */
+function LoadingValue({ label }: { label: string }) {
+  return (
+    <span role="status">
+      <span className="sr-only">{label}</span>
+      <Skeleton className="mt-0.5 h-4 w-32" />
+    </span>
+  );
+}
+
 /** One labeled row. `wideOnly` rows are left out on phones, where the panel must stay small. */
 function Row({ label, wideOnly = false, children }: { label: string; wideOnly?: boolean; children: ReactNode }) {
   return (
@@ -60,7 +71,13 @@ function WeatherRows() {
       </Row>
     );
   }
-  if (!weather) return null;
+  if (!weather) {
+    return (
+      <Row label={fr.day.rows.weather}>
+        <LoadingValue label={fr.day.weatherLoading} />
+      </Row>
+    );
+  }
   return (
     <>
       <Row label={fr.day.rows.weather}>
@@ -84,7 +101,13 @@ function AirQualityRow() {
       </Row>
     );
   }
-  if (!data) return null;
+  if (!data) {
+    return (
+      <Row label={fr.day.rows.air}>
+        <LoadingValue label={fr.day.airLoading} />
+      </Row>
+    );
+  }
   const level = airQualityLevel(data.index);
   return (
     <Row label={fr.day.rows.air}>
@@ -109,8 +132,16 @@ interface TrafficProps {
  * a cut line is red).
  */
 function TrafficRow({ networks, ongoingSeverities }: TrafficProps) {
-  const { summary, delaysAvailable } = useFleetSummary(networks);
+  const { summary, isLoading, delaysAvailable } = useFleetSummary(networks);
   const disruptions = ongoingSeverities.filter((severity) => severity !== "info").length;
+  // Still loading is not "unknown": the row waits with a placeholder.
+  if (isLoading && disruptions === 0) {
+    return (
+      <Row label={fr.day.rows.traffic}>
+        <LoadingValue label={fr.fleet.loading} />
+      </Row>
+    );
+  }
   if (!summary && disruptions === 0) {
     return (
       <Row label={fr.day.rows.traffic}>

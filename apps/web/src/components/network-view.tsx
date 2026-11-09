@@ -5,7 +5,6 @@ import { fr } from "@greline/i18n";
 import { isDrawnOnMap, isOngoing, parseSharedSelection, type SharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
 import { useLinkSearch } from "@/lib/link-search";
 import { useNetworkFilter, useParkAndRidesShown } from "@/lib/network-filter";
-import { colors } from "@/lib/theme-tokens";
 import type { Disruption, Line, NetworkId, TransitNetwork } from "@greline/types";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
@@ -18,16 +17,19 @@ import { MoreMenu } from "./more-menu";
 import { MyStopsPanel } from "./my-stops-panel";
 import { TopBar } from "./top-bar";
 import { NetworkSummary } from "./network-summary";
+import { Skeleton } from "./panel-ui";
 import { ParkAndRidePanel } from "./park-and-ride-panel";
 import { type FollowedTrip, VehiclePanel } from "./vehicle-panel";
 
-// MapLibre is heavy and needs the browser: it is loaded on the client only.
+// MapLibre is heavy and needs the browser: it is loaded on the client only. Meanwhile (seconds on a
+// slow phone) a pulsing placeholder fills the map area, under the panels already in place.
 const GeoMap = dynamic(() => import("./geo-map").then((m) => m.GeoMap), {
   ssr: false,
   loading: () => (
-    <p className="flex h-full items-center justify-center" style={{ color: colors.textMuted }}>
-      {fr.geoMap.loading}
-    </p>
+    <div role="status" className="h-full w-full">
+      <span className="sr-only">{fr.geoMap.loading}</span>
+      <Skeleton className="h-full w-full rounded-none" />
+    </div>
   ),
 });
 

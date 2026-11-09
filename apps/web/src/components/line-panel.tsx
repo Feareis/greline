@@ -8,7 +8,7 @@ import type { Disruption, Line, NetworkLine, Stop } from "@greline/types";
 import { useEffect, useMemo, useRef } from "react";
 import { colors, panel, SIDE_PANEL } from "@/lib/theme-tokens";
 import { DisruptionList } from "./disruption-list";
-import { CloseButton, SectionTitle } from "./panel-ui";
+import { CloseButton, SectionTitle, SkeletonRows } from "./panel-ui";
 import { ShareButton } from "./share-button";
 
 /** Vehicles of this line running now, and how many are late. */
@@ -17,7 +17,7 @@ function LineFleet({ line }: { line: NetworkLine }) {
   const { summary, isLoading, isError, delaysAvailable } = useFleetSummary(networks);
   const muted = { color: colors.textMuted };
   if (isError) return <p className="text-sm" style={muted}>{fr.line.vehiclesUnavailable}</p>;
-  if (isLoading || !summary) return <p className="text-sm" style={muted}>{fr.line.vehiclesLoading}</p>;
+  if (isLoading || !summary) return <SkeletonRows label={fr.line.vehiclesLoading} rows={1} />;
   const late = summary.lateByLine[line.id] ?? 0;
   return (
     <p className="text-sm" style={{ color: late > 0 ? colors.late : colors.text }}>
