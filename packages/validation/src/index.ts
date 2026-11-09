@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality, type ParkAndRide, type StopAccess } from "@greline/types";
+import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality, type Occupancy, type ParkAndRide, type StopAccess } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -20,6 +20,7 @@ export const departureSchema = z.object({
   headsign: z.string(),
   departureTime: z.iso.datetime({ offset: true }),
   realtime: z.boolean(),
+  occupancy: z.enum(["low", "medium", "high"]).nullable(),
 }) satisfies z.ZodType<Departure>;
 
 /**
@@ -107,8 +108,11 @@ export const transitScheduleSchema = z
     { message: "a pattern refers to a missing shape or has one distance per stop missing" },
   ) satisfies z.ZodType<TransitSchedule>;
 
-/** Body of `GET /api/network/delays`: seconds, keyed by trip id. */
-export const tripDelaysResponseSchema = z.object({ delays: z.record(z.string(), z.number().int()) });
+/** Body of `GET /api/network/delays`: delays in seconds and expected occupancy, keyed by trip id. */
+export const tripDelaysResponseSchema = z.object({
+  delays: z.record(z.string(), z.number().int()),
+  occupancy: z.record(z.string(), z.enum(["low", "medium", "high"]) satisfies z.ZodType<Occupancy>),
+});
 
 /** Body of `GET /api/disruptions`. */
 export const disruptionsResponseSchema = z.object({

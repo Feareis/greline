@@ -305,6 +305,11 @@ export const fr = {
     copied: "Lien copié",
     failed: "Copie impossible",
   },
+  occupancy: {
+    low: "Affluence prévue : faible",
+    medium: "Affluence prévue : modérée",
+    high: "Affluence prévue : forte",
+  },
   departures: {
     title: "Prochains passages",
     loading: "Chargement des passages…",

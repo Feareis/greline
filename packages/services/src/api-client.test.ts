@@ -8,6 +8,7 @@ const departure = {
   headsign: "La Poya",
   departureTime: "2026-11-06T09:06:48.000Z",
   realtime: true,
+  occupancy: "low",
 };
 
 const answering = (response: Response) => vi.fn(async (_url: string, _init?: RequestInit) => response);
@@ -70,9 +71,10 @@ describe("createApiClient() tram endpoints", () => {
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/schedule?network=chrono");
   });
 
-  it("fetches the realtime trip delays", async () => {
-    const fetchSpy = answering(Response.json({ delays: { "SEM:1": 90 } }));
-    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTripDelays()).resolves.toEqual({ "SEM:1": 90 });
+  it("fetches the realtime trip delays and occupancy", async () => {
+    const readings = { delays: { "SEM:1": 90 }, occupancy: { "SEM:1": "medium" } };
+    const fetchSpy = answering(Response.json(readings));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTripDelays()).resolves.toEqual(readings);
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/delays");
   });
 

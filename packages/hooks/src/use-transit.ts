@@ -1,5 +1,5 @@
 import { fleetSummary, type GrelineApiClient, vehiclePositions } from "@greline/services";
-import type { NetworkId, TransitSchedule } from "@greline/types";
+import type { NetworkId, TransitSchedule, TripReadings } from "@greline/types";
 import { queryOptions, type UseQueryResult, useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { retryServerErrors, useApiConfig } from "./api-config";
@@ -8,8 +8,6 @@ import { useNow } from "./use-now";
 export const DEFAULT_DELAYS_REFRESH_MS = 15_000;
 /** The schedule only changes with the service day: an hourly check catches midnight. */
 export const SCHEDULE_REFRESH_MS = 3_600_000;
-
-type Delays = Record<string, number>;
 
 export function scheduleQueryOptions(client: GrelineApiClient, network: NetworkId) {
   return queryOptions({
@@ -23,11 +21,14 @@ export function scheduleQueryOptions(client: GrelineApiClient, network: NetworkI
 }
 
 /**
- * A vehicle is only measured while it approaches a probe station, so the last known delay is
- * kept once it moves past. Bounded by the trips of one day (~5 000 entries).
+ * A vehicle is only measured while it approaches a probe station, so its last known delay and
+ * occupancy are kept once it moves past. Bounded by the trips of one day (~5 000 entries).
  */
-export function mergeDelays(previous: Delays | undefined, next: Delays): Delays {
-  return { ...previous, ...next };
+export function mergeTripReadings(previous: TripReadings | undefined, next: TripReadings): TripReadings {
+  return {
+    delays: { ...previous?.delays, ...next.delays },
+    occupancy: { ...previous?.occupancy, ...next.occupancy },
+  };
 }
 
 export function tripDelaysQueryOptions(client: GrelineApiClient, refetchIntervalMs = DEFAULT_DELAYS_REFRESH_MS) {
@@ -38,7 +39,7 @@ export function tripDelaysQueryOptions(client: GrelineApiClient, refetchInterval
     refetchIntervalInBackground: false,
     staleTime: refetchIntervalMs,
     retry: retryServerErrors,
-    structuralSharing: (previous, next) => mergeDelays(previous as Delays | undefined, next as Delays),
+    structuralSharing: (previous, next) => mergeTripReadings(previous as TripReadings | undefined, next as TripReadings),
   });
 }
 
@@ -64,7 +65,7 @@ export function useSchedules(networks: readonly NetworkId[]): Schedules {
   return useQueries({ queries: networks.map((network) => scheduleQueryOptions(client, network)), combine: combineSchedules });
 }
 
-/** Realtime delays of running trams, refreshed every 15 s while the page is visible. */
+/** Realtime delays and occupancy of running vehicles, refreshed every 15 s while the page is visible. */
 export function useTripDelays() {
   const { client, delaysRefreshMs } = useApiConfig();
   return useQuery(tripDelaysQueryOptions(client, delaysRefreshMs));
@@ -78,7 +79,7 @@ export function useFleetSummary(networks: readonly NetworkId[], refreshMs = 5_00
   const summary = useMemo(() => {
     if (isPending) return undefined;
     const seconds = now.getTime() / 1000;
-    return fleetSummary(schedules.flatMap((schedule) => vehiclePositions(schedule, delays.data ?? {}, seconds)));
+    return fleetSummary(schedules.flatMap((schedule) => vehiclePositions(schedule, delays.data?.delays ?? {}, seconds)));
   }, [schedules, isPending, delays.data, now]);
   return {
     summary,

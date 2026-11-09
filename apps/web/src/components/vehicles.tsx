@@ -113,7 +113,7 @@ interface VehiclesProps {
 export function Vehicles({ lines, networks, theme }: VehiclesProps) {
   const { current: mapRef } = useMap();
   const { schedules } = useSchedules(networks);
-  const { data: delays } = useTripDelays();
+  const delays = useTripDelays().data?.delays;
   const linesById = useMemo(() => new Map(lines.map((line) => [line.id, line])), [lines]);
   const tracked = useMemo(
     () =>

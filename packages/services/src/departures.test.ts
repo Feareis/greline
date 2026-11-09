@@ -50,6 +50,7 @@ describe("groupDepartures", () => {
     headsign,
     departureTime: `2026-11-06T${time}:00Z`,
     realtime: true,
+    occupancy: null,
   });
 
   const grouped = groupDepartures(

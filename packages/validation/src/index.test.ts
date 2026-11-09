@@ -35,10 +35,13 @@ describe("departuresResponseSchema", () => {
   it("accepts our API departures payload", () => {
     const payload = {
       departures: [
-        { lineId: "SEM:A", stopId: "SEM:GENGAR", direction: "1", headsign: "La Poya", departureTime: "2026-11-06T09:06:48.000Z", realtime: true },
+        { lineId: "SEM:A", stopId: "SEM:GENGAR", direction: "1", headsign: "La Poya", departureTime: "2026-11-06T09:06:48.000Z", realtime: true, occupancy: "medium" },
+        { lineId: "SEM:A", stopId: "SEM:GENGAR", direction: "1", headsign: "La Poya", departureTime: "2026-11-06T09:12:00.000Z", realtime: false, occupancy: null },
       ],
     };
-    expect(departuresResponseSchema.parse(payload).departures).toHaveLength(1);
+    expect(departuresResponseSchema.parse(payload).departures).toHaveLength(2);
+    const unknown = { departures: [{ ...payload.departures[0], occupancy: "packed" }] };
+    expect(departuresResponseSchema.safeParse(unknown).success).toBe(false);
   });
 });
 
@@ -71,11 +74,14 @@ describe("transitScheduleSchema", () => {
 });
 
 describe("tripDelaysResponseSchema", () => {
-  it("accepts delays in seconds keyed by trip id", () => {
-    expect(tripDelaysResponseSchema.parse({ delays: { "SEM:1": 90, "SEM:2": -20 } }).delays["SEM:2"]).toBe(-20);
+  it("accepts delays in seconds and occupancy keyed by trip id", () => {
+    const readings = tripDelaysResponseSchema.parse({ delays: { "SEM:1": 90, "SEM:2": -20 }, occupancy: { "SEM:1": "high" } });
+    expect(readings.delays["SEM:2"]).toBe(-20);
+    expect(readings.occupancy["SEM:1"]).toBe("high");
   });
 
-  it("rejects non-numeric delays", () => {
-    expect(tripDelaysResponseSchema.safeParse({ delays: { "SEM:1": "late" } }).success).toBe(false);
+  it("rejects non-numeric delays and unknown occupancy levels", () => {
+    expect(tripDelaysResponseSchema.safeParse({ delays: { "SEM:1": "late" }, occupancy: {} }).success).toBe(false);
+    expect(tripDelaysResponseSchema.safeParse({ delays: {}, occupancy: { "SEM:1": "packed" } }).success).toBe(false);
   });
 });
