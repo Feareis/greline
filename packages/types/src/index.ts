@@ -26,6 +26,9 @@ export interface Stop {
   lon: number;
 }
 
+/** Wheelchair access of a stop: from every platform, from some of them, or from none. */
+export type StopAccess = "accessible" | "partial" | "inaccessible";
+
 /** A geographic position, GeoJSON order: longitude first, then latitude (degrees). */
 export type LonLat = [lon: number, lat: number];
 

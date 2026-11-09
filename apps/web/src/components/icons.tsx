@@ -78,3 +78,15 @@ export const RefreshIcon = () => (
     <path d="M21 4v5h-5M3 20v-5h5" />
   </svg>
 );
+
+/** The wheelchair symbol; crossed out when access is impossible. */
+export function WheelchairIcon({ crossed = false }: { crossed?: boolean }) {
+  return (
+    <svg {...iconProps} width={16} height={16}>
+      <circle cx="11" cy="4" r="1.5" />
+      <path d="M11 7v6h5l2 5M11 10h4" />
+      <path d="M8.5 10.5a5 5 0 1 0 6.4 7" />
+      {crossed && <path d="M3 3l18 18" />}
+    </svg>
+  );
+}

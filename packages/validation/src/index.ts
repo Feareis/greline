@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality, type ParkAndRide } from "@greline/types";
+import { type Departure, type Disruption, type Itinerary, type ItineraryEnd, type ItineraryRide, type Line, NETWORK_IDS, type TransitSchedule, type Weather, type AirQuality, type ParkAndRide, type StopAccess } from "@greline/types";
 
 const hexColor = z.string().regex(/^[0-9A-Fa-f]{6}$/, "expected a 6-digit hex color without #");
 
@@ -64,6 +64,11 @@ export const parkAndRidesResponseSchema = z.object({
       updatedAt: z.iso.datetime().nullable(),
     }) satisfies z.ZodType<ParkAndRide>,
   ),
+});
+
+/** Body of `GET /api/stops/accessibility`: wheelchair access, keyed by stop id. */
+export const stopAccessibilityResponseSchema = z.object({
+  accessibility: z.record(z.string(), z.enum(["accessible", "partial", "inaccessible"]) satisfies z.ZodType<StopAccess>),
 });
 
 /** Body of `GET /api/stops/{id}/departures`. */

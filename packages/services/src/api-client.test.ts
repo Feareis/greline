@@ -114,6 +114,15 @@ describe("createApiClient() tram endpoints", () => {
     await expect(broken.getParkAndRides()).rejects.toMatchObject({ code: "invalid_response" });
   });
 
+  it("fetches the stop accessibility and rejects an unknown level", async () => {
+    const accessibility = { "SEM:GENGAR": "accessible", "SEM:GENCHAV": "partial" };
+    const fetchSpy = answering(Response.json({ accessibility }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getStopAccessibility()).resolves.toEqual(accessibility);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/stops/accessibility");
+    const broken = createApiClient({ baseUrl: "", fetch: answering(Response.json({ accessibility: { "SEM:GENGAR": "yes" } })) });
+    await expect(broken.getStopAccessibility()).rejects.toMatchObject({ code: "invalid_response" });
+  });
+
   it("fetches the weather and rejects a malformed one", async () => {
     const weather = { temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" };
     const fetchSpy = answering(Response.json(weather));

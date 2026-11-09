@@ -260,6 +260,11 @@ export const fr = {
     tripFrom: "Partir d'ici",
     tripTo: "Aller ici",
     line: (shortName: string) => `Ligne ${shortName}`,
+    access: {
+      accessible: "Arrêt accessible en fauteuil roulant",
+      partial: "Arrêt accessible en fauteuil roulant depuis certains quais seulement",
+      inaccessible: "Arrêt non accessible en fauteuil roulant",
+    },
   },
   search: {
     button: "Rechercher",

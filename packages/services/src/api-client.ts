@@ -1,5 +1,5 @@
-import type { AirQuality, Departure, Disruption, Itinerary, NetworkId, ParkAndRide, TransitSchedule, Weather } from "@greline/types";
-import { airQualitySchema, departuresResponseSchema, disruptionsResponseSchema, itinerariesResponseSchema, parkAndRidesResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
+import type { AirQuality, Departure, Disruption, Itinerary, NetworkId, ParkAndRide, StopAccess, TransitSchedule, Weather } from "@greline/types";
+import { airQualitySchema, departuresResponseSchema, disruptionsResponseSchema, itinerariesResponseSchema, parkAndRidesResponseSchema, stopAccessibilityResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
 
 /** Our API answered with an error status, or with a body we cannot trust. */
 export class GrelineApiError extends Error {
@@ -34,6 +34,8 @@ export interface GrelineApiClient {
   getAirQuality(signal?: AbortSignal): Promise<AirQuality>;
   /** P+R car parks with their live free spaces when counted. */
   getParkAndRides(signal?: AbortSignal): Promise<ParkAndRide[]>;
+  /** Wheelchair access, keyed by stop id; stops without data are left out. */
+  getStopAccessibility(signal?: AbortSignal): Promise<Record<string, StopAccess>>;
   /** Ongoing and upcoming official disruptions of our lines. */
   getDisruptions(signal?: AbortSignal): Promise<Disruption[]>;
   /**
@@ -80,6 +82,9 @@ export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOp
     getAirQuality: (signal) => getJson("/api/air-quality", airQualitySchema, signal),
     async getParkAndRides(signal) {
       return (await getJson("/api/park-and-rides", parkAndRidesResponseSchema, signal)).parkAndRides;
+    },
+    async getStopAccessibility(signal) {
+      return (await getJson("/api/stops/accessibility", stopAccessibilityResponseSchema, signal)).accessibility;
     },
     async getDisruptions(signal) {
       return (await getJson("/api/disruptions", disruptionsResponseSchema, signal)).disruptions;
