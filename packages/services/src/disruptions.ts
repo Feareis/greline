@@ -5,6 +5,14 @@ import { formatClockTime, parisDate } from "./time";
 export const isOngoing = (disruption: Disruption, now: Date): boolean =>
   new Date(disruption.start) <= now && now < new Date(disruption.end);
 
+/**
+ * Whether the map draws the disruption on the line: a located stretch, or a whole line that is
+ * cut. A whole line merely "disrupted" (a moved stop, a detour somewhere) is left to the texts:
+ * drawn end to end, it would outweigh the network itself.
+ */
+export const isDrawnOnMap = (disruption: Disruption): boolean =>
+  disruption.stretch !== null || disruption.severity === "interrupted";
+
 /** Not started yet, but starts today (Grenoble calendar day). */
 export function startsLaterToday(disruption: Disruption, now: Date): boolean {
   const start = new Date(disruption.start);

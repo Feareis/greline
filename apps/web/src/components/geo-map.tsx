@@ -271,7 +271,7 @@ interface GeoMapProps {
   network: TransitNetwork;
   /** Networks shown on the map (lines, stops, vehicles). */
   networks: readonly NetworkId[];
-  /** Ongoing disruptions to dash on the map: their stretch, or the whole line. */
+  /** Ongoing disruptions to dash on the map: their stretch, or the whole line (see isDrawnOnMap). */
   disrupted: readonly Disruption[];
   /** A stop or a line to bring into view, picked from a list. */
   focus: MapFocus | null;
