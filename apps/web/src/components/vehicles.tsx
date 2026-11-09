@@ -3,12 +3,14 @@
 import { useSchedules, useTripDelays } from "@greline/hooks";
 import { cumulativeDistances, LATE_THRESHOLD_SECONDS, pointAtDistance, vehiclePositions } from "@greline/services";
 import { colors as iconColors, palettes, type ThemeName } from "@greline/theme";
-import type { Line, LineMode, NetworkId, TransitSchedule } from "@greline/types";
+import type { Line, LineMode, LonLat, NetworkId, TransitSchedule } from "@greline/types";
 import type { GeoJSONSource, Map as MapLibreMap } from "maplibre-gl";
 import { useEffect, useMemo } from "react";
 import { Layer, Source, useMap } from "react-map-gl/maplibre";
 
 const SOURCE_ID = "vehicles";
+/** The clickable layer of the vehicles. */
+export const VEHICLES_LAYER = SOURCE_ID;
 /** Vehicles move a few meters per second: 10 redraws per second look smooth and spare the CPU. */
 const REDRAW_INTERVAL_MS = 100;
 /** Line numbers next to buses from this zoom on (Chrono lines all share one color). */
@@ -67,12 +69,20 @@ interface TrackedSchedule {
   tracks: { shape: TransitSchedule["shapes"][number]; cumulative: number[] }[];
 }
 
-function vehicleFeatures(
+interface Frame {
+  data: FeatureCollection;
+  /** Where the followed vehicle is now; null when it is not running. */
+  followed: LonLat | null;
+}
+
+function vehicleFrame(
   schedules: readonly TrackedSchedule[],
   delays: Readonly<Record<string, number>>,
   linesById: ReadonlyMap<string, Line>,
-): FeatureCollection {
+  followedKey: string | null,
+): Frame {
   const now = Date.now() / 1000;
+  let followed: LonLat | null = null;
   const features = schedules.flatMap(({ schedule, tracks }) =>
     vehiclePositions(schedule, delays, now).flatMap((vehicle) => {
       const line = linesById.get(vehicle.lineId);
@@ -80,29 +90,36 @@ function vehicleFeatures(
       const track = tracks[schedule.patterns[vehicle.pattern]!.shape]!;
       const { lon, lat, bearing } = pointAtDistance(track.shape, track.cumulative, vehicle.distance);
       const late = vehicle.delaySeconds > LATE_THRESHOLD_SECONDS;
+      const isFollowed = vehicle.key === followedKey;
+      if (isFollowed) followed = [lon, lat];
       return [
         {
           type: "Feature" as const,
           geometry: { type: "Point" as const, coordinates: [lon, lat] },
           properties: {
+            key: vehicle.key,
             icon: vehicleIconId(line.mode, line.color.replace("#", ""), late),
             // The icon points east: rotate it from there to the direction of travel.
             rotate: bearing - 90,
             label: line.mode === "bus" ? line.shortName : "",
-            // Drawn on top: trams over buses, late vehicles over the others.
-            order: (line.mode === "tram" ? 1 : 0) + (late ? 2 : 0),
+            // Drawn on top: trams over buses, late vehicles over the others, the followed one over all.
+            order: (line.mode === "tram" ? 1 : 0) + (late ? 2 : 0) + (isFollowed ? 4 : 0),
           },
         },
       ];
     }),
   );
-  return { type: "FeatureCollection", features };
+  return { data: { type: "FeatureCollection", features }, followed };
 }
 
 interface VehiclesProps {
   lines: readonly Line[];
   networks: readonly NetworkId[];
   theme: ThemeName;
+  /** Vehicle key of the followed vehicle: ringed and drawn over the others. */
+  followedKey: string | null;
+  /** Called on every redraw with the followed vehicle's position, so the camera can keep it in view. */
+  onFollowedMove?: (position: LonLat) => void;
 }
 
 /**
@@ -110,7 +127,7 @@ interface VehiclesProps {
  * Positions come from today's schedules shifted by realtime delays; the GeoJSON source is
  * updated outside React renders.
  */
-export function Vehicles({ lines, networks, theme }: VehiclesProps) {
+export function Vehicles({ lines, networks, theme, followedKey, onFollowedMove }: VehiclesProps) {
   const { current: mapRef } = useMap();
   const { schedules } = useSchedules(networks);
   const delays = useTripDelays().data?.delays;
@@ -136,15 +153,30 @@ export function Vehicles({ lines, networks, theme }: VehiclesProps) {
       const source = map.getSource<GeoJSONSource>(SOURCE_ID);
       if (!source) return;
       lastDraw = timestamp;
-      source.setData(vehicleFeatures(tracked, delays ?? {}, linesById));
+      const { data, followed } = vehicleFrame(tracked, delays ?? {}, linesById, followedKey);
+      source.setData(data);
+      if (followed) onFollowedMove?.(followed);
     };
     frame = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(frame);
-  }, [mapRef, tracked, delays, linesById]);
+  }, [mapRef, tracked, delays, linesById, followedKey, onFollowedMove]);
 
   const palette = palettes[theme];
   return (
     <Source id={SOURCE_ID} type="geojson" data={EMPTY}>
+      {/* Ring under the followed vehicle, so it stands out among the others. */}
+      <Layer
+        id="followed-vehicle"
+        type="circle"
+        filter={["==", ["get", "key"], followedKey ?? ""]}
+        paint={{
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 11, 10, 14, 14, 17, 24],
+          "circle-color": palette.accent,
+          "circle-opacity": 0.25,
+          "circle-stroke-color": palette.accent,
+          "circle-stroke-width": 2,
+        }}
+      />
       <Layer
         id={SOURCE_ID}
         type="symbol"

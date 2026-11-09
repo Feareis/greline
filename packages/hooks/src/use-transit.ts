@@ -1,5 +1,5 @@
-import { fleetSummary, type GrelineApiClient, vehiclePositions } from "@greline/services";
-import type { NetworkId, TransitSchedule, TripReadings } from "@greline/types";
+import { findTrip, fleetSummary, type GrelineApiClient, vehiclePositions } from "@greline/services";
+import { NETWORK_IDS, type NetworkId, type TransitSchedule, type TripReadings } from "@greline/types";
 import { queryOptions, type UseQueryResult, useQueries, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { retryServerErrors, useApiConfig } from "./api-config";
@@ -63,6 +63,18 @@ function combineSchedules(results: UseQueryResult<TransitSchedule>[]): Schedules
 export function useSchedules(networks: readonly NetworkId[]): Schedules {
   const { client } = useApiConfig();
   return useQueries({ queries: networks.map((network) => scheduleQueryOptions(client, network)), combine: combineSchedules });
+}
+
+const NO_NETWORKS: readonly NetworkId[] = [];
+
+/**
+ * The trip behind a vehicle key and its schedule, null while unknown. Every network is searched
+ * (a shared link may name a bus of a network the filter hides); nothing is loaded without a key.
+ */
+export function useVehicleTrip(key: string | null) {
+  const { schedules, isPending, isError } = useSchedules(key ? NETWORK_IDS : NO_NETWORKS);
+  const found = useMemo(() => (key ? findTrip(schedules, key) : null), [schedules, key]);
+  return { found, isPending: key !== null && isPending, isError };
 }
 
 /** Realtime delays and occupancy of running vehicles, refreshed every 15 s while the page is visible. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { fleetSummary, trafficLevel } from "./traffic";
+import { punctuality, fleetSummary, trafficLevel } from "./traffic";
 import type { VehiclePosition } from "./vehicles";
 
 const tram = (lineId: string, delaySeconds: number): VehiclePosition => ({
@@ -44,5 +44,22 @@ describe("trafficLevel", () => {
     expect(trafficLevel("smooth", ["disrupted"])).toBe("someDelays");
     expect(trafficLevel("smooth", ["info", "interrupted"])).toBe("disrupted");
     expect(trafficLevel("disrupted", ["disrupted"])).toBe("disrupted");
+  });
+});
+
+describe("punctuality", () => {
+  it("is unknown without a realtime delay", () => {
+    expect(punctuality(undefined)).toEqual({ kind: "unknown" });
+  });
+
+  it("is on time within the late threshold, and a minute early", () => {
+    expect(punctuality(120)).toEqual({ kind: "onTime" });
+    expect(punctuality(-60)).toEqual({ kind: "onTime" });
+  });
+
+  it("counts whole minutes late or early beyond that", () => {
+    expect(punctuality(121)).toEqual({ kind: "late", minutes: 2 });
+    expect(punctuality(400)).toEqual({ kind: "late", minutes: 7 });
+    expect(punctuality(-150)).toEqual({ kind: "early", minutes: 3 });
   });
 });

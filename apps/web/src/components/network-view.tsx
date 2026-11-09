@@ -1,12 +1,12 @@
 "use client";
 
-import { useDisruptions, useNow } from "@greline/hooks";
+import { useDisruptions, useNow, useVehicleTrip } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { isOngoing, parseSharedSelection, type SharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
 import { useLinkSearch } from "@/lib/link-search";
 import { useNetworkFilter, useParkAndRidesShown } from "@/lib/network-filter";
 import { colors } from "@/lib/theme-tokens";
-import type { Disruption, NetworkId, TransitNetwork } from "@greline/types";
+import type { Disruption, Line, NetworkId, TransitNetwork } from "@greline/types";
 import dynamic from "next/dynamic";
 import { useCallback, useMemo, useState } from "react";
 import type { UserLocation } from "./locate-button";
@@ -18,6 +18,7 @@ import { MyStopsPanel } from "./my-stops-panel";
 import { TopBar } from "./top-bar";
 import { NetworkSummary } from "./network-summary";
 import { ParkAndRidePanel } from "./park-and-ride-panel";
+import { type FollowedTrip, VehiclePanel } from "./vehicle-panel";
 
 // MapLibre is heavy and needs the browser: it is loaded on the client only.
 const GeoMap = dynamic(() => import("./geo-map").then((m) => m.GeoMap), {
@@ -78,6 +79,22 @@ function useSelection(network: TransitNetwork) {
   return { selection, select, focus, show };
 }
 
+/**
+ * The vehicle of `?vehicle=`, looked up in today's schedules, and whether the camera follows it.
+ * Picking a vehicle always starts following it; dragging the map stops.
+ */
+function useFollowedVehicle(vehicleKey: string | null, linesById: ReadonlyMap<string, Line>) {
+  const { found, isPending } = useVehicleTrip(vehicleKey);
+  const [following, setFollowing] = useState(true);
+  const followedTrip = useMemo((): FollowedTrip | null => {
+    if (!found) return null;
+    const pattern = found.schedule.patterns[found.trip.pattern]!;
+    const line = linesById.get(pattern.lineId);
+    return line ? { trip: found.trip, pattern, line } : null;
+  }, [found, linesById]);
+  return { followedTrip, isPending, following, setFollowing };
+}
+
 /** The map with its moving vehicles, the network filter and the panel of the selected stop or line. */
 export function NetworkView({ network }: { network: TransitNetwork }) {
   const { selection, select, focus, show } = useSelection(network);
@@ -96,6 +113,12 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
   }, [network, networks]);
   const stopsById = useMemo(() => new Map(network.stops.map((stop) => [stop.id, stop])), [network.stops]);
   const { now, linesById, all, ongoing, seriousOngoing, seriousUpcoming } = useShownDisruptions(network, networks);
+  const vehicleKey = selection?.kind === "vehicle" ? selection.id : null;
+  const { followedTrip, isPending: vehiclePending, following, setFollowing } = useFollowedVehicle(vehicleKey, linesById);
+  const selectVehicle = (key: string) => {
+    select({ kind: "vehicle", id: key });
+    setFollowing(true);
+  };
   const relevantTo = (lineIds: readonly string[]) =>
     all.filter((d) => lineIds.includes(d.lineId) && (isOngoing(d, now) || startsLaterToday(d, now)));
   // "My stops", like every top bar button, stays closed until asked for: the map comes first.
@@ -124,6 +147,9 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         onSelect={selectStop}
         userLocation={userLocation}
         showParkAndRides={parkAndRidesShown}
+        followed={vehicleKey ? { key: vehicleKey, network: followedTrip?.line.network ?? null, following } : null}
+        onSelectVehicle={selectVehicle}
+        onFollowLost={() => setFollowing(false)}
       />
       <TopBar
         network={network}
@@ -151,6 +177,18 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
           linesById={linesById}
           now={now}
           onShowLine={showLine}
+          onClose={closePanel}
+        />
+      )}
+      {vehicleKey && (
+        <VehiclePanel
+          vehicleKey={vehicleKey}
+          followed={followedTrip}
+          isPending={vehiclePending}
+          stopsById={stopsById}
+          following={following}
+          onFollow={() => setFollowing(!following)}
+          onShowStop={showStop}
           onClose={closePanel}
         />
       )}
