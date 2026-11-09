@@ -9,6 +9,7 @@ import type { Departure, Line } from "@greline/types";
 import type { ReactNode } from "react";
 import { LineChip } from "./disruption-list";
 import { OccupancyGauge } from "./occupancy-gauge";
+import { SkeletonRows } from "./panel-ui";
 
 const DEPARTURES_PER_DIRECTION = 3;
 const COMPACT_PER_DIRECTION = 2;
@@ -54,7 +55,7 @@ export function DepartureList({ stopId, lines }: { stopId: string; lines: readon
   const now = useNow(COUNTDOWN_TICK_MS);
   const updatedAt = dataUpdatedAt ? formatClockTime(new Date(dataUpdatedAt)) : null;
 
-  if (isPending) return <StatusMessage>{fr.departures.loading}</StatusMessage>;
+  if (isPending) return <SkeletonRows label={fr.departures.loading} />;
 
   if (!data) {
     const unknownStop = error instanceof GrelineApiError && error.code === "unknown_stop";
@@ -116,7 +117,7 @@ export function DepartureList({ stopId, lines }: { stopId: string; lines: readon
 export function CompactDepartures({ stopId, lines }: { stopId: string; lines: readonly Line[] }) {
   const { data, isPending } = useDepartures(stopId);
   const now = useNow(COUNTDOWN_TICK_MS);
-  if (isPending) return <StatusMessage>{fr.departures.loading}</StatusMessage>;
+  if (isPending) return <SkeletonRows label={fr.departures.loading} />;
   if (!data) return <StatusMessage>{fr.departures.unavailable}</StatusMessage>;
   const rows = groupDepartures(data, lines).flatMap(({ line, directions }) => directions.map((direction) => ({ line, ...direction })));
   if (rows.length === 0) return <StatusMessage>{fr.departures.empty}</StatusMessage>;
@@ -139,7 +140,7 @@ export function CompactDepartures({ stopId, lines }: { stopId: string; lines: re
 export function TripDepartureList({ stopId, legs, lines }: { stopId: string; legs: readonly TripLeg[]; lines: readonly Line[] }) {
   const { data, isPending } = useDepartures(stopId);
   const now = useNow(COUNTDOWN_TICK_MS);
-  if (isPending) return <StatusMessage>{fr.departures.loading}</StatusMessage>;
+  if (isPending) return <SkeletonRows label={fr.departures.loading} />;
   if (!data) return <StatusMessage>{fr.departures.unavailable}</StatusMessage>;
   const departures = tripDepartures(data, legs).slice(0, TRIP_DEPARTURES);
   if (departures.length === 0) return <StatusMessage>{fr.departures.empty}</StatusMessage>;

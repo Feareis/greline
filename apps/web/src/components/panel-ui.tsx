@@ -22,6 +22,29 @@ export function useDismiss(open: boolean, close: () => void) {
   return ref;
 }
 
+/** Fill of the placeholders shown while external data is on its way. */
+export const SKELETON_FILL = `color-mix(in srgb, ${colors.textMuted} 22%, transparent)`;
+
+/**
+ * A gray block standing in for content still loading, sized by `className`. It pulses unless the
+ * visitor asked for reduced motion. Decorative: whoever uses it announces the loading in words.
+ */
+export function Skeleton({ className = "" }: { className?: string }) {
+  return <span aria-hidden className={`block rounded motion-safe:animate-pulse ${className}`} style={{ background: SKELETON_FILL }} />;
+}
+
+/** Lines of a list being fetched: the panel keeps its shape, screen readers hear `label`. */
+export function SkeletonRows({ label, rows = 3 }: { label: string; rows?: number }) {
+  return (
+    <div role="status" className="mt-2 space-y-2">
+      <span className="sr-only">{label}</span>
+      {Array.from({ length: rows }, (_, i) => (
+        <Skeleton key={i} className={`h-4 ${i % 2 === 0 ? "w-full" : "w-2/3"}`} />
+      ))}
+    </div>
+  );
+}
+
 /** Small capitals that title a section of a panel, set apart from the content below. */
 export const SECTION_TITLE = "text-xs font-semibold uppercase tracking-wider";
 

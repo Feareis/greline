@@ -7,6 +7,7 @@ import type { Itinerary } from "@greline/types";
 import { colors } from "@/lib/theme-tokens";
 import { StatusMessage } from "./departure-list";
 import { LineChip } from "./disruption-list";
+import { SkeletonRows } from "./panel-ui";
 
 const clock = (iso: string) => formatClockTime(new Date(iso));
 const minutesBetween = (start: string, end: string) => Math.round((Date.parse(end) - Date.parse(start)) / 60_000);
@@ -25,7 +26,7 @@ function summary(itinerary: Itinerary): string {
 /** The M planner's best itineraries leaving now, changes included, refreshed every minute. */
 export function ItineraryList({ from, to }: { from: string; to: string }) {
   const { data, isPending } = useItineraries(from, to);
-  if (isPending) return <StatusMessage>{fr.mine.itinerariesLoading}</StatusMessage>;
+  if (isPending) return <SkeletonRows label={fr.mine.itinerariesLoading} />;
   if (!data) return <StatusMessage>{fr.mine.itinerariesUnavailable}</StatusMessage>;
   if (data.length === 0) return <StatusMessage>{fr.mine.noItinerary}</StatusMessage>;
   return (
