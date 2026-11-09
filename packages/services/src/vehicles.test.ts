@@ -1,6 +1,6 @@
 import type { TransitSchedule } from "@greline/types";
 import { describe, expect, it } from "vitest";
-import { vehiclePositions } from "./vehicles";
+import { findTrip, upcomingStops, vehicleKey, vehiclePositions } from "./vehicles";
 
 const START = 1_793_956_000;
 
@@ -45,5 +45,44 @@ describe("vehiclePositions", () => {
   it("follows each trip independently", () => {
     const twoTrips = { ...schedule, trips: [...schedule.trips, { id: "SEM:2", pattern: 0, start: START + 200, offsets: [0, 100, 100, 300] }] };
     expect(vehiclePositions(twoTrips, {}, START + 250).map((v) => v.tripId)).toEqual(["SEM:1", "SEM:2"]);
+  });
+});
+
+describe("findTrip", () => {
+  it("finds a running trip by its vehicle key, in any of the schedules", () => {
+    const other = { ...schedule, trips: [] };
+    const key = vehicleKey(schedule.trips[0]!);
+    expect(key).toBe(`SEM:1@${START}`);
+    expect(findTrip([other, schedule], key)).toEqual({ schedule, trip: schedule.trips[0] });
+  });
+
+  it("finds nothing for a trip of another day or another network", () => {
+    expect(findTrip([schedule], `SEM:1@${START - 86_400}`)).toBeNull();
+    expect(findTrip([schedule], "SEM:9@1")).toBeNull();
+  });
+});
+
+describe("upcomingStops", () => {
+  const trip = schedule.trips[0]!;
+  const pattern = schedule.patterns[0]!;
+
+  it("lists the stops not left yet, with their estimated departure", () => {
+    expect(upcomingStops(trip, pattern, 0, START + 50)).toEqual([
+      { stopId: "b", time: START + 100 },
+      { stopId: "c", time: START + 100 },
+      { stopId: "d", time: START + 300 },
+    ]);
+  });
+
+  it("shifts the times by the delay", () => {
+    expect(upcomingStops(trip, pattern, 60, START + 150)).toEqual([
+      { stopId: "b", time: START + 160 },
+      { stopId: "c", time: START + 160 },
+      { stopId: "d", time: START + 360 },
+    ]);
+  });
+
+  it("is empty once the trip has reached its terminus", () => {
+    expect(upcomingStops(trip, pattern, 0, START + 300)).toEqual([]);
   });
 });

@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import gares from "./__fixtures__/m-stoptimes-gares.json";
 import { fetchStopDepartures } from "./fetch-departures";
 import { MApiError } from "./fetch-network";
-import { toDepartures } from "./to-departures";
+import { occupancyOf, toDepartures } from "./to-departures";
 
 // Real stoptimes of the Gares station (2026-11-06 ~10:06): trams A and B, bus C1, coach SE2.
 const stopTimes = mStopTimesSchema.parse(gares);
@@ -25,12 +25,22 @@ describe("toDepartures", () => {
       headsign: "Plaine des Sports",
       departureTime: "2026-11-06T09:06:48.000Z",
       realtime: true,
+      occupancy: "low",
     });
   });
 
   it("falls back to the scheduled time for trips without realtime data", () => {
     const scheduled = departures.filter((d) => !d.realtime);
     expect(scheduled).toEqual([expect.objectContaining({ lineId: "SEM:A", departureTime: "2026-11-06T09:11:00.000Z" })]);
+  });
+});
+
+describe("occupancyOf", () => {
+  it("reads the M occupancy level, and nothing for a missing or unknown one", () => {
+    expect([1, 2, 3].map(occupancyOf)).toEqual(["low", "medium", "high"]);
+    expect(occupancyOf(undefined)).toBeNull();
+    expect(occupancyOf(0)).toBeNull();
+    expect(occupancyOf(9)).toBeNull();
   });
 });
 

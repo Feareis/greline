@@ -26,6 +26,9 @@ export interface Stop {
   lon: number;
 }
 
+/** Wheelchair access of a stop: from every platform, from some of them, or from none. */
+export type StopAccess = "accessible" | "partial" | "inaccessible";
+
 /** A geographic position, GeoJSON order: longitude first, then latitude (degrees). */
 export type LonLat = [lon: number, lat: number];
 
@@ -140,6 +143,17 @@ export interface AirQuality {
   index: number;
 }
 
+/** How full a vehicle is expected to be, as announced by M (low, moderate, high). */
+export type Occupancy = "low" | "medium" | "high";
+
+/** What our probe stations tell about the running trips, keyed by trip id ("SEM:32135884"). */
+export interface TripReadings {
+  /** Delay in seconds. Trips not listed have no realtime data. */
+  delays: Record<string, number>;
+  /** Expected occupancy, for the trips M announces one. */
+  occupancy: Record<string, Occupancy>;
+}
+
 /** A single upcoming departure at a stop. */
 export interface Departure {
   lineId: string;
@@ -150,6 +164,8 @@ export interface Departure {
   /** ISO 8601 date-time. */
   departureTime: string;
   realtime: boolean;
+  /** Expected occupancy of the vehicle when it leaves; null when M announces none. */
+  occupancy: Occupancy | null;
 }
 
 /** One end of an itinerary search: a stop, or a position (the user's). */

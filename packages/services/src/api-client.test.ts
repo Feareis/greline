@@ -8,6 +8,7 @@ const departure = {
   headsign: "La Poya",
   departureTime: "2026-11-06T09:06:48.000Z",
   realtime: true,
+  occupancy: "low",
 };
 
 const answering = (response: Response) => vi.fn(async (_url: string, _init?: RequestInit) => response);
@@ -70,9 +71,10 @@ describe("createApiClient() tram endpoints", () => {
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/schedule?network=chrono");
   });
 
-  it("fetches the realtime trip delays", async () => {
-    const fetchSpy = answering(Response.json({ delays: { "SEM:1": 90 } }));
-    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTripDelays()).resolves.toEqual({ "SEM:1": 90 });
+  it("fetches the realtime trip delays and occupancy", async () => {
+    const readings = { delays: { "SEM:1": 90 }, occupancy: { "SEM:1": "medium" } };
+    const fetchSpy = answering(Response.json(readings));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getTripDelays()).resolves.toEqual(readings);
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/network/delays");
   });
 
@@ -112,6 +114,15 @@ describe("createApiClient() tram endpoints", () => {
     expect(fetchSpy.mock.calls[0]![0]).toBe("/api/park-and-rides");
     const broken = createApiClient({ baseUrl: "", fetch: answering(Response.json({ parkAndRides: [{ ...parkAndRide, free: -1 }] })) });
     await expect(broken.getParkAndRides()).rejects.toMatchObject({ code: "invalid_response" });
+  });
+
+  it("fetches the stop accessibility and rejects an unknown level", async () => {
+    const accessibility = { "SEM:GENGAR": "accessible", "SEM:GENCHAV": "partial" };
+    const fetchSpy = answering(Response.json({ accessibility }));
+    await expect(createApiClient({ baseUrl: "", fetch: fetchSpy }).getStopAccessibility()).resolves.toEqual(accessibility);
+    expect(fetchSpy.mock.calls[0]![0]).toBe("/api/stops/accessibility");
+    const broken = createApiClient({ baseUrl: "", fetch: answering(Response.json({ accessibility: { "SEM:GENGAR": "yes" } })) });
+    await expect(broken.getStopAccessibility()).rejects.toMatchObject({ code: "invalid_response" });
   });
 
   it("fetches the weather and rejects a malformed one", async () => {

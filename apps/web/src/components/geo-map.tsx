@@ -3,7 +3,7 @@
 import "maplibre-gl/dist/maplibre-gl.css";
 import { fr } from "@greline/i18n";
 import { palettes, type ThemeName, toCssColor } from "@greline/theme";
-import type { Disruption, NetworkId, Stop, TransitNetwork } from "@greline/types";
+import type { Disruption, LonLat, NetworkId, Stop, TransitNetwork } from "@greline/types";
 import { type ExpressionSpecification, type Map as MapLibreMap, setWorkerUrl } from "maplibre-gl";
 import { type RefObject, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MapView, {
@@ -20,7 +20,7 @@ import { colors } from "@/lib/theme-tokens";
 import type { UserLocation } from "./locate-button";
 import type { MapFocus } from "./network-view";
 import { ParkAndRideMarkers } from "./park-and-ride-markers";
-import { addVehicleIcon, Vehicles } from "./vehicles";
+import { addVehicleIcon, Vehicles, VEHICLES_LAYER } from "./vehicles";
 
 // MapLibre 6 derives its worker URL from its own module URL at runtime, which points into the
 // Next.js chunks folder once bundled (404). Referencing the worker with a static
@@ -33,6 +33,9 @@ const MAP_STYLES: Record<ThemeName, string> = {
   light: "https://tiles.openfreemap.org/styles/positron",
 };
 const SELECTED_STATION_ZOOM = 15;
+/** Close enough to see the followed vehicle move along the streets. */
+const FOLLOW_ZOOM = 15;
+const NO_PADDING = { top: 0, bottom: 0, left: 0, right: 0 };
 const LOCATED_ZOOM = 15;
 /** Bus stops and line numbers only show once the map is zoomed enough to tell them apart. */
 const BUS_STOPS_MIN_ZOOM = 13;
@@ -218,9 +221,50 @@ function useFocus(mapRef: RefObject<MapRef | null>, network: TransitNetwork, foc
       if (line) map.fitBounds(pointsBounds(line.shape.flat()), { padding: lineFocusPadding() });
       return;
     }
+    if (focus.kind !== "stop") return;
     const stop = network.stops.find((s) => s.id === focus.id);
     if (stop) map.flyTo({ center: [stop.lon, stop.lat], zoom: Math.max(map.getZoom(), SELECTED_STATION_ZOOM) });
   }, [mapRef, focus, network]);
+}
+
+/**
+ * Keeps the followed vehicle in view: one eased move to it, then the camera sticks to it until the
+ * user drags the map. The padding keeps it clear of the open panel, and is dropped with the panel.
+ */
+function useFollowCamera(mapRef: RefObject<MapRef | null>, followedKey: string | null, following: boolean) {
+  const started = useRef(false);
+  const padded = useRef(false);
+  useEffect(() => {
+    started.current = false;
+  }, [followedKey, following]);
+  useEffect(() => {
+    if (followedKey || !padded.current) return;
+    padded.current = false;
+    mapRef.current?.easeTo({ padding: NO_PADDING });
+  }, [mapRef, followedKey]);
+  return useCallback(
+    (position: LonLat) => {
+      const map = mapRef.current;
+      if (!map || !following) return;
+      if (!started.current) {
+        started.current = true;
+        padded.current = true;
+        map.easeTo({ center: position, zoom: Math.max(map.getZoom(), FOLLOW_ZOOM), padding: lineFocusPadding() });
+        return;
+      }
+      // A move under way (this eased one, a zoom button, a pinch) would be cut short at every redraw otherwise.
+      if (!map.getMap().isMoving()) map.jumpTo({ center: position });
+    },
+    [mapRef, following],
+  );
+}
+
+/** The followed vehicle: its key and network (drawn even when the filter hides that network). */
+export interface FollowedVehicle {
+  key: string;
+  network: NetworkId | null;
+  /** The camera sticks to it until the user drags the map. */
+  following: boolean;
 }
 
 interface GeoMapProps {
@@ -238,10 +282,16 @@ interface GeoMapProps {
   userLocation: UserLocation | null;
   /** P+R car parks on the map, with their free spaces. */
   showParkAndRides: boolean;
+  followed: FollowedVehicle | null;
+  onSelectVehicle: (vehicleKey: string) => void;
+  /** The user dragged the map: the camera stops following the vehicle. */
+  onFollowLost: () => void;
 }
 
 /** Real geographic map: official shapes, moving vehicles and stops on an OpenStreetMap base. */
-export function GeoMap({ network, networks, disrupted, focus, selectedId, selectedLineId, onSelect, userLocation, showParkAndRides }: GeoMapProps) {
+export function GeoMap(props: GeoMapProps) {
+  const { network, networks, disrupted, focus, selectedId, selectedLineId, onSelect, userLocation, showParkAndRides } = props;
+  const { followed, onSelectVehicle, onFollowLost } = props;
   const mapRef = useRef<MapRef | null>(null);
   // Stable callback: React calls a new ref callback on every render otherwise.
   const attachMap = useCallback((ref: MapRef | null) => {
@@ -259,6 +309,12 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, select
   }, [userLocation]);
 
   useFocus(mapRef, network, focus);
+  const followVehicle = useFollowCamera(mapRef, followed?.key ?? null, followed?.following ?? false);
+  const followedNetwork = followed?.network ?? null;
+  const vehicleNetworks = useMemo(
+    () => (followedNetwork && !networks.includes(followedNetwork) ? [...networks, followedNetwork] : networks),
+    [networks, followedNetwork],
+  );
 
   const linesData = useMemo(
     () => ({
@@ -307,9 +363,12 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, select
     return { bounds: networkBounds(tramStations.length > 0 ? tramStations : busStops), fitBoundsOptions: { padding: 40 } };
   });
 
-  const selectBusStop = (event: MapLayerMouseEvent) => {
-    const id: unknown = event.features?.[0]?.properties?.id;
-    if (typeof id === "string") onSelect(id);
+  // The topmost feature wins: vehicles are drawn over the bus stops.
+  const selectFeature = (event: MapLayerMouseEvent) => {
+    const feature = event.features?.[0];
+    const properties: Record<string, unknown> = feature?.properties ?? {};
+    if (feature?.layer.id === VEHICLES_LAYER && typeof properties.key === "string") onSelectVehicle(properties.key);
+    else if (typeof properties.id === "string") onSelect(properties.id);
   };
 
   return (
@@ -321,8 +380,11 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, select
         // A full style reload on theme switch fires "style.load", where base colors are re-applied.
         styleDiffing={false}
         attributionControl={false}
-        interactiveLayerIds={[BUS_STOPS_LAYER]}
-        onClick={selectBusStop}
+        interactiveLayerIds={[BUS_STOPS_LAYER, VEHICLES_LAYER]}
+        onClick={selectFeature}
+        onDragStart={() => {
+          if (followed?.following) onFollowLost();
+        }}
         onMouseEnter={() => setHoveringStop(true)}
         onMouseLeave={() => setHoveringStop(false)}
         cursor={hoveringStop ? "pointer" : undefined}
@@ -398,7 +460,13 @@ export function GeoMap({ network, networks, disrupted, focus, selectedId, select
             }}
           />
         </Source>
-        <Vehicles lines={network.lines} networks={networks} theme={theme} />
+        <Vehicles
+          lines={network.lines}
+          networks={vehicleNetworks}
+          theme={theme}
+          followedKey={followed?.key ?? null}
+          onFollowedMove={followed?.following ? followVehicle : undefined}
+        />
         {tramStations.map((stop) => (
           <StationButton
             key={stop.id}

@@ -1,8 +1,8 @@
-import type { LineMode } from "@greline/types";
+import type { LineMode, Occupancy, TripReadings } from "@greline/types";
 import { mStopTimesSchema, type MStopTimes } from "@greline/validation";
 import { stopTimesUrl } from "./fetch-departures";
 import { type FetchLike, fetchFromMApi, MApiError } from "./fetch-network";
-import { lineIdOfPattern } from "./to-departures";
+import { lineIdOfPattern, occupancyOf } from "./to-departures";
 
 /**
  * At most this many stops between two probes of a line. A probe lists each pattern's next ~3
@@ -38,12 +38,12 @@ export function delayProbeStations(lines: readonly ProbedLine[]): string[] {
 }
 
 /**
- * Delay in seconds of each realtime trip of `lineIds` (stations also serve buses and coaches).
- * A trip seen at several stations keeps the measure of its next stop (the earliest departure),
- * which is the freshest estimate.
+ * Delay in seconds and expected occupancy of each realtime trip of `lineIds` (stations also serve
+ * buses and coaches). A trip seen at several stations keeps the reading of its next stop (the
+ * earliest departure), which is the freshest estimate.
  */
-export function toTripDelays(responses: readonly MStopTimes[], lineIds: ReadonlySet<string>): Record<string, number> {
-  const closest = new Map<string, { departure: number; delay: number }>();
+export function toTripReadings(responses: readonly MStopTimes[], lineIds: ReadonlySet<string>): TripReadings {
+  const closest = new Map<string, { departure: number; delay: number; occupancy: Occupancy | null }>();
   for (const stopTimes of responses) {
     for (const { pattern, times } of stopTimes) {
       if (!lineIds.has(lineIdOfPattern(pattern.id))) continue;
@@ -52,16 +52,20 @@ export function toTripDelays(responses: readonly MStopTimes[], lineIds: Readonly
         const departure = time.serviceDay + time.realtimeDeparture;
         const known = closest.get(time.tripId);
         if (known && known.departure <= departure) continue;
-        closest.set(time.tripId, { departure, delay: time.realtimeDeparture - time.scheduledDeparture });
+        const delay = time.realtimeDeparture - time.scheduledDeparture;
+        closest.set(time.tripId, { departure, delay, occupancy: occupancyOf(time.occupancyId) });
       }
     }
   }
-  return Object.fromEntries([...closest].map(([tripId, { delay }]) => [tripId, delay]));
+  const readings: TripReadings = { delays: {}, occupancy: {} };
+  for (const [tripId, { delay, occupancy }] of closest) {
+    readings.delays[tripId] = delay;
+    if (occupancy) readings.occupancy[tripId] = occupancy;
+  }
+  return readings;
 }
 
-export interface TripDelays {
-  /** Delay in seconds, keyed by trip id ("SEM:32135884"). Trips not listed have no realtime data. */
-  delays: Record<string, number>;
+export interface TripDelays extends TripReadings {
   /** Probe stations whose request failed (their trips simply get no delay). */
   failedStations: number;
 }
@@ -78,5 +82,5 @@ export async function fetchTripDelays(
     const firstFailure = results.find((result) => result.status === "rejected");
     throw new MApiError(`M API: all ${stationIds.length} delay probe stations failed`, { cause: firstFailure?.reason });
   }
-  return { delays: toTripDelays(answers, lineIds), failedStations: results.length - answers.length };
+  return { ...toTripReadings(answers, lineIds), failedStations: results.length - answers.length };
 }

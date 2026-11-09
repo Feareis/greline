@@ -18,6 +18,17 @@ describe("parseSharedSelection", () => {
     expect(parseSharedSelection("?line=SEM:A&stop=SEM:GENGAR", network)).toEqual({ kind: "stop", id: "SEM:GENGAR" });
   });
 
+  it("opens a vehicle named by its trip and start, whatever the network", () => {
+    expect(parseSharedSelection("?vehicle=SEM%3A32165104%401793919600", network)).toEqual({ kind: "vehicle", id: "SEM:32165104@1793919600" });
+    expect(parseSharedSelection("?line=SEM:A&vehicle=SEM:1@2", network)).toEqual({ kind: "line", id: "SEM:A" });
+  });
+
+  it("ignores a vehicle key that is not one", () => {
+    for (const bad of ["SEM:1", "SEM:1@", "@1", "SEM:1@12a", "../x@1", `SEM:${"1".repeat(65)}@1`]) {
+      expect(parseSharedSelection(`?${new URLSearchParams({ vehicle: bad })}`, network)).toBeNull();
+    }
+  });
+
   it("ignores unknown stops and links without one", () => {
     expect(parseSharedSelection("?stop=SEM:NOWHERE", network)).toBeNull();
     expect(parseSharedSelection("?stop=", network)).toBeNull();
@@ -32,7 +43,12 @@ describe("sharedSelectionSearch", () => {
   });
 
   it("reads back what it writes", () => {
-    for (const selection of [{ kind: "stop", id: "SEM:GENGAR" }, { kind: "line", id: "SEM:A" }] as const) {
+    const selections = [
+      { kind: "stop", id: "SEM:GENGAR" },
+      { kind: "line", id: "SEM:A" },
+      { kind: "vehicle", id: "SEM:32165104@1793919600" },
+    ] as const;
+    for (const selection of selections) {
       expect(parseSharedSelection(sharedSelectionSearch(selection), network)).toEqual(selection);
     }
   });

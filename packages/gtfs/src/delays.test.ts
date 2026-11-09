@@ -1,7 +1,7 @@
 import { mStopTimesSchema } from "@greline/validation";
 import { describe, expect, it, vi } from "vitest";
 import gares from "./__fixtures__/m-stoptimes-gares.json";
-import { delayProbeStations, fetchTripDelays, toTripDelays } from "./delays";
+import { delayProbeStations, fetchTripDelays, toTripReadings } from "./delays";
 import { MApiError } from "./fetch-network";
 
 const time = (tripId: string, scheduled: number, realtime: number, isRealtime = true) => ({
@@ -28,16 +28,16 @@ describe("delayProbeStations", () => {
   });
 });
 
-describe("toTripDelays", () => {
+describe("toTripReadings", () => {
   const trams = new Set(["SEM:A", "SEM:B"]);
 
   it("measures the delay of realtime trips only", () => {
-    const delays = toTripDelays([[{ pattern, times: [time("SEM:1", 36000, 36090), time("SEM:2", 36300, 36300, false)] }]], trams);
+    const { delays } = toTripReadings([[{ pattern, times: [time("SEM:1", 36000, 36090), time("SEM:2", 36300, 36300, false)] }]], trams);
     expect(delays).toEqual({ "SEM:1": 90 });
   });
 
   it("keeps the measure taken closest to the vehicle when a trip is seen at several stations", () => {
-    const delays = toTripDelays(
+    const { delays } = toTripReadings(
       [[{ pattern, times: [time("SEM:1", 36600, 36780)] }], [{ pattern, times: [time("SEM:1", 36000, 36060)] }]],
       trams,
     );
@@ -46,11 +46,22 @@ describe("toTripDelays", () => {
 
   it("ignores buses and coaches stopping at the same stations", () => {
     const coach = { pattern: { id: "SE2:86:0:2125254748", desc: "Gare Routiere" }, times: [time("SE2:9", 36000, 52640)] };
-    expect(toTripDelays([[coach, { pattern, times: [time("SEM:1", 36000, 36030)] }]], trams)).toEqual({ "SEM:1": 30 });
+    expect(toTripReadings([[coach, { pattern, times: [time("SEM:1", 36000, 36030)] }]], trams).delays).toEqual({ "SEM:1": 30 });
   });
 
   it("reads real M API stoptimes", () => {
-    expect(toTripDelays([mStopTimesSchema.parse(gares)], trams)["SEM:32165104"]).toBe(48);
+    expect(toTripReadings([mStopTimesSchema.parse(gares)], trams).delays["SEM:32165104"]).toBe(48);
+  });
+
+  it("keeps the occupancy announced at the same station as the delay, when M gives one", () => {
+    const { occupancy } = toTripReadings(
+      [
+        [{ pattern, times: [{ ...time("SEM:1", 36600, 36780), occupancyId: 3 }, time("SEM:2", 36000, 36000)] }],
+        [{ pattern, times: [{ ...time("SEM:1", 36000, 36060), occupancyId: 2 }] }],
+      ],
+      trams,
+    );
+    expect(occupancy).toEqual({ "SEM:1": "medium" });
   });
 });
 
@@ -60,6 +71,7 @@ describe("fetchTripDelays", () => {
     const result = await fetchTripDelays(["SEM:GENGAR", "SEM:GENVH"], new Set(["SEM:A", "SEM:B"]), fetchSpy);
     expect(fetchSpy).toHaveBeenCalledTimes(2);
     expect(result.delays["SEM:32165104"]).toBe(48);
+    expect(result.occupancy["SEM:32165104"]).toBe("low");
     expect(result.failedStations).toBe(0);
   });
 

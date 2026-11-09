@@ -72,6 +72,8 @@ export const mStopTimesSchema = z.array(
         realtime: z.boolean(),
         /** Unix seconds of the service day origin ("noon minus 12 h", see GTFS). */
         serviceDay: z.number().int().positive(),
+        /** Expected occupancy level (1 = low, 2 = moderate...); absent on some trips. */
+        occupancyId: z.number().int().optional(),
       }),
     ),
   }),

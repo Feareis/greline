@@ -1,5 +1,5 @@
-import type { AirQuality, Departure, Disruption, Itinerary, NetworkId, ParkAndRide, TransitSchedule, Weather } from "@greline/types";
-import { airQualitySchema, departuresResponseSchema, disruptionsResponseSchema, itinerariesResponseSchema, parkAndRidesResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
+import type { AirQuality, Departure, Disruption, Itinerary, NetworkId, ParkAndRide, StopAccess, TransitSchedule, TripReadings, Weather } from "@greline/types";
+import { airQualitySchema, departuresResponseSchema, disruptionsResponseSchema, itinerariesResponseSchema, parkAndRidesResponseSchema, stopAccessibilityResponseSchema, transitScheduleSchema, tripDelaysResponseSchema, weatherSchema } from "@greline/validation";
 
 /** Our API answered with an error status, or with a body we cannot trust. */
 export class GrelineApiError extends Error {
@@ -26,14 +26,16 @@ export interface GrelineApiClient {
   getDepartures(stopId: string, signal?: AbortSignal): Promise<Departure[]>;
   /** Today's schedule of one network. */
   getSchedule(network: NetworkId, signal?: AbortSignal): Promise<TransitSchedule>;
-  /** Realtime delays in seconds, keyed by trip id. */
-  getTripDelays(signal?: AbortSignal): Promise<Record<string, number>>;
+  /** Realtime delays in seconds and expected occupancy, keyed by trip id. */
+  getTripDelays(signal?: AbortSignal): Promise<TripReadings>;
   /** Current weather in Grenoble. */
   getWeather(signal?: AbortSignal): Promise<Weather>;
   /** Current air quality in Grenoble. */
   getAirQuality(signal?: AbortSignal): Promise<AirQuality>;
   /** P+R car parks with their live free spaces when counted. */
   getParkAndRides(signal?: AbortSignal): Promise<ParkAndRide[]>;
+  /** Wheelchair access, keyed by stop id; stops without data are left out. */
+  getStopAccessibility(signal?: AbortSignal): Promise<Record<string, StopAccess>>;
   /** Ongoing and upcoming official disruptions of our lines. */
   getDisruptions(signal?: AbortSignal): Promise<Disruption[]>;
   /**
@@ -73,13 +75,14 @@ export function createApiClient({ baseUrl, fetch: fetchFn = fetch }: ApiClientOp
       return body.departures;
     },
     getSchedule: (network, signal) => getJson(`/api/network/schedule?network=${network}`, transitScheduleSchema, signal),
-    async getTripDelays(signal) {
-      return (await getJson("/api/network/delays", tripDelaysResponseSchema, signal)).delays;
-    },
+    getTripDelays: (signal) => getJson("/api/network/delays", tripDelaysResponseSchema, signal),
     getWeather: (signal) => getJson("/api/weather", weatherSchema, signal),
     getAirQuality: (signal) => getJson("/api/air-quality", airQualitySchema, signal),
     async getParkAndRides(signal) {
       return (await getJson("/api/park-and-rides", parkAndRidesResponseSchema, signal)).parkAndRides;
+    },
+    async getStopAccessibility(signal) {
+      return (await getJson("/api/stops/accessibility", stopAccessibilityResponseSchema, signal)).accessibility;
     },
     async getDisruptions(signal) {
       return (await getJson("/api/disruptions", disruptionsResponseSchema, signal)).disruptions;

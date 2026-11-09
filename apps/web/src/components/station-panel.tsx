@@ -1,13 +1,14 @@
 "use client";
 
+import { useStopAccess } from "@greline/hooks";
 import { fr } from "@greline/i18n";
 import { radii, toCssColor } from "@greline/theme";
 import { CHIP, chip, colors, ICON_BUTTON, panel, SIDE_PANEL } from "@/lib/theme-tokens";
-import type { Disruption, Line, Stop } from "@greline/types";
+import type { Disruption, Line, Stop, StopAccess } from "@greline/types";
 import { useEffect, useRef } from "react";
 import { DepartureList } from "./departure-list";
 import { DisruptionList } from "./disruption-list";
-import { StarIcon } from "./icons";
+import { StarIcon, WheelchairIcon } from "./icons";
 import { CloseButton, SectionTitle } from "./panel-ui";
 import { ShareButton } from "./share-button";
 import { useFavorites, useTrip } from "@/lib/personal";
@@ -23,6 +24,24 @@ interface StationPanelProps {
   now: Date;
   onShowLine: (lineId: string) => void;
   onClose: () => void;
+}
+
+const ACCESS_COLORS: Record<StopAccess, string> = {
+  accessible: colors.accent,
+  partial: colors.warning,
+  inaccessible: colors.textMuted,
+};
+
+/** Wheelchair access from the GTFS feed; nothing while unknown. */
+function AccessBadge({ stopId }: { stopId: string }) {
+  const access = useStopAccess(stopId);
+  if (!access) return null;
+  const label = fr.station.access[access];
+  return (
+    <span role="img" aria-label={label} title={label} className="inline-flex" style={{ color: ACCESS_COLORS[access] }}>
+      <WheelchairIcon crossed={access === "inaccessible"} />
+    </span>
+  );
 }
 
 /** Details of the selected station. Non-modal: the map stays usable behind it. */
@@ -52,8 +71,9 @@ export function StationPanel({ stop, lines, disruptions, linesById, now, onShowL
           <h2 id="station-panel-title" className="text-lg font-semibold leading-tight">
             {stop.name}
           </h2>
-          <p className="mt-0.5 text-sm" style={{ color: colors.textMuted }}>
+          <p className="mt-0.5 flex items-center gap-1.5 text-sm" style={{ color: colors.textMuted }}>
             {stop.city}
+            <AccessBadge stopId={stop.id} />
           </p>
         </div>
         <ShareButton name={stop.name} search={sharedSelectionSearch({ kind: "stop", id: stop.id })} />

@@ -2,7 +2,7 @@ import { parisDate } from "@greline/services";
 import { networkIdSchema } from "@greline/validation";
 import { connection } from "next/server";
 import { cachedJson } from "@/lib/cached-json";
-import { getSchedules } from "@/lib/schedule";
+import { getGtfsDay } from "@/lib/schedule";
 
 // Short on purpose: the service day rolls over at midnight and the CDN does not key on the date.
 const SCHEDULE_CDN_MAX_AGE_S = 300;
@@ -15,7 +15,7 @@ export async function GET(request: Request): Promise<Response> {
   // Today's service day in Grenoble; it also carries yesterday's trips running past midnight.
   const serviceDate = parisDate(new Date());
   try {
-    return cachedJson((await getSchedules(serviceDate))[network.data], SCHEDULE_CDN_MAX_AGE_S);
+    return cachedJson((await getGtfsDay(serviceDate)).schedules[network.data], SCHEDULE_CDN_MAX_AGE_S);
   } catch (error) {
     console.error(`GET /api/network/schedule (${serviceDate}): M API unavailable`, error);
     return Response.json({ error: "upstream_unavailable" }, { status: 502 });
