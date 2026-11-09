@@ -4,6 +4,19 @@ import type { VehiclePosition } from "./vehicles";
 /** A tram later than this is shown as late (red outline) and counted as delayed. */
 export const LATE_THRESHOLD_SECONDS = 120;
 
+/** Running ahead of schedule by more than this is worth telling: the vehicle may leave early. */
+const EARLY_THRESHOLD_SECONDS = 60;
+
+export type Punctuality = { kind: "unknown" } | { kind: "onTime" } | { kind: "late" | "early"; minutes: number };
+
+/** How a vehicle keeps to its schedule, from its realtime delay (undefined without realtime data). */
+export function punctuality(delaySeconds: number | undefined): Punctuality {
+  if (delaySeconds === undefined) return { kind: "unknown" };
+  if (delaySeconds > LATE_THRESHOLD_SECONDS) return { kind: "late", minutes: Math.round(delaySeconds / 60) };
+  if (delaySeconds < -EARLY_THRESHOLD_SECONDS) return { kind: "early", minutes: Math.round(-delaySeconds / 60) };
+  return { kind: "onTime" };
+}
+
 export type TrafficLevel = "smooth" | "someDelays" | "disrupted";
 
 /** Share of running trams that may be late before the network is "some delays" / "disrupted". */

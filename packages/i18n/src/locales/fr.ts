@@ -260,6 +260,11 @@ export const fr = {
     tripFrom: "Partir d'ici",
     tripTo: "Aller ici",
     line: (shortName: string) => `Ligne ${shortName}`,
+    access: {
+      accessible: "Arrêt accessible en fauteuil roulant",
+      partial: "Arrêt accessible en fauteuil roulant depuis certains quais seulement",
+      inaccessible: "Arrêt non accessible en fauteuil roulant",
+    },
   },
   search: {
     button: "Rechercher",
@@ -299,6 +304,25 @@ export const fr = {
     label: (name: string) => `Partager un lien vers ${name}`,
     copied: "Lien copié",
     failed: "Copie impossible",
+  },
+  vehicle: {
+    close: "Arrêter de suivre ce véhicule",
+    title: (line: string, headsign: string) => `Ligne ${line} vers ${headsign}`,
+    direction: (headsign: string) => `Vers ${headsign}`,
+    follow: "Suivre sur la carte",
+    onTime: "À l'heure",
+    late: (minutes: number) => `${minutes} min de retard`,
+    early: (minutes: number) => `${minutes} min d'avance`,
+    unknown: "Horaire théorique, sans temps réel",
+    nextStops: "Prochains arrêts",
+    loading: "Recherche du véhicule…",
+    unavailable: "Véhicule introuvable pour le moment.",
+    gone: "Ce véhicule n'est plus en circulation.",
+  },
+  occupancy: {
+    low: "Affluence prévue : faible",
+    medium: "Affluence prévue : modérée",
+    high: "Affluence prévue : forte",
   },
   departures: {
     title: "Prochains passages",

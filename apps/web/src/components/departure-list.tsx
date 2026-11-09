@@ -8,6 +8,7 @@ import { colors } from "@/lib/theme-tokens";
 import type { Departure, Line } from "@greline/types";
 import type { ReactNode } from "react";
 import { LineChip } from "./disruption-list";
+import { OccupancyGauge } from "./occupancy-gauge";
 
 const DEPARTURES_PER_DIRECTION = 3;
 const COMPACT_PER_DIRECTION = 2;
@@ -34,6 +35,7 @@ function DepartureTime({ departure, now }: { departure: Departure; now: Date }) 
         {countdownLabel(departure, now)}
       </span>
       <span className="sr-only">({sourceLabel})</span>
+      {departure.occupancy && <OccupancyGauge occupancy={departure.occupancy} />}
     </span>
   );
 }

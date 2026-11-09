@@ -50,6 +50,7 @@ describe("tripDepartures", () => {
     headsign: "",
     departureTime: `2026-11-07T${time}:00.000Z`,
     realtime: true,
+    occupancy: null,
   });
 
   it("keeps the departures of the trip's legs, soonest first", () => {

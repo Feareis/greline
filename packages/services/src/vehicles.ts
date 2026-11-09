@@ -1,4 +1,4 @@
-import type { TransitSchedule } from "@greline/types";
+import type { TransitPattern, TransitSchedule, TransitTrip } from "@greline/types";
 
 /** Where a tram is right now: how far along the track of its pattern. */
 export interface VehiclePosition {
@@ -12,6 +12,9 @@ export interface VehiclePosition {
   distance: number;
   delaySeconds: number;
 }
+
+/** Unique per running trip: a trip id can appear on two service days, with another start. */
+export const vehicleKey = (trip: TransitTrip): string => `${trip.id}@${trip.start}`;
 
 /**
  * Positions of every tram running at `now` (Unix seconds), interpolated linearly in time
@@ -39,7 +42,7 @@ export function vehiclePositions(
     const progress = to > from ? (elapsed - from) / (to - from) : 0;
     const start = pattern.stopDistances[segment]!;
     positions.push({
-      key: `${trip.id}@${trip.start}`,
+      key: vehicleKey(trip),
       tripId: trip.id,
       lineId: pattern.lineId,
       pattern: trip.pattern,
@@ -48,4 +51,30 @@ export function vehiclePositions(
     });
   }
   return positions;
+}
+
+/** The trip behind a vehicle key, and the schedule it belongs to; null when none has it. */
+export function findTrip(
+  schedules: readonly TransitSchedule[],
+  key: string,
+): { schedule: TransitSchedule; trip: TransitTrip } | null {
+  for (const schedule of schedules) {
+    const trip = schedule.trips.find((candidate) => vehicleKey(candidate) === key);
+    if (trip) return { schedule, trip };
+  }
+  return null;
+}
+
+/** A stop a vehicle has not left yet: when it should leave it, in Unix seconds, delay included. */
+export interface UpcomingStop {
+  stopId: string;
+  time: number;
+}
+
+/** Stops of a trip not left yet at `now` (Unix seconds); empty once it has reached its terminus. */
+export function upcomingStops(trip: TransitTrip, pattern: TransitPattern, delaySeconds: number, now: number): UpcomingStop[] {
+  const elapsed = now - delaySeconds - trip.start;
+  return trip.offsets.flatMap((offset, i) =>
+    offset > elapsed ? [{ stopId: pattern.stopIds[i]!, time: trip.start + offset + delaySeconds }] : [],
+  );
 }

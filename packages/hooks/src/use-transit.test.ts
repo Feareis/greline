@@ -1,14 +1,15 @@
 import type { GrelineApiClient } from "@greline/services";
 import { describe, expect, it, vi } from "vitest";
-import { mergeDelays, scheduleQueryOptions, tripDelaysQueryOptions } from "./use-transit";
+import { mergeTripReadings, scheduleQueryOptions, tripDelaysQueryOptions } from "./use-transit";
 
 const client: GrelineApiClient = {
   getDepartures: vi.fn(async () => []),
   getSchedule: vi.fn(async () => ({ serviceDate: "2026-11-06", shapes: [], patterns: [], trips: [] })),
-  getTripDelays: vi.fn(async () => ({ "SEM:1": 90 })),
+  getTripDelays: vi.fn(async () => ({ delays: { "SEM:1": 90 }, occupancy: {} })),
   getWeather: vi.fn(async () => ({ temperature: 9.6, apparentTemperature: 8.9, weatherCode: 3, isDay: false, windSpeed: 1.1, sunrise: "07:22", sunset: "17:18" })),
   getAirQuality: vi.fn(async () => ({ index: 52 })),
   getParkAndRides: vi.fn(async () => []),
+  getStopAccessibility: vi.fn(async () => ({})),
   getDisruptions: vi.fn(async () => []),
   getItineraries: vi.fn(async () => []),
 };
@@ -42,12 +43,18 @@ describe("tripDelaysQueryOptions", () => {
   });
 });
 
-describe("mergeDelays", () => {
-  it("keeps the last known delay of trams no longer seen at a probe station", () => {
-    expect(mergeDelays({ "SEM:1": 90, "SEM:2": 30 }, { "SEM:2": 45, "SEM:3": 0 })).toEqual({ "SEM:1": 90, "SEM:2": 45, "SEM:3": 0 });
+describe("mergeTripReadings", () => {
+  it("keeps the last known delay and occupancy of vehicles no longer seen at a probe station", () => {
+    const previous = { delays: { "SEM:1": 90, "SEM:2": 30 }, occupancy: { "SEM:1": "high" as const } };
+    const next = { delays: { "SEM:2": 45, "SEM:3": 0 }, occupancy: { "SEM:3": "low" as const } };
+    expect(mergeTripReadings(previous, next)).toEqual({
+      delays: { "SEM:1": 90, "SEM:2": 45, "SEM:3": 0 },
+      occupancy: { "SEM:1": "high", "SEM:3": "low" },
+    });
   });
 
   it("starts from the first answer", () => {
-    expect(mergeDelays(undefined, { "SEM:1": 90 })).toEqual({ "SEM:1": 90 });
+    const first = { delays: { "SEM:1": 90 }, occupancy: {} };
+    expect(mergeTripReadings(undefined, first)).toEqual(first);
   });
 });

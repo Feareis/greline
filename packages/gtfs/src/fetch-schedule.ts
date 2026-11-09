@@ -1,4 +1,5 @@
-import { NETWORK_IDS, type NetworkId, type TransitSchedule } from "@greline/types";
+import { NETWORK_IDS, type NetworkId, type StopAccess, type TransitSchedule } from "@greline/types";
+import { stopAccessibility } from "./accessibility";
 import { type FetchLike, M_API_ORIGIN, MApiError } from "./fetch-network";
 import { buildSchedule, GTFS_SCHEDULE_FILES } from "./schedule";
 import { M_NETWORK_TYPES } from "./to-network";
@@ -8,11 +9,19 @@ const GTFS_URL = "https://data.mobilites-m.fr/api/gtfs/SEM";
 /** The archive weighs ~6.5 MB: far more time than the JSON endpoints need. */
 const GTFS_TIMEOUT_MS = 60_000;
 
+/** What Greline reads from the GTFS feed for one service day. */
+export interface GtfsDay {
+  schedules: Record<NetworkId, TransitSchedule>;
+  /** Wheelchair access per stop id; stops without data are left out. */
+  stopAccess: Record<string, StopAccess>;
+}
+
 /**
  * Downloads the network GTFS feed once and extracts the schedule of a service day ("YYYY-MM-DD")
- * for each of our networks. GTFS `network_id`s are the M API network names ("CHRONO"...).
+ * for each of our networks, and the wheelchair access of every stop. GTFS `network_id`s are the
+ * M API network names ("CHRONO"...).
  */
-export async function fetchSchedules(serviceDate: string, fetchFn: FetchLike = fetch): Promise<Record<NetworkId, TransitSchedule>> {
+export async function fetchGtfsDay(serviceDate: string, fetchFn: FetchLike = fetch): Promise<GtfsDay> {
   const response = await fetchFn(GTFS_URL, {
     headers: { origin: M_API_ORIGIN },
     signal: AbortSignal.timeout(GTFS_TIMEOUT_MS),
@@ -22,7 +31,11 @@ export async function fetchSchedules(serviceDate: string, fetchFn: FetchLike = f
   try {
     const files = await readZipText(archive, GTFS_SCHEDULE_FILES);
     const schedules = NETWORK_IDS.map((id) => [id, buildSchedule(files, serviceDate, new Set(M_NETWORK_TYPES[id]))] as const);
-    return Object.fromEntries(schedules) as Record<NetworkId, TransitSchedule>;
+    return {
+      schedules: Object.fromEntries(schedules) as Record<NetworkId, TransitSchedule>,
+      // Present: buildSchedule above already threw on a feed without stops.txt.
+      stopAccess: stopAccessibility(files.get("stops.txt")!),
+    };
   } catch (error) {
     throw new MApiError(`M API sent an unusable GTFS archive: ${(error as Error).message}`, { cause: error });
   }
