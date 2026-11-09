@@ -21,8 +21,6 @@ const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 const ENVIRONMENT = process.env.NEXT_PUBLIC_APP_ENV === "prod" ? "prod" : "dev";
 // Production shows the version alone; elsewhere it is prefixed with the environment ("DEV@v1.7.5").
 const VERSION_TEXT = ENVIRONMENT === "prod" ? `v${VERSION}` : `${fr.topBar.environment.dev}@v${VERSION}`;
-/** Narrow screens: "v1.7.5" in production, "DEV" elsewhere (the full text is in Sources). */
-const SHORT_VERSION_TEXT = ENVIRONMENT === "prod" ? VERSION_TEXT : fr.topBar.environment.dev;
 // The heading spans the free width of the bar: only the logo itself catches the pointer, not the map around it.
 const LOGO_SIZE = "pointer-events-auto h-auto max-h-10 w-auto max-w-full";
 
@@ -43,21 +41,19 @@ function ThemeToggle() {
   );
 }
 
-/** "DEV@v1.7.5" in red, or "v1.7.5" in green in production. */
+/**
+ * "DEV@v1.7.5" in red, or "v1.7.5" in green in production. Left out on phones, where the buttons
+ * need the whole bar: the version is also in Sources.
+ */
 function VersionBadge() {
   return (
     <span
       title={fr.topBar.versionLabel(fr.topBar.environment[ENVIRONMENT], VERSION)}
-      className="flex h-9 items-center rounded-full px-3 font-mono text-xs font-bold text-white shadow-lg"
+      className="hidden h-9 items-center rounded-full px-3 font-mono text-xs font-bold text-white shadow-lg sm:flex"
       style={{ background: ENVIRONMENT === "prod" ? colors.success : colors.danger }}
     >
       <span className="sr-only">{fr.topBar.versionLabel(fr.topBar.environment[ENVIRONMENT], VERSION)}</span>
-      <span aria-hidden className="sm:hidden">
-        {SHORT_VERSION_TEXT}
-      </span>
-      <span aria-hidden className="hidden sm:inline">
-        {VERSION_TEXT}
-      </span>
+      <span aria-hidden>{VERSION_TEXT}</span>
     </span>
   );
 }

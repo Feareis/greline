@@ -162,8 +162,11 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         center={<DisruptionBanner ongoing={seriousOngoing} upcoming={seriousUpcoming} linesById={linesById} now={now} />}
       />
       {/* Left column: the network panel, the P+R one right under it. Both shrink and scroll so the
-          column stops above the day panel; above the disruption banner when unfolded on phones. */}
-      <div className="absolute top-16 left-3 z-20 flex max-h-[calc(100dvh-17rem)] w-[19rem] max-w-[calc(100vw-1.5rem)] flex-col gap-2 sm:max-h-[calc(100dvh-20rem)]">
+          column stops above the day panel; above the disruption banner when unfolded on phones.
+          Phones hide it while a panel is open: together they would leave no map at all. */}
+      <div
+        className={`absolute top-16 left-3 z-20 flex max-h-[calc(100dvh-17rem)] w-[19rem] max-w-[calc(100vw-1.5rem)] flex-col gap-2 sm:max-h-[calc(100dvh-20rem)] ${selection || mineOpen ? "max-sm:hidden" : ""}`}
+      >
         <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} onShowLine={showLine} />
         <ParkAndRidePanel shown={parkAndRidesShown} onShownChange={setParkAndRidesShown} />
       </div>
