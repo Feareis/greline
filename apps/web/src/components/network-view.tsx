@@ -2,7 +2,7 @@
 
 import { useDisruptions, useNow, useVehicleTrip } from "@greline/hooks";
 import { fr } from "@greline/i18n";
-import { isOngoing, parseSharedSelection, type SharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
+import { isDrawnOnMap, isOngoing, parseSharedSelection, type SharedSelection, sharedSelectionSearch, startsLaterToday } from "@greline/services";
 import { useLinkSearch } from "@/lib/link-search";
 import { useNetworkFilter, useParkAndRidesShown } from "@/lib/network-filter";
 import { colors } from "@/lib/theme-tokens";
@@ -45,12 +45,15 @@ function useShownDisruptions(network: TransitNetwork, networks: readonly Network
     const shown = all.filter((d) => networks.includes(linesById.get(d.lineId)!.network));
     const serious = (d: Disruption) => d.severity !== "info";
     const ongoing = shown.filter((d) => isOngoing(d, now));
+    const seriousOngoing = ongoing.filter(serious);
     return {
       now,
       linesById,
       all,
       ongoing,
-      seriousOngoing: ongoing.filter(serious),
+      seriousOngoing,
+      // On the lines themselves, only what is located or a cut line: the texts carry the rest.
+      drawnOnMap: seriousOngoing.filter(isDrawnOnMap),
       seriousUpcoming: shown.filter((d) => serious(d) && startsLaterToday(d, now)),
     };
   }, [disruptions, linesById, networks, now]);
@@ -113,7 +116,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
     return network.stops.filter((stop) => ids.has(stop.id));
   }, [network, networks]);
   const stopsById = useMemo(() => new Map(network.stops.map((stop) => [stop.id, stop])), [network.stops]);
-  const { now, linesById, all, ongoing, seriousOngoing, seriousUpcoming } = useShownDisruptions(network, networks);
+  const { now, linesById, all, ongoing, seriousOngoing, seriousUpcoming, drawnOnMap } = useShownDisruptions(network, networks);
   const vehicleKey = selection?.kind === "vehicle" ? selection.id : null;
   const { followedTrip, isPending: vehiclePending, following, setFollowing } = useFollowedVehicle(vehicleKey, linesById);
   const selectVehicle = (key: string) => {
@@ -141,7 +144,7 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
       <GeoMap
         network={network}
         networks={networks}
-        disrupted={seriousOngoing}
+        disrupted={drawnOnMap}
         focus={focus}
         selectedId={selectedId}
         selectedLineId={selectedLine?.id ?? null}
