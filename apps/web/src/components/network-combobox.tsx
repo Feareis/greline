@@ -104,7 +104,8 @@ export function NetworkCombobox({ network, label, placeholder, withLines, onPick
           setActive(0);
         }}
         onKeyDown={onKeyDown}
-        className="w-full border px-3 py-2 text-sm focus-visible:outline-2"
+        // 16 px on phones: iOS zooms into any smaller field on focus and stays zoomed after.
+        className="w-full border px-3 py-2 text-base focus-visible:outline-2 sm:text-sm"
         style={{ background: colors.background, color: colors.text, borderColor: colors.textMuted, borderRadius: radii.md }}
       />
       <ul id={listId} role="listbox" aria-label={label} className="mt-1 space-y-0.5" hidden={!expanded}>
