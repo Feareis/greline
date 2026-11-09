@@ -14,6 +14,16 @@ export const fr = {
     environment: { dev: "DEV", prod: "PROD" },
     versionLabel: (environment: string, version: string) => `Environnement ${environment}, version ${version}`,
   },
+  /** Phones only: the "⋯" button that gathers the theme, the P+R and the disruptions. */
+  more: {
+    button: "Plus d'options",
+    buttonWithDisruptions: (count: number) =>
+      count === 1 ? "Plus d'options, 1 perturbation en cours" : `Plus d'options, ${count} perturbations en cours`,
+    title: "Plus d'options",
+    close: "Fermer",
+    theme: "Thème",
+    noDisruptions: "Aucune perturbation aujourd'hui sur les réseaux affichés.",
+  },
   refresh: {
     button: "Mises à jour des données",
     title: "Mises à jour des données",

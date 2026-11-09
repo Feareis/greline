@@ -16,10 +16,10 @@ import { fr } from "@greline/i18n";
 import { formatClockTime } from "@greline/services";
 import { radii } from "@greline/theme";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { colors, FLOATING_BUTTON, glass } from "@/lib/theme-tokens";
 import { RefreshIcon } from "./icons";
-import { CloseButton } from "./panel-ui";
+import { CloseButton, useDismiss } from "./panel-ui";
 
 const MS_PER_SECOND = 1000;
 
@@ -84,27 +84,6 @@ function SourceRow({ source }: { source: Source }) {
       </p>
     </li>
   );
-}
-
-/** Closes on Escape and on a press outside of the returned element. */
-function useDismiss(open: boolean, close: () => void) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !event.defaultPrevented) close();
-    };
-    const onPointer = (event: PointerEvent) => {
-      if (ref.current && event.target instanceof Node && !ref.current.contains(event.target)) close();
-    };
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("pointerdown", onPointer);
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointerdown", onPointer);
-    };
-  }, [open, close]);
-  return ref;
 }
 
 /** Thin ring around the button, filled up until the next realtime update. */

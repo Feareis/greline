@@ -21,12 +21,11 @@ const VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.0.0";
 const ENVIRONMENT = process.env.NEXT_PUBLIC_APP_ENV === "prod" ? "prod" : "dev";
 // Production shows the version alone; elsewhere it is prefixed with the environment ("DEV@v1.7.5").
 const VERSION_TEXT = ENVIRONMENT === "prod" ? `v${VERSION}` : `${fr.topBar.environment.dev}@v${VERSION}`;
-/** Narrow screens: "v1.7.5" in production, "DEV" elsewhere (the full text is in Sources). */
-const SHORT_VERSION_TEXT = ENVIRONMENT === "prod" ? VERSION_TEXT : fr.topBar.environment.dev;
 // The heading spans the free width of the bar: only the logo itself catches the pointer, not the map around it.
 const LOGO_SIZE = "pointer-events-auto h-auto max-h-10 w-auto max-w-full";
 
-function ThemeToggle() {
+/** Sun or moon: switches to the other theme. In the bar on wide screens, in the "⋯" menu on phones. */
+export function ThemeToggle() {
   const theme = useTheme();
   const next = theme === "dark" ? "light" : "dark";
   return (
@@ -43,21 +42,19 @@ function ThemeToggle() {
   );
 }
 
-/** "DEV@v1.7.5" in red, or "v1.7.5" in green in production. */
+/**
+ * "DEV@v1.7.5" in red, or "v1.7.5" in green in production. Left out on phones, where the buttons
+ * need the whole bar: the version is also in Sources.
+ */
 function VersionBadge() {
   return (
     <span
       title={fr.topBar.versionLabel(fr.topBar.environment[ENVIRONMENT], VERSION)}
-      className="flex h-9 items-center rounded-full px-3 font-mono text-xs font-bold text-white shadow-lg"
+      className="hidden h-9 items-center rounded-full px-3 font-mono text-xs font-bold text-white shadow-lg sm:flex"
       style={{ background: ENVIRONMENT === "prod" ? colors.success : colors.danger }}
     >
       <span className="sr-only">{fr.topBar.versionLabel(fr.topBar.environment[ENVIRONMENT], VERSION)}</span>
-      <span aria-hidden className="sm:hidden">
-        {SHORT_VERSION_TEXT}
-      </span>
-      <span aria-hidden className="hidden sm:inline">
-        {VERSION_TEXT}
-      </span>
+      <span aria-hidden>{VERSION_TEXT}</span>
     </span>
   );
 }
@@ -76,6 +73,8 @@ interface TopBarProps {
    * `--bar-free-start` / `--bar-free-end` variables; elsewhere on narrower ones.
    */
   center?: ReactNode;
+  /** Phones only: the "⋯" menu, last in the bar, holding what the bar has no room for. */
+  phoneMenu?: ReactNode;
 }
 
 /** Transparent bar over the map: site name on the left, controls and version on the right. */
@@ -109,7 +108,7 @@ function useFreeRoom() {
   return { headerRef, logoRef, navRef };
 }
 
-export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mineOpen, onToggleMine, center }: TopBarProps) {
+export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mineOpen, onToggleMine, center, phoneMenu }: TopBarProps) {
   const { headerRef, logoRef, navRef } = useFreeRoom();
   return (
     // Above the left column (z-20): the disruption banner and the search unfold over it.
@@ -125,7 +124,10 @@ export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mine
       {center}
       <nav ref={navRef} aria-label={fr.topBar.label} className="pointer-events-auto flex items-center gap-1.5 sm:gap-2">
         <SearchBox network={network} onPick={onSearchPick} />
-        <ThemeToggle />
+        {/* Phones find it in the "⋯" menu. */}
+        <div className="hidden sm:contents">
+          <ThemeToggle />
+        </div>
         <LocateButton stops={stops} onSelect={onSelect} onLocated={onLocated} />
         <button
           type="button"
@@ -142,6 +144,7 @@ export function TopBar({ network, stops, onSearchPick, onSelect, onLocated, mine
         <AboutDialog versionText={VERSION_TEXT} />
         <RefreshIndicator />
         <VersionBadge />
+        {phoneMenu}
       </nav>
     </header>
   );

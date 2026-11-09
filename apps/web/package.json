@@ -1,6 +1,6 @@
 {
   "name": "@greline/web",
-  "version": "1.8.24",
+  "version": "1.8.26",
   "private": true,
   "scripts": {
     "dev": "next dev",
