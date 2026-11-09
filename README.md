@@ -22,7 +22,8 @@ Les applications officielles donnent l'heure du prochain tram, pas la vue d'ense
 
 - **Carte** : les 5 lignes de tram, les Chrono et les Proximo, en thème clair ou sombre.
 - **Véhicules** : chacun avance sur son tracé, avec un contour rouge au-delà de 2 min de retard.
-- **Arrêts** : prochains passages par ligne et direction, toutes les 15 s, et arrêts autour de vous.
+- **Suivi d'un véhicule** : un clic sur un tram ou un bus le suit sur la carte, avec sa direction, son retard, son affluence et ses prochains arrêts.
+- **Arrêts** : prochains passages par ligne et direction, toutes les 15 s, avec l'affluence prévue, l'accès en fauteuil roulant, et les arrêts autour de vous.
 - **Lignes** : fiche avec véhicules, retards, perturbations et arrêts.
 - **Perturbations** : bandeau flottant en haut de la page, tronçons coupés en pointillés sur la carte.
 - **Recherche** : arrêts et lignes par leur nom (touche « / »).
@@ -31,7 +32,7 @@ Les applications officielles donnent l'heure du prochain tram, pas la vue d'ense
 - **Parkings relais** : les P+R proches du réseau, avec les places libres en temps réel pour ceux du tram.
 - **Panneau du jour** : heure, météo, qualité de l'air, soleil, lune, retards et perturbations. Il se replie sur la date et l'heure.
 - **Mises à jour** : un anneau montre le prochain rafraîchissement, et son panneau le rythme de chaque source.
-- **Liens partageables** : l'arrêt ou la ligne ouverte est dans l'adresse de la page.
+- **Liens partageables** : l'arrêt, la ligne ou le véhicule suivi est dans l'adresse de la page.
 - **App installable** : sur l'écran d'accueil du téléphone ou de l'ordinateur.
 
 ## Comment ça marche
@@ -80,8 +81,9 @@ Chaque route a son propre rythme, selon la vitesse à laquelle ses données chan
 |---|---|---|---|
 | `/api/network` | Lignes, arrêts, tracés, sens de circulation | 24 h | chargé avec la page |
 | `/api/network/schedule?network=` | Courses du jour d'un réseau, tirées du GTFS (~6,5 Mo) | 6 h | toutes les heures |
-| `/api/network/delays` | Retard mesuré de chaque course | 15 s | toutes les 15 s |
-| `/api/stops/[id]/departures` | Prochains passages d'un arrêt | 15 s | toutes les 15 s |
+| `/api/network/delays` | Retard mesuré et affluence prévue de chaque course | 15 s | toutes les 15 s |
+| `/api/stops/[id]/departures` | Prochains passages d'un arrêt, avec l'affluence prévue | 15 s | toutes les 15 s |
+| `/api/stops/accessibility` | Accès en fauteuil roulant de chaque arrêt, tiré du GTFS | 6 h | une fois par visite |
 | `/api/itineraries?from=&to=` | Itinéraires entre deux arrêts, ou depuis une position, en partant maintenant (calculateur de M) | 30 s | toutes les 30 s |
 | `/api/park-and-rides` | Parkings relais (P+R) à moins de 500 m d'un arrêt, et leurs places libres quand elles sont comptées | 1 min | toutes les minutes |
 | `/api/disruptions` | Perturbations en cours et du jour | 2 min | toutes les 2 min |
@@ -106,7 +108,7 @@ sequenceDiagram
     loop toutes les 15 s
         C->>S: GET /api/network/delays
         S->>M: prochains passages de ~35 stations sondes
-        S-->>C: retard par course
+        S-->>C: retard et affluence par course
     end
     loop toutes les 100 ms
         C->>C: heure actuelle − retard → distance parcourue sur le tracé → position et cap
@@ -118,6 +120,12 @@ sequenceDiagram
 3. Le navigateur fait le reste : à partir de l'heure et du retard, il calcule la distance parcourue sur le tracé, puis la position et le cap du véhicule.
 
 Ce n'est pas du GPS : entre deux mesures, un véhicule peut être un peu en avance ou en retard sur sa vraie position. Ce code vit dans `packages/services` (`vehicles.ts`, `geo.ts`) et il est testé.
+
+### Suivre un véhicule
+
+Un véhicule est désigné par sa course et son heure de départ (`?vehicle=SEM:32519149@1794182340`), car une même course peut rouler deux jours de suite. Ses prochains arrêts sont lus dans le GTFS, décalés de son retard. La caméra le rejoint, puis se recentre sur lui à chaque image jusqu'à ce qu'on fasse glisser la carte.
+
+L'affluence ne coûte aucune requête de plus : M l'annonce (faible, modérée, forte) dans les prochains passages que les stations sondes demandent déjà pour les retards. C'est une prévision, pas un comptage, et M n'en donne pas la nuit. L'accès en fauteuil roulant vient du même GTFS que les horaires : un arrêt est accessible quand tous ses quais le sont, partiellement quand certains le sont.
 
 ## La stack
 
@@ -201,10 +209,10 @@ La version du site se lit `1.étape.commits`. Le hook pre-commit compte les comm
 |---|---|---|
 | 1.1 – 1.3 | Les trams, les passages en temps réel, les rames animées | fait |
 | 1.4 – 1.6 | Le design, les bus, les perturbations | fait |
-| 1.7 – 1.8 | Les favoris, les itinéraires, le logo, l'app installable, les P+R | fait |
+| 1.7 – 1.8 | Les favoris, les itinéraires, le logo, l'app installable, les P+R, le suivi d'un véhicule, l'affluence, l'accès en fauteuil | fait |
 | mobile 1.0 | L'app mobile et les notifications de perturbation | prochaine étape |
 
-Plus tard, peut-être : épaissir les lignes selon leur fréquence, rejouer une journée en accéléré, signaler les arrêts accessibles en fauteuil, ajouter les autres transporteurs du réseau M.
+Plus tard, peut-être : épaissir les lignes selon leur fréquence, rejouer une journée en accéléré, ajouter les autres transporteurs du réseau M.
 
 ## Crédits
 
