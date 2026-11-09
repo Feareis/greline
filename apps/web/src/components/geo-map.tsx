@@ -50,7 +50,7 @@ const FADED_OPACITY = 0.2;
 const LINE_FOCUS_PADDING = 60;
 /** Wide screens: the panel covers the right (w-80 plus margins). */
 const SIDE_PANEL_SPACE = 350;
-/** Narrow screens: the top bar, the summary pill and the banner stack at the top... */
+/** Narrow screens: the top bar and the folded network panel stack at the top... */
 const NARROW_TOP_SPACE = 160;
 /** ...and the panel covers the bottom 60 % (max-h-[60%]). */
 const NARROW_PANEL_SHARE = 0.6;

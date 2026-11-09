@@ -14,6 +14,7 @@ import { StationPanel } from "./station-panel";
 import { DayPanel } from "./day-panel";
 import { DisruptionBanner } from "./disruption-banner";
 import { LinePanel } from "./line-panel";
+import { MoreMenu } from "./more-menu";
 import { MyStopsPanel } from "./my-stops-panel";
 import { TopBar } from "./top-bar";
 import { NetworkSummary } from "./network-summary";
@@ -160,15 +161,28 @@ export function NetworkView({ network }: { network: TransitNetwork }) {
         mineOpen={mineOpen}
         onToggleMine={toggleMine}
         center={<DisruptionBanner ongoing={seriousOngoing} upcoming={seriousUpcoming} linesById={linesById} now={now} />}
+        phoneMenu={
+          <MoreMenu
+            ongoing={seriousOngoing}
+            upcoming={seriousUpcoming}
+            linesById={linesById}
+            now={now}
+            parkAndRidesShown={parkAndRidesShown}
+            onParkAndRidesShownChange={setParkAndRidesShown}
+          />
+        }
       />
       {/* Left column: the network panel, the P+R one right under it. Both shrink and scroll so the
           column stops above the day panel; above the disruption banner when unfolded on phones.
-          Phones hide it while a panel is open: together they would leave no map at all. */}
+          Phones hide it while a panel is open: together they would leave no map at all. Their P+R
+          panel is in the "⋯" menu. */}
       <div
         className={`absolute top-16 left-3 z-20 flex max-h-[calc(100dvh-17rem)] w-[19rem] max-w-[calc(100vw-1.5rem)] flex-col gap-2 sm:max-h-[calc(100dvh-20rem)] ${selection || mineOpen ? "max-sm:hidden" : ""}`}
       >
         <NetworkSummary lines={network.lines} networks={networks} onChange={setNetworks} onShowLine={showLine} />
-        <ParkAndRidePanel shown={parkAndRidesShown} onShownChange={setParkAndRidesShown} />
+        <div className="contents max-sm:hidden">
+          <ParkAndRidePanel shown={parkAndRidesShown} onShownChange={setParkAndRidesShown} />
+        </div>
       </div>
       <DayPanel networks={networks} ongoingSeverities={ongoing.map((d) => d.severity)} />
       {mineOpen && <MyStopsPanel network={network} onShowStop={showStop} onClose={() => setMineChoice(false)} />}

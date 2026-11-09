@@ -5,7 +5,7 @@ import { fr } from "@greline/i18n";
 import { parkAndRideLevel } from "@greline/services";
 import { radii } from "@greline/theme";
 import type { ParkAndRide } from "@greline/types";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { colors, glass } from "@/lib/theme-tokens";
 import { ChevronIcon } from "./icons";
 import { PARK_AND_RIDE_COLOR } from "./park-and-ride-markers";
@@ -97,9 +97,11 @@ interface ParkAndRidePanelProps {
 export function ParkAndRidePanel({ shown, onShownChange }: ParkAndRidePanelProps) {
   const [expanded, setExpanded] = useState(false);
   const { data: parkAndRides, isError } = useParkAndRides(expanded);
+  // Phones render a second copy in the "⋯" menu: the ids must stay unique in the page.
+  const id = useId();
   return (
     <section
-      aria-labelledby="park-and-ride-title"
+      aria-labelledby={`${id}-title`}
       className="flex min-h-0 shrink flex-col text-sm shadow-xl backdrop-blur"
       style={{ ...glass, borderRadius: radii.md }}
     >
@@ -107,12 +109,12 @@ export function ParkAndRidePanel({ shown, onShownChange }: ParkAndRidePanelProps
         <button
           type="button"
           aria-expanded={expanded}
-          aria-controls="park-and-ride-list"
+          aria-controls={`${id}-list`}
           title={expanded ? fr.parkAndRide.hideList : fr.parkAndRide.showList}
           onClick={() => setExpanded(!expanded)}
           className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left font-semibold focus-visible:outline-2"
         >
-          <span id="park-and-ride-title">{fr.parkAndRide.panelTitle}</span>
+          <span id={`${id}-title`}>{fr.parkAndRide.panelTitle}</span>
           <span className={`transition-transform ${expanded ? "rotate-180" : ""}`} style={muted}>
             <ChevronIcon />
           </span>
@@ -120,7 +122,7 @@ export function ParkAndRidePanel({ shown, onShownChange }: ParkAndRidePanelProps
         <Switch checked={shown} label={fr.parkAndRide.toggleLabel} onChange={onShownChange} />
       </div>
       {expanded && (
-        <div id="park-and-ride-list" className="max-h-[min(16rem,40dvh)] min-h-0 overflow-y-auto px-3.5 pb-3.5">
+        <div id={`${id}-list`} className="max-h-[min(16rem,40dvh)] min-h-0 overflow-y-auto px-3.5 pb-3.5">
           {isError ? (
             <p style={muted}>{fr.parkAndRide.unavailable}</p>
           ) : parkAndRides ? (

@@ -28,7 +28,8 @@ interface DisruptionBannerProps {
  * How many lines are disrupted right now, with their numbers; unfolds into the official texts.
  * Hidden when nothing is disrupted today. Floats from the top bar: centered on the page in the
  * bar's row on wide screens, as close to the middle as the logo and the buttons allow (see
- * TopBar's free room); under the bar on narrower ones.
+ * TopBar's free room); under the bar on narrower ones. Phones show the disruptions in the "⋯"
+ * menu instead (see MoreMenu): a banner there would hide too much of the map.
  */
 export function DisruptionBanner({ ongoing, upcoming, linesById, now }: DisruptionBannerProps) {
   if (ongoing.length === 0 && upcoming.length === 0) return null;
@@ -37,7 +38,7 @@ export function DisruptionBanner({ ongoing, upcoming, linesById, now }: Disrupti
   return (
     <details
       aria-label={fr.disruptions.label}
-      className="group pointer-events-auto absolute inset-x-3 top-[10.5rem] z-10 max-h-[50dvh] overflow-y-auto text-sm shadow-lg backdrop-blur sm:top-16 sm:right-auto sm:left-1/2 sm:w-96 sm:-translate-x-1/2 xl:top-3 xl:left-[clamp(var(--bar-free-start,0px),calc(50%_-_12rem),calc(var(--bar-free-end,100%)_-_24rem))] xl:translate-x-0"
+      className="group pointer-events-auto absolute z-10 hidden max-h-[50dvh] overflow-y-auto text-sm shadow-lg backdrop-blur sm:top-16 sm:left-1/2 sm:block sm:w-96 sm:-translate-x-1/2 xl:top-3 xl:left-[clamp(var(--bar-free-start,0px),calc(50%_-_12rem),calc(var(--bar-free-end,100%)_-_24rem))] xl:translate-x-0"
       style={{ ...glass, borderRadius: radii.md, border: `1px solid ${SEVERITY_COLOR[headline.severity]}` }}
     >
       <summary className="flex cursor-pointer list-none items-center gap-2 px-3 py-2 font-medium focus-visible:outline-2">
